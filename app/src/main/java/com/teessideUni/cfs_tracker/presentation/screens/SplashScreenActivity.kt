@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.ui.theme.screens
+package com.teessideUni.cfs_tracker.screens
 
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.Animatable
@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.teessideUni.cfs_tracker.R
+import com.teessideUni.cfs_tracker.ui.theme.Poppins
 import kotlinx.coroutines.delay
 
 @Composable
@@ -38,7 +40,7 @@ fun SplashScreen(navController: NavController) {
             )
         )
         delay(3000L)
-        navController.navigate("login_screen")
+        navController.navigate("login_page")
     }
     Box(
         contentAlignment = Alignment.Center,
@@ -48,13 +50,15 @@ fun SplashScreen(navController: NavController) {
             painter = painterResource(id = R.drawable.health_app_icon),
             contentDescription = "Logo",
             modifier = Modifier
-                .size(300.dp)
+                .size(280.dp)
                 .scale(scale.value)
         )
 
         Text(
             text = "CFS Tracker",
             color = Color.White,
+            fontFamily = Poppins,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(top = 120.dp)
         )
     }

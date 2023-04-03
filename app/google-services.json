@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "686341783001",
+    "project_id": "cfs-tracker-9946b",
+    "storage_bucket": "cfs-tracker-9946b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:686341783001:android:9b7a3e453b15338efd2dc8",
+        "android_client_info": {
+          "package_name": "com.teessideUni.cfs_tracker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "686341783001-r233p11t80khhjmfn7020398h3482bvi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDlfhv-PULcNwQMg_aAjAfYtqIRiErTcO4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "686341783001-r233p11t80khhjmfn7020398h3482bvi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

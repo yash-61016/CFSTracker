@@ -1,13 +1,11 @@
+package com.teessideUni.cfs_tracker.presentation.screens.login_screen
 
-package com.teessideUni.cfs_tracker.ui.theme.screens
-
-import android.view.KeyEvent
+import android.widget.Toast
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,42 +17,43 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.*
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.domain.util.keyboardAsState
+import com.teessideUni.cfs_tracker.ui.theme.InputBoxShape
 import com.teessideUni.cfs_tracker.ui.theme.primaryColor
 import com.teessideUni.cfs_tracker.ui.theme.whiteBackground
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LoginScreen(navController: NavController) {
+fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
 
+    // value
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
 
+    // configuration 
     val passwordVisibility = remember { mutableStateOf(false) }
-
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
     val bringIntoViewRequester = BringIntoViewRequester()
-
     val isKeyboardVisible = keyboardAsState() // Keyboard.Opened or Keyboard.Closed
+    val context = LocalContext.current
+    val state = viewModel.loginState.collectAsState(initial = null)
 
+    // animation
     val transition = updateTransition(targetState = isKeyboardVisible, label = "transition")
-
     val imageSize by transition.animateDp(
         transitionSpec = {
             if (false isTransitioningTo true) {
@@ -65,6 +64,13 @@ fun LoginScreen(navController: NavController) {
         }, label = "LoginImage"
     ) { if (it) 250.dp else 400.dp }
 
+    // This function clears all the mutable state values
+    fun clearAllValues() {
+        emailValue.value = ""
+        passwordValue.value = ""
+    }
+
+    // UI Design
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
         Box(
             modifier = Modifier
@@ -114,6 +120,30 @@ fun LoginScreen(navController: NavController) {
                             onValueChange = { emailValue.value = it },
                             label = { Text(text = "Email Address") },
                             placeholder = { Text(text = "Email Address") },
+                            shape = InputBoxShape.medium,
+                            leadingIcon = {
+                                Row(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_email_outline),
+                                        contentDescription = "",
+                                        tint = primaryColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(6.dp)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(24.dp)
+                                            .background(primaryColor)
+                                    )
+                                }
+                            },
                             singleLine = true,
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -148,6 +178,30 @@ fun LoginScreen(navController: NavController) {
                             },
                             label = { Text("Password") },
                             placeholder = { Text(text = "Password") },
+                            shape = InputBoxShape.medium,
+                            leadingIcon = {
+                                Row(
+                                    modifier = Modifier.padding(start = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.ic_lock),
+                                        contentDescription = "",
+                                        tint = primaryColor,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(6.dp)
+                                    )
+                                    Spacer(
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(24.dp)
+                                            .background(primaryColor)
+                                    )
+                                }
+                            },
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
@@ -171,24 +225,43 @@ fun LoginScreen(navController: NavController) {
                                     }
                                 }
 
-                            )
+                        )
 
                         Spacer(modifier = Modifier.padding(10.dp))
                         Button(
-                            onClick = {},
+                            onClick = {
+                                coroutineScope.launch {
+                                    viewModel.loginUser(emailValue.value, passwordValue.value)
+                                }
+                            },
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .height(50.dp)
+                                .fillMaxWidth(0.8f)
+                                .height(50.dp),
+                            shape = RoundedCornerShape(15.dp)
                         ) {
                             Text(text = "Sign In", fontSize = 20.sp)
                         }
 
                         Spacer(modifier = Modifier.padding(20.dp))
-                        //To do register navigation:
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            if (state.value?.isLoading == true) {
+                                CircularProgressIndicator()
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.padding(10.dp))
+
                         Text(
-                            text = "Create An Account",
+                            text = "Don't have an Account? Sign Up.",
+                            color = Color.Black,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(onClick = {
-                                navController.navigate("register_screen") {
+                                navController.navigate("register_page") {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         inclusive = true
                                     }
@@ -196,11 +269,14 @@ fun LoginScreen(navController: NavController) {
                                 }
                             })
                         )
-                        Spacer(modifier = Modifier.padding(5.dp))
+                        Spacer(modifier = Modifier.padding(10.dp))
                         Text(
                             text = "Forget Password",
+                            color = Color.Black,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(onClick = {
-                                navController.navigate("forget_password_screen") {
+                                navController.navigate("forget_password_page") {
                                     popUpTo(navController.graph.findStartDestination().id) {
                                         inclusive = true
                                     }
@@ -211,6 +287,30 @@ fun LoginScreen(navController: NavController) {
                         Spacer(modifier = Modifier.padding(20.dp))
                     }
                 }
+            }
+        }
+    }
+    LaunchedEffect(key1 = state.value?.isSuccess) {
+        coroutineScope.launch {
+            if (state.value?.isSuccess?.isNotEmpty() == true) {
+                val success = state.value?.isSuccess
+                Toast.makeText(context, "$success", Toast.LENGTH_LONG).show()
+                navController.navigate("home_page") {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+                // Clear all values here
+                clearAllValues()
+            }
+        }
+    }
+    LaunchedEffect(key1 = state.value?.isError) {
+        coroutineScope.launch {
+            if (state.value?.isError?.isNotBlank() == true) {
+                val error = state.value?.isError
+                Toast.makeText(context, "$error", Toast.LENGTH_LONG).show()
             }
         }
     }
