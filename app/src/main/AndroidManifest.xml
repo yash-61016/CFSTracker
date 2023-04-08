@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.CAMERA" />
+
+
     <application
         android:allowBackup="true"
         android:name=".data.remote.ApplicationFirebaseAuth"
@@ -14,6 +17,7 @@
         android:theme="@style/Theme.CFSTracker"
         android:enableOnBackInvokedCallback="true"
         tools:targetApi="31">
+        <activity android:name=".presentation.screens.heart_rate.HeartRateMeasurement_Activity" android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
