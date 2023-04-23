@@ -42,9 +42,15 @@ fun HomeScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = {
-                    // Create an Intent to start the activity
+                   //  Create an Intent to start the activity
                     val intent = Intent(context, HeartRateMeasurement_Activity::class.java)
                     launcher.launch(intent)
+//                    navController.navigate("heart_rate") {
+//                        popUpTo(navController.graph.findStartDestination().id) {
+//                            inclusive = true
+//                        }
+//                        launchSingleTop = true
+//                    }
                 }
             ) {
                 Text("Button")

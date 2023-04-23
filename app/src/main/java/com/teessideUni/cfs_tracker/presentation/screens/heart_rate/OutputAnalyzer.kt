@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.ceil
-import kotlin.math.max
 
 internal class OutputAnalyzer(
     private val activity: HeartRateMeasurement_Activity,
@@ -22,7 +21,7 @@ internal class OutputAnalyzer(
     private val chartDrawer: ChartDrawer
     private var store: MeasureStore? = null
     private val measurementInterval = 45
-    private val measurementLength = 15000 // ensure the number of data points is the power of two
+    private val measurementLength = 15000
     private val clipLength = 3500
     private var detectedValleys = 0
     private var ticksPassed = 0
@@ -35,34 +34,13 @@ internal class OutputAnalyzer(
         this.mainHandler = mainHandler
     }
 
-    private fun detectValley(): Boolean {
-        val valleyDetectionWindowSize = 13
-        val subList = store!!.getLastStdValues(valleyDetectionWindowSize)
-        return if (subList.size < valleyDetectionWindowSize) {
-            false
-        } else {
-            val referenceValue =
-                subList[ceil((valleyDetectionWindowSize / 2f).toDouble()).toInt()].measurement
-            for (measurement in subList) {
-                if (measurement.measurement < referenceValue) return false
-            }
-
-            // filter out consecutive measurements due to too high measurement rate
-            subList[ceil((valleyDetectionWindowSize / 2f).toDouble())
-                .toInt()].measurement != subList[ceil((valleyDetectionWindowSize / 2f).toDouble())
-                .toInt() - 1].measurement
-        }
-    }
-
     fun measurePulse(textureView: TextureView, cameraService: CameraService) {
 
-        // 20 times a second, get the amount of red on the picture.
-        // detect local minimums, calculate pulse.
         store = MeasureStore()
         detectedValleys = 0
         timer = object : CountDownTimer(measurementLength.toLong(), measurementInterval.toLong()) {
             override fun onTick(millisUntilFinished: Long) {
-                // skip the first measurements, which are broken by exposure metering
+
                 if (clipLength > ++ticksPassed * measurementInterval) return
                 val thread = Thread {
                     val currentBitmap = textureView.bitmap
@@ -79,27 +57,25 @@ internal class OutputAnalyzer(
                         textureView.height
                     )
 
-                    // extract the red component
                     for (pixelIndex in 0 until pixelCount) {
                         measurement += pixels[pixelIndex] shr 16 and 0xff
                     }
-                    // max int is 2^31 (2147483647) , so width and height can be at most 2^11,
-                    // as 2^8 * 2^11 * 2^11 = 2^30, just below the limit
+
                     store!!.add(measurement)
                     if (detectValley()) {
                         detectedValleys += 1
                         valleys.add(store!!.lastTimestamp.time)
-                        // in 13 seconds (13000 milliseconds), I expect 15 valleys. that would be a pulse of 15 / 130000 * 60 * 1000 = 69
+
                         val currentValue = String.format(
                             Locale.getDefault(),
                             activity.resources.getQuantityString(
                                 R.plurals.measurement_output_template,
                                 detectedValleys
                             ),
-                            if (valleys.size == 1) 60f * detectedValleys / max(
+                            if (valleys.size == 1) 60f * detectedValleys / Math.max(
                                 1f,
                                 (measurementLength - millisUntilFinished - clipLength) / 1000f
-                            ) else 60f * (detectedValleys - 1) / max(
+                            ) else 60f * (detectedValleys - 1) / Math.max(
                                 1f,
                                 (valleys[valleys.size - 1] - valleys[0]) / 1000f
                             ),
@@ -122,11 +98,6 @@ internal class OutputAnalyzer(
 
             override fun onFinish() {
                 val stdValues = store!!.stdValues
-
-                // clip the interval to the first till the last one - on this interval, there were detectedValleys - 1 periods
-
-                // If the camera only provided a static image, there are no valleys in the signal.
-                // A camera not available error is shown, which is the most likely cause.
                 if (valleys.size == 0) {
                     mainHandler.sendMessage(
                         Message.obtain(
@@ -143,7 +114,7 @@ internal class OutputAnalyzer(
                         R.plurals.measurement_output_template,
                         detectedValleys - 1
                     ),
-                    60f * (detectedValleys - 1) / max(
+                    60f * (detectedValleys - 1) / Math.max(
                         1f,
                         (valleys[valleys.size - 1] - valleys[0]) / 1000f
                     ),
@@ -179,8 +150,26 @@ internal class OutputAnalyzer(
                 cameraService.stop()
             }
         }
-//        activity.setViewState(View_State.MEASUREMENT)
         (timer as CountDownTimer).start()
+    }
+
+    private fun detectValley(): Boolean {
+        val valleyDetectionWindowSize = 13
+        val subList = store!!.getLastStdValues(valleyDetectionWindowSize)
+        return if (subList.size < valleyDetectionWindowSize) {
+            false
+        } else {
+            val referenceValue =
+                subList[ceil((valleyDetectionWindowSize / 2f).toDouble()).toInt()].measurement
+            for (measurement in subList) {
+                if (measurement.measurement < referenceValue) return false
+            }
+
+            // filter out consecutive measurements due to too high measurement rate
+            subList[ceil((valleyDetectionWindowSize / 2f).toDouble())
+                .toInt()].measurement != subList[ceil((valleyDetectionWindowSize / 2f).toDouble())
+                .toInt() - 1].measurement
+        }
     }
 
     fun stop() {

@@ -51,7 +51,6 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
             if (msg.what == MESSAGE_UPDATE_FINAL) {
                 (findViewById<View>(R.id.editText) as EditText).setText(msg.obj.toString())
 
-                // make sure menu items are enabled when it opens.
                 val appMenu = (findViewById<View>(R.id.toolbar) as Toolbar).menu
                 setViewState(View_State.SHOW_RESULTS)
             }
@@ -74,11 +73,7 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
 
         // justShared is set if one clicks the share button.
         if (previewSurfaceTexture != null && !justShared) {
-            // this first appears when we close the application and switch back
-            // - TextureView isn't quite ready at the first onResume.
             val previewSurface = android.view.Surface(previewSurfaceTexture)
-
-            // show warning when there is no flash
             if (!this.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
                 Snackbar.make(
                     findViewById(R.id.constraintLayout),
@@ -86,7 +81,6 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
                     Snackbar.LENGTH_LONG
                 ).show()
             }
-
             // hide the new measurement item while another one is in progress in order to wait
             // for the previous one to finish
             (findViewById<View>(R.id.toolbar) as Toolbar).menu.getItem(
@@ -165,7 +159,7 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
         onClickNewMeasurement()
     }
 
-    fun onClickNewMeasurement() {
+    private fun onClickNewMeasurement() {
         analyzer = OutputAnalyzer(this, findViewById(R.id.graphTextureView), mainHandler)
 
         // clear prior results
@@ -173,15 +167,10 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
         (findViewById<View>(R.id.editText) as EditText).setText(empty, 0, 0)
         (findViewById<View>(R.id.textView) as TextView).setText(empty, 0, 0)
 
-        // hide the new measurement item while another one is in progress in order to wait
-        // for the previous one to finish
-        // Exporting results cannot be done, either, as it would read from the already cleared UI.
         setViewState(View_State.MEASUREMENT)
         val cameraTextureView = findViewById<TextureView>(R.id.textureView2)
         val previewSurfaceTexture = cameraTextureView.surfaceTexture
         if (previewSurfaceTexture != null) {
-            // this first appears when we close the application and switch back
-            // - TextureView isn't quite ready at the first onResume.
             val previewSurface = android.view.Surface(previewSurfaceTexture)
             cameraService.start(previewSurface)
             analyzer!!.measurePulse(cameraTextureView, cameraService)
