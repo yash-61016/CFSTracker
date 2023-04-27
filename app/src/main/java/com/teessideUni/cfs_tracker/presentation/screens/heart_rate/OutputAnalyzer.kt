@@ -5,152 +5,156 @@ import android.os.Handler
 import android.os.Message
 import android.view.TextureView
 import com.teessideUni.cfs_tracker.R
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MEASUREMENT_LENGTH
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_CAMERA_NOT_AVAILABLE
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_FINAL
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME
-import java.text.SimpleDateFormat
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_PULSE_TEXT
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME_TEXT
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.ceil
+import kotlin.math.max
 
-internal class OutputAnalyzer(
-    private val activity: HeartRateMeasurement_Activity,
-    graphTextureView: TextureView?,
-    mainHandler: Handler
-) {
-    private val chartDrawer: ChartDrawer
+class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, private val mainHandler: Handler) {
     private var store: MeasureStore? = null
-    private val measurementInterval = 45
-    private val measurementLength = 15000
-    private val clipLength = 3500
     private var detectedValleys = 0
     private var ticksPassed = 0
     private val valleys = CopyOnWriteArrayList<Long>()
     private var timer: CountDownTimer? = null
-    private val mainHandler: Handler
 
-    init {
-        chartDrawer = ChartDrawer(graphTextureView!!)
-        this.mainHandler = mainHandler
-    }
+    private val measurementInterval = 45
+    private val measurementLength = MEASUREMENT_LENGTH
+    private val clipLength = 3500
 
     fun measurePulse(textureView: TextureView, cameraService: CameraService) {
-
         store = MeasureStore()
         detectedValleys = 0
+        ticksPassed = 0
+        valleys.clear()
+
+        var fingerDetected = false // added variable to check if finger is detected
+        var redPixelCount = 0 // added variable to count the number of red pixels
+
         timer = object : CountDownTimer(measurementLength.toLong(), measurementInterval.toLong()) {
             override fun onTick(millisUntilFinished: Long) {
+                if (clipLength > ++ticksPassed * measurementInterval) {
+                    return
+                }
 
-                if (clipLength > ++ticksPassed * measurementInterval) return
-                val thread = Thread {
+                mainHandler.obtainMessage(
+                    MESSAGE_UPDATE_REALTIME_TEXT,
+                    millisUntilFinished.toInt(),
+                    0
+                ).sendToTarget()
+
+                Thread {
+
                     val currentBitmap = textureView.bitmap
                     val pixelCount = textureView.width * textureView.height
                     var measurement = 0
                     val pixels = IntArray(pixelCount)
-                    currentBitmap!!.getPixels(
-                        pixels,
-                        0,
-                        textureView.width,
-                        0,
-                        0,
-                        textureView.width,
-                        textureView.height
-                    )
+                    currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
 
-                    for (pixelIndex in 0 until pixelCount) {
-                        measurement += pixels[pixelIndex] shr 16 and 0xff
+                    var redPixelThreshold = 0.99 * pixelCount // set threshold for red pixels
+
+                    pixels.forEach {
+                        val red = it shr 16 and 0xff
+                        val green = it shr 8 and 0xff
+                        val blue = it and 0xff
+
+                        if (red >= green && red >= blue) {
+                            redPixelCount++ // increment the count of red pixels
+                        }
+
+                        measurement += red // use only red channel for measurement
                     }
 
-                    store!!.add(measurement)
-                    if (detectValley()) {
-                        detectedValleys += 1
-                        valleys.add(store!!.lastTimestamp.time)
-
-                        val currentValue = String.format(
-                            Locale.getDefault(),
-                            activity.resources.getQuantityString(
-                                R.plurals.measurement_output_template,
-                                detectedValleys
-                            ),
-                            if (valleys.size == 1) 60f * detectedValleys / Math.max(
-                                1f,
-                                (measurementLength - millisUntilFinished - clipLength) / 1000f
-                            ) else 60f * (detectedValleys - 1) / Math.max(
-                                1f,
-                                (valleys[valleys.size - 1] - valleys[0]) / 1000f
-                            ),
-                            detectedValleys,
-                            1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
-                        )
-                        sendMessage(MESSAGE_UPDATE_REALTIME, currentValue)
+                    if (redPixelCount >= redPixelThreshold) {
+                        fingerDetected = true // set finger detected to true if red pixel threshold is met
                     }
 
-                    // draw the chart on a separate thread.
-                    val chartDrawerThread = Thread {
-                        chartDrawer.draw(
-                            store!!.stdValues
-                        )
+                    if (fingerDetected) { // proceed only if finger is detected
+                        store?.add(measurement)
+
+                        if (detectValley()) {
+                            detectedValleys += 1
+                            valleys.add(store!!.lastTimestamp.time)
+
+                            val currentValue = String.format(
+                                Locale.getDefault(),
+                                activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
+                                if (valleys.size == 1) 60f * detectedValleys / max(
+                                    1f,
+                                    (measurementLength - millisUntilFinished - clipLength) / 1000f
+                                ) else 60f * (detectedValleys - 1) / max(
+                                    1f,
+                                    (valleys.last() - valleys.first()) / 1000f
+                                ),
+                                detectedValleys,
+                                1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
+                            )
+
+                            sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
+                        }
+                    } else {
+                        // finger not detected, send message to UI
+                        sendMessage(
+                                MESSAGE_CAMERA_NOT_AVAILABLE,
+                                "Finger not detected or camera preview does not have 99% of red or its variant color."
+                            )
+
+                        cameraService.stop()
                     }
-                    chartDrawerThread.start()
-                }
-                thread.start()
+                }.start()
             }
 
             override fun onFinish() {
-                val stdValues = store!!.stdValues
-                if (valleys.size == 0) {
-                    mainHandler.sendMessage(
-                        Message.obtain(
-                            mainHandler,
+                if (valleys.isEmpty()) {
+                    sendMessage(
                             MESSAGE_CAMERA_NOT_AVAILABLE,
                             "No valleys detected - there may be an issue when accessing the camera."
                         )
-                    )
                     return
                 }
                 val currentValue = String.format(
                     Locale.getDefault(),
-                    activity.resources.getQuantityString(
-                        R.plurals.measurement_output_template,
-                        detectedValleys - 1
-                    ),
-                    60f * (detectedValleys - 1) / Math.max(
+                    activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys - 1),
+                    60f * (detectedValleys - 1) / max(
                         1f,
-                        (valleys[valleys.size - 1] - valleys[0]) / 1000f
+                        (valleys.last() - valleys.first()) / 1000f
                     ),
                     detectedValleys - 1,
-                    1f * (valleys[valleys.size - 1] - valleys[0]) / 1000f
+                    1f * (valleys.last() - valleys.first()) / 1000f
                 )
-                sendMessage(MESSAGE_UPDATE_REALTIME, currentValue)
-                val returnValueSb = StringBuilder()
-                returnValueSb.append(currentValue)
-                returnValueSb.append(activity.getString(R.string.row_separator))
-                returnValueSb.append(activity.getString(R.string.raw_values))
-                returnValueSb.append(activity.getString(R.string.row_separator))
-                for (stdValueIdx in stdValues.indices) {
-                    val value = stdValues[stdValueIdx]
-                    val timeStampString = SimpleDateFormat(
-                        activity.getString(R.string.dateFormatGranular),
-                        Locale.getDefault()
-                    ).format(value.timestamp)
-                    returnValueSb.append(timeStampString)
-                    returnValueSb.append(activity.getString(R.string.separator))
-                    returnValueSb.append(value.measurement)
-                    returnValueSb.append(activity.getString(R.string.row_separator))
-                }
-                returnValueSb.append(activity.getString(R.string.output_detected_peaks_header))
-                returnValueSb.append(activity.getString(R.string.row_separator))
+                // Check if finger is still on the camera and preview is mostly red or its variant
+                val currentBitmap = textureView.bitmap
+                val pixelCount = textureView.width * textureView.height
+                var redPixelCount = 0
+                val pixels = IntArray(pixelCount)
+                currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
 
-                // add detected valleys location
-                for (tick in valleys) {
-                    returnValueSb.append(tick)
-                    returnValueSb.append(activity.getString(R.string.row_separator))
+                pixels.forEach {
+                    val red = it shr 16 and 0xff
+                    val green = it shr 8 and 0xff
+                    val blue = it and 0xff
+
+                    // Check if pixel is mostly red or its variant
+                    if (red >= 0.99 * (red + green + blue)) {
+                        redPixelCount++
+                    }
                 }
-                sendMessage(MESSAGE_UPDATE_FINAL, returnValueSb.toString())
+
+                val redPixelRatio = redPixelCount.toDouble() / pixelCount.toDouble()
+
+                if (redPixelRatio < 0.99) {
+                    sendMessage(MESSAGE_UPDATE_PULSE_TEXT, "Please keep your finger on the camera and ensure the preview is mostly red.")
+                    cameraService.stop()
+                }
+
+                sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
                 cameraService.stop()
             }
         }
-        (timer as CountDownTimer).start()
+        timer?.start()
     }
 
     private fun detectValley(): Boolean {
@@ -185,3 +189,4 @@ internal class OutputAnalyzer(
         mainHandler.sendMessage(msg)
     }
 }
+

@@ -1,6 +1,5 @@
 package com.teessideUni.cfs_tracker.domain.navigation
 
-import HeartRateMeasurementScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,7 +13,7 @@ import com.teessideUni.cfs_tracker.screens.SplashScreen
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "splash_screen") {
+    NavHost(navController = navController, startDestination = "home_page") {
         composable("splash_screen") {
             SplashScreen(navController = navController)
         }
@@ -27,9 +26,6 @@ fun Navigation() {
         composable("home_page") {
             HomeScreen(navController = navController)
         }
-//        composable("heart_rate") {
-//            HeartRateMeasurementScreen(navController = navController)
-//        }
 
         composable("forget_password_page") {
             ForgotPasswordScreen(navController = navController)

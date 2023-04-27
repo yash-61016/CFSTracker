@@ -3,41 +3,88 @@ package com.teessideUni.cfs_tracker.presentation.screens.heart_rate
 
 import android.Manifest
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Intent
-
+import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.SurfaceTexture
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
+import android.view.Surface
 import android.view.TextureView
-
-import android.view.View
-import android.widget.EditText
-
-import android.widget.TextView
-
-import androidx.appcompat.widget.Toolbar
+import android.widget.Toast
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
-import com.google.android.material.snackbar.Snackbar
+import androidx.navigation.NavController
 import com.teessideUni.cfs_tracker.R
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MENU_INDEX_EXPORT_DETAILS
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MENU_INDEX_EXPORT_RESULT
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MENU_INDEX_NEW_MEASUREMENT
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_CAMERA_NOT_AVAILABLE
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_FINAL
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME_TEXT
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_PULSE_TEXT
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.REQUEST_CODE_CAMERA
-
-import java.text.SimpleDateFormat
 import java.util.*
 
+class HeartRateMeasurement_Activity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+    private val viewModel by viewModels<MainHandlerViewModel>()
 
-class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermissionsResultCallback {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            HeartRateMeasurementScreen(navController = NavController(this), viewModel = viewModel, onButtonClick = { this.onClickNewMeasurement()}, this, mainHandler )
+        }
+        ActivityCompat.requestPermissions(
+            this, arrayOf<String>(Manifest.permission.CAMERA),
+            REQUEST_CODE_CAMERA
+        )
+    }
+
     private var analyzer: OutputAnalyzer? = null
     private var justShared = false
 
@@ -45,66 +92,19 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
     private val mainHandler: Handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
-            if (msg.what == MESSAGE_UPDATE_REALTIME) {
-                (findViewById<View>(R.id.textView) as TextView).text = msg.obj.toString()
+            if (msg.what == MESSAGE_UPDATE_PULSE_TEXT) {
+                viewModel.updatePulseText(msg.obj.toString())
             }
-            if (msg.what == MESSAGE_UPDATE_FINAL) {
-                (findViewById<View>(R.id.editText) as EditText).setText(msg.obj.toString())
-
-                val appMenu = (findViewById<View>(R.id.toolbar) as Toolbar).menu
-                setViewState(View_State.SHOW_RESULTS)
+            if (msg.what == MESSAGE_UPDATE_REALTIME_TEXT) {
+                val value = msg.arg1
+                viewModel.updateRealTimeText(value/1000)
+                Log.d("MyApp", value.toString())
             }
             if (msg.what == MESSAGE_CAMERA_NOT_AVAILABLE) {
                 Log.println(Log.WARN, "camera", msg.obj.toString())
-                (findViewById<View>(R.id.textView) as TextView).setText(
-                    R.string.camera_not_found
-                )
-                analyzer!!.stop()
+                viewModel.updatePulseText(msg.obj.toString())
             }
         }
-    }
-    private val cameraService = CameraService(this, mainHandler)
-
-    override fun onResume() {
-        super.onResume()
-        analyzer = OutputAnalyzer(this, findViewById(R.id.graphTextureView), mainHandler)
-        val cameraTextureView = findViewById<TextureView>(R.id.textureView2)
-        val previewSurfaceTexture = cameraTextureView.surfaceTexture
-
-        // justShared is set if one clicks the share button.
-        if (previewSurfaceTexture != null && !justShared) {
-            val previewSurface = android.view.Surface(previewSurfaceTexture)
-            if (!this.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
-                Snackbar.make(
-                    findViewById(R.id.constraintLayout),
-                    getString(R.string.noFlashWarning),
-                    Snackbar.LENGTH_LONG
-                ).show()
-            }
-            // hide the new measurement item while another one is in progress in order to wait
-            // for the previous one to finish
-            (findViewById<View>(R.id.toolbar) as Toolbar).menu.getItem(
-                MENU_INDEX_NEW_MEASUREMENT
-            ).isVisible = false
-            cameraService.start(previewSurface)
-            analyzer!!.measurePulse(cameraTextureView, cameraService)
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-        cameraService.stop()
-        if (analyzer != null) analyzer!!.stop()
-        analyzer = OutputAnalyzer(this, findViewById(R.id.graphTextureView), mainHandler)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        ActivityCompat.requestPermissions(
-            this, arrayOf<String>(Manifest.permission.CAMERA),
-            REQUEST_CODE_CAMERA
-        )
     }
 
     override fun onRequestPermissionsResult(
@@ -112,96 +112,228 @@ class HeartRateMeasurement_Activity : Activity(), ActivityCompat.OnRequestPermis
         permissions: Array<String>,
         grantResults: IntArray
     ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_CAMERA) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                Snackbar.make(
-                    findViewById(R.id.constraintLayout),
-                    getString(R.string.cameraPermissionRequired),
-                    Snackbar.LENGTH_LONG
-                ).show()
+                Toast.makeText(this, "Camera permissions required. ", Toast.LENGTH_SHORT).show()
             }
         }
-    }
-
-    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        Log.i("MENU", "menu is being prepared")
-        val inflater = menuInflater
-        inflater.inflate(R.menu.menu, menu)
-        return super.onPrepareOptionsMenu(menu)
-    }
-
-    fun setViewState(state: View_State?) {
-        val appMenu = (findViewById<View>(R.id.toolbar) as Toolbar).menu
-        when (state) {
-            View_State.MEASUREMENT -> {
-                appMenu.getItem(MENU_INDEX_NEW_MEASUREMENT).isVisible = false
-                appMenu.getItem(MENU_INDEX_EXPORT_RESULT).isVisible = false
-                appMenu.getItem(MENU_INDEX_EXPORT_DETAILS).isVisible = false
-                findViewById<View>(R.id.floatingActionButton).visibility =
-                    View.INVISIBLE
-            }
-            View_State.SHOW_RESULTS -> {
-                findViewById<View>(R.id.floatingActionButton).visibility =
-                    View.VISIBLE
-                appMenu.getItem(MENU_INDEX_EXPORT_RESULT).isVisible = true
-                appMenu.getItem(MENU_INDEX_EXPORT_DETAILS).isVisible = true
-                appMenu.getItem(MENU_INDEX_NEW_MEASUREMENT).isVisible = true
-            }
-            else -> {}
-        }
-    }
-
-    fun onClickNewMeasurement(item: MenuItem?) {
-        onClickNewMeasurement()
-    }
-
-    fun onClickNewMeasurement(view: View?) {
-        onClickNewMeasurement()
     }
 
     private fun onClickNewMeasurement() {
-        analyzer = OutputAnalyzer(this, findViewById(R.id.graphTextureView), mainHandler)
+        analyzer = OutputAnalyzer(this, mainHandler)
 
         // clear prior results
-        val empty = CharArray(0)
-        (findViewById<View>(R.id.editText) as EditText).setText(empty, 0, 0)
-        (findViewById<View>(R.id.textView) as TextView).setText(empty, 0, 0)
+        viewModel.updatePulseText("")
+        viewModel.updateRealTimeText(0)
 
-        setViewState(View_State.MEASUREMENT)
-        val cameraTextureView = findViewById<TextureView>(R.id.textureView2)
-        val previewSurfaceTexture = cameraTextureView.surfaceTexture
-        if (previewSurfaceTexture != null) {
-            val previewSurface = android.view.Surface(previewSurfaceTexture)
-            cameraService.start(previewSurface)
-            analyzer!!.measurePulse(cameraTextureView, cameraService)
+        setContent {
+            HeartRateMeasurementScreen(navController = NavController(this), viewModel = viewModel, onButtonClick = { this.onClickNewMeasurement()}, this, mainHandler )
+        }
+
+        Log.d("MyApp", "onClickNewMeasurement() called")
+    }
+}
+
+@Composable
+fun CameraPreview(context: Context, mainHandler: Handler) {
+    AndroidView(factory = { context ->
+        TextureView(context).apply {
+            // set up the texture view
+            // e.g., setSurfaceTextureListener, setLayoutParams, etc.
+
+            // start the camera service and output analyzer when the surface is ready
+            surfaceTextureListener = object : TextureView.SurfaceTextureListener {
+                private var cameraService: CameraService? = null
+                private var analyzer: OutputAnalyzer? = null
+                private var previewSurface: Surface? = null
+
+                override fun onSurfaceTextureAvailable(surfaceTexture: SurfaceTexture, width: Int, height: Int) {
+                    cameraService = CameraService(context as HeartRateMeasurement_Activity, mainHandler)
+                    analyzer = OutputAnalyzer(context, mainHandler)
+                    previewSurface = Surface(surfaceTexture)
+
+                    if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FLASH)) {
+                        Toast.makeText(context, "No flash light available. ", Toast.LENGTH_SHORT).show()
+                    }
+
+                    cameraService?.start(previewSurface!!)
+                    analyzer?.measurePulse(this@apply, cameraService!!)
+                }
+
+                override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture, width: Int, height: Int) {
+                    // handle size change if needed
+                }
+
+                override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                    // stop camera service and output analyzer if needed
+                    analyzer?.stop()
+                    cameraService?.stop()
+                    return true
+                }
+
+                override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                    // handle updates if needed
+                }
+            }
+        }
+    }, modifier = Modifier.fillMaxSize())
+}
+
+
+@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
+@Composable
+fun HeartRateMeasurementScreen(navController: NavController, viewModel: MainHandlerViewModel, onButtonClick: () -> Unit, context: Context, handler: Handler) {
+    Scaffold(
+        topBar = { AppBar() },
+        floatingActionButton = { NewMeasurementFab(onClickNewMeasurement = { onButtonClick() }) },
+        content = { HeartRateMeasurementContent(viewModel = viewModel, context = context, mainHandler = handler) }
+    )
+}
+
+
+@Composable
+fun AppBar() {
+    Box(modifier = Modifier.padding(top = 0.dp)) {
+        TopAppBar(
+            title = { Text(text = stringResource(id = R.string.app_name)) },
+            backgroundColor = MaterialTheme.colors.primary,
+            contentColor = MaterialTheme.colors.onPrimary
+        )
+    }
+}
+
+@Composable
+fun NewMeasurementFab(onClickNewMeasurement: () -> Unit) {
+    FloatingActionButton(
+        onClick = onClickNewMeasurement,
+        backgroundColor = MaterialTheme.colors.secondary
+    ) {
+        Icon(Icons.Default.Add, contentDescription = stringResource(id = R.string.new_measurement))
+    }
+}
+
+@Composable
+fun HeartRateMeasurementContent(
+    viewModel: MainHandlerViewModel,
+    context: Context,
+    mainHandler: Handler,
+    cameraPreviewSize: Int = 600,
+) {
+
+    // Read the value of the State variables
+    val pulseText = viewModel.pulseText.value
+    val realTime by viewModel.realTimeText
+    val realTimeInMillis = (viewModel.realTimeText.value * 1000).toLong()
+
+    BoxWithConstraints(
+        modifier = Modifier.fillMaxSize()
+    ) {
+
+        val textViewModifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .padding(top = 0.dp, bottom = 9.dp)
+            .layoutId("textView")
+
+        val textView2Modifier = Modifier
+            .fillMaxWidth()
+            .height(100.dp)
+            .padding(start = 50.dp, end = 50.dp, top = 0.dp, bottom = 10.dp)
+            .layoutId("textView")
+            .clip(RectangleShape)
+            .border(1.dp, Color.Black, RectangleShape)
+
+        Column(
+            modifier = Modifier.fillMaxSize()
+        ) {
+
+            Text(
+                modifier = textViewModifier,
+                text = pulseText,
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
+            )
+
+            Row(
+                modifier = textView2Modifier,
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CircularCountdownLoader(
+                    modifier = Modifier.size(50.dp),
+                    timeInMillis = realTimeInMillis,
+                    strokeWidth = 3.dp,
+                    color = MaterialTheme.colors.secondary
+                )
+
+                Text(
+                    modifier = Modifier.padding(start = 12.dp),
+                    text = "Time Left: $realTime seconds",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    textAlign = TextAlign.Center
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .size(cameraPreviewSize.dp)
+                    .padding(start = 0.dp, end = 0.dp, top = 40.dp, bottom = 0.dp)
+                    .clip(RectangleShape)
+                    .border(1.dp, Color.Black, RectangleShape)
+            ) {
+                CameraPreview(context = context, mainHandler = mainHandler)
+            }
         }
     }
+}
 
-    fun onClickExportResult(item: MenuItem?) {
-        val intent = getTextIntent((findViewById<View>(R.id.textView) as TextView).text as String)
-        justShared = true
-        startActivity(Intent.createChooser(intent, getString(R.string.send_output_to)))
-    }
 
-    fun onClickExportDetails(item: MenuItem?) {
-        val intent = getTextIntent((findViewById<View>(R.id.editText) as EditText).text.toString())
-        justShared = true
-        startActivity(Intent.createChooser(intent, getString(R.string.send_output_to)))
-    }
 
-    private fun getTextIntent(intentText: String): Intent {
-        val intent = Intent(Intent.ACTION_SEND)
-        intent.type = "text/plain"
-        intent.putExtra(
-            Intent.EXTRA_SUBJECT, String.format(
-                getString(R.string.output_header_template),
-                SimpleDateFormat(
-                    getString(R.string.dateFormat),
-                    Locale.getDefault()
-                ).format(Date())
-            )
+@Composable
+fun CircularCountdownLoader(
+    modifier: Modifier = Modifier,
+    timeInMillis: Long,
+    strokeWidth: Dp,
+    color: Color
+) {
+    val animationSpec = remember { Animatable(0f) }
+    val animatableValue = animationSpec.value.toInt()
+    val arcAngle = (animatableValue / timeInMillis.toFloat()) * 360f
+
+    LaunchedEffect(Unit) {
+        animationSpec.animateTo(
+            targetValue = timeInMillis.toFloat(),
+            animationSpec = tween(durationMillis = timeInMillis.toInt())
         )
-        intent.putExtra(Intent.EXTRA_TEXT, intentText)
-        return intent
+    }
+
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center,
+    ) {
+        CircularProgressIndicator(
+            progress = 1f,
+            modifier = Modifier.fillMaxSize(),
+            strokeWidth = strokeWidth,
+            color = color
+        )
+
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .drawBehind {
+                    drawArc(
+                        color = color,
+                        startAngle = 270f,
+                        sweepAngle = -arcAngle,
+                        useCenter = false,
+                        style = Stroke(strokeWidth.toPx(), cap = StrokeCap.Round)
+                    )
+                }
+        )
     }
 }

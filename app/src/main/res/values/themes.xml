@@ -6,7 +6,7 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
-    <string name="app_name">CFS Tracker</string>
+    <string name="app_name">CFS Tracker - Heart Beat</string>
     <string name="output_hint">
         Please place your finger on the device\'s camera, covering the flash as well. After
         10 seconds, you can export the results through the menu.
