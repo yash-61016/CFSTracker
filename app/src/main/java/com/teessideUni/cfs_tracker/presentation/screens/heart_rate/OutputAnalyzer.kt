@@ -1,12 +1,16 @@
 package com.teessideUni.cfs_tracker.presentation.screens.heart_rate
 
+import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
 import android.view.TextureView
+import androidx.annotation.RequiresApi
 import com.teessideUni.cfs_tracker.R
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.CAMERA_ERROR
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.FINGER_NOT_DETECTED
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MEASUREMENT_COMPLETE
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MEASUREMENT_LENGTH
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_CAMERA_NOT_AVAILABLE
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_PULSE_TEXT
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME_TEXT
 import java.util.*
@@ -48,71 +52,92 @@ class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, privat
 
                 Thread {
 
-                    val currentBitmap = textureView.bitmap
-                    val pixelCount = textureView.width * textureView.height
-                    var measurement = 0
-                    val pixels = IntArray(pixelCount)
-                    currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
+                    try {
+                        val currentBitmap = textureView.bitmap
+                        val pixelCount = textureView.width * textureView.height
+                        var measurement = 0
+                        val pixels = IntArray(pixelCount)
+                        currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
 
-                    var redPixelThreshold = 0.99 * pixelCount // set threshold for red pixels
+                        var redPixelThreshold = 0.99 * pixelCount // set threshold for red pixels
 
-                    pixels.forEach {
-                        val red = it shr 16 and 0xff
-                        val green = it shr 8 and 0xff
-                        val blue = it and 0xff
+                        pixels.forEach {
+                            val red = it shr 16 and 0xff
+                            val green = it shr 8 and 0xff
+                            val blue = it and 0xff
 
-                        if (red >= green && red >= blue) {
-                            redPixelCount++ // increment the count of red pixels
+                            if (red >= green && red >= blue) {
+                                redPixelCount++ // increment the count of red pixels
+                            }
+
+                            measurement += red // use only red channel for measurement
                         }
 
-                        measurement += red // use only red channel for measurement
-                    }
+                        if (redPixelCount >= redPixelThreshold) {
+                            fingerDetected = true // set finger detected to true if red pixel threshold is met
+                        }
 
-                    if (redPixelCount >= redPixelThreshold) {
-                        fingerDetected = true // set finger detected to true if red pixel threshold is met
-                    }
+                        if (fingerDetected) { // proceed only if finger is detected
+                            store?.add(measurement)
 
-                    if (fingerDetected) { // proceed only if finger is detected
-                        store?.add(measurement)
+                            if (detectValley()) {
+                                detectedValleys += 1
+                                valleys.add(store!!.lastTimestamp.time)
 
-                        if (detectValley()) {
-                            detectedValleys += 1
-                            valleys.add(store!!.lastTimestamp.time)
+                                val currentValue = String.format(
+                                    Locale.getDefault(),
+                                    activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
+                                    if (valleys.size == 1) 60f * detectedValleys / max(
+                                        1f,
+                                        (measurementLength - millisUntilFinished - clipLength) / 1000f
+                                    ) else 60f * (detectedValleys - 1) / max(
+                                        1f,
+                                        (valleys.last() - valleys.first()) / 1000f
+                                    ),
+                                    detectedValleys,
+                                    1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
+                                )
 
-                            val currentValue = String.format(
-                                Locale.getDefault(),
-                                activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
-                                if (valleys.size == 1) 60f * detectedValleys / max(
-                                    1f,
-                                    (measurementLength - millisUntilFinished - clipLength) / 1000f
-                                ) else 60f * (detectedValleys - 1) / max(
-                                    1f,
-                                    (valleys.last() - valleys.first()) / 1000f
-                                ),
-                                detectedValleys,
-                                1f * (measurementLength - millisUntilFinished - clipLength) / 1000f
+                                sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
+                            }
+                        } else {
+                            // finger not detected, send message to UI
+                            sendMessage(
+                                Constants.UPDATED_MESSAGE,
+                                FINGER_NOT_DETECTED
                             )
-
-                            sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
+                            mainHandler.obtainMessage(
+                                MESSAGE_UPDATE_REALTIME_TEXT,
+                                0,
+                                0
+                            ).sendToTarget()
+                            cameraService.stop()
+                            timer?.cancel()
                         }
-                    } else {
-                        // finger not detected, send message to UI
+                    } catch (e: Exception) {
                         sendMessage(
-                                MESSAGE_CAMERA_NOT_AVAILABLE,
-                                "Finger not detected or camera preview does not have 99% of red or its variant color."
-                            )
-
+                            Constants.UPDATED_MESSAGE,
+                            CAMERA_ERROR
+                        )
+                        mainHandler.obtainMessage(
+                            MESSAGE_UPDATE_REALTIME_TEXT,
+                            0,
+                            0
+                        ).sendToTarget()
                         cameraService.stop()
+                        timer?.cancel()
                     }
                 }.start()
             }
-
+            @RequiresApi(Build.VERSION_CODES.O)
             override fun onFinish() {
                 if (valleys.isEmpty()) {
                     sendMessage(
-                            MESSAGE_CAMERA_NOT_AVAILABLE,
-                            "No valleys detected - there may be an issue when accessing the camera."
-                        )
+                        Constants.UPDATED_MESSAGE,
+                        CAMERA_ERROR
+                    )
+                    cameraService.stop()
+                    timer?.cancel()
                     return
                 }
                 val currentValue = String.format(
@@ -143,15 +168,10 @@ class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, privat
                     }
                 }
 
-                val redPixelRatio = redPixelCount.toDouble() / pixelCount.toDouble()
-
-                if (redPixelRatio < 0.99) {
-                    sendMessage(MESSAGE_UPDATE_PULSE_TEXT, "Please keep your finger on the camera and ensure the preview is mostly red.")
-                    cameraService.stop()
-                }
-
                 sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
+                sendMessage(Constants.UPDATED_MESSAGE, MEASUREMENT_COMPLETE)
                 cameraService.stop()
+                timer?.cancel()
             }
         }
         timer?.start()

@@ -11,7 +11,7 @@ import android.os.Message
 import android.util.Log
 import android.view.Surface
 import androidx.core.app.ActivityCompat
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_CAMERA_NOT_AVAILABLE
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.UPDATED_MESSAGE
 import java.util.*
 
 class CameraService(private val activity: Activity, private val handler: Handler) {
@@ -28,7 +28,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
             handler.sendMessage(
                 Message.obtain(
                     handler,
-                    MESSAGE_CAMERA_NOT_AVAILABLE,
+                    UPDATED_MESSAGE,
                     "No access to camera...."
                 )
             )
@@ -37,7 +37,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
             handler.sendMessage(
                 Message.obtain(
                     handler,
-                    MESSAGE_CAMERA_NOT_AVAILABLE,
+                    UPDATED_MESSAGE,
                     "No access to camera...."
                 )
             )
@@ -46,7 +46,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
             handler.sendMessage(
                 Message.obtain(
                     handler,
-                    MESSAGE_CAMERA_NOT_AVAILABLE,
+                    UPDATED_MESSAGE,
                     "No access to camera...."
                 )
             )
@@ -61,7 +61,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
                 handler.sendMessage(
                     Message.obtain(
                         handler,
-                        MESSAGE_CAMERA_NOT_AVAILABLE,
+                        UPDATED_MESSAGE,
                         "No permission to take photos"
                     )
                 )
@@ -129,7 +129,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
                 handler.sendMessage(
                     Message.obtain(
                         handler,
-                        MESSAGE_CAMERA_NOT_AVAILABLE,
+                        UPDATED_MESSAGE,
                         e.message
                     )
                 )
@@ -140,7 +140,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
                 handler.sendMessage(
                     Message.obtain(
                         handler,
-                        MESSAGE_CAMERA_NOT_AVAILABLE,
+                        UPDATED_MESSAGE,
                         e.message
                     )
                 )
