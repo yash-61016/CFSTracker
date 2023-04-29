@@ -2,6 +2,7 @@ package com.teessideUni.cfs_tracker.data.repository
 
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.domain.model.Resource
@@ -21,7 +22,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore
 )  : AuthRepository {
 
-    override val currentUser get() = firebaseAuth.currentUser
+    override val currentUser: FirebaseUser?
+        get() = firebaseAuth.currentUser
 
     override fun loginUser(email: String, password: String): Flow<Resource<AuthResult>> {
         return flow {

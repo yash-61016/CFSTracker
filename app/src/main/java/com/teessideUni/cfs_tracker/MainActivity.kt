@@ -14,6 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
@@ -23,6 +27,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -54,6 +59,7 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
                     modifier = Modifier.fillMaxSize(),
                     color = colorResource(R.color.dark)
                 ) {
+
                     Navigation(navController = navController)
                     AuthState(navController = navController)
                 }
@@ -71,28 +77,30 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
     }
 
     @Composable
-    private fun AuthState(navController: NavHostController) {
+    private fun AuthState(navController: NavController) {
         val isUserSignedOut = viewModel.getAuthState().collectAsState().value
-        val currentUser = viewModel.getCurrentUser().toString();
+        var isLoggedIn = viewModel.getCurrentUser()
 
-        if (currentUser == null) {
-            NavigateToSignInScreen(navController = navController)
-        } else if (isUserSignedOut) {
-            NavigateToSignInScreen(navController = navController)
-        }
-        else{
+        if (!isLoggedIn && isUserSignedOut) {
+            Log.d("reached", "enetered")
+            NavigateToSplashScreen(navController = navController)
+        } else {
+
             if (viewModel.isEmailVerified) {
                 NavigateToProfileScreen(navController = navController)
-            }
-            else {
-                Toast.makeText(this, "Please verify your email address to continue.", Toast.LENGTH_LONG).show()
+            } else {
+                Toast.makeText(
+                    this,
+                    "Please verify your email address to continue.",
+                    Toast.LENGTH_LONG
+                ).show()
                 NavigateToSignInScreen(navController = navController)
             }
         }
     }
 
     @Composable
-    private fun NavigateToSignInScreen(navController: NavHostController) =  navController.navigate("login_page") {
+    private fun NavigateToSplashScreen(navController: NavController) =  navController.navigate("splash_screen") {
         popUpTo(navController.graph.findStartDestination().id) {
             inclusive = true
         }
@@ -100,7 +108,15 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
     }
 
     @Composable
-    private fun NavigateToProfileScreen(navController: NavHostController) = navController.navigate("home_page") {
+    private fun NavigateToSignInScreen(navController: NavController) =  navController.navigate("login_page") {
+        popUpTo(navController.graph.findStartDestination().id) {
+            inclusive = true
+        }
+        launchSingleTop = true
+    }
+
+    @Composable
+    private fun NavigateToProfileScreen(navController: NavController) = navController.navigate("home_page") {
         popUpTo(navController.graph.findStartDestination().id) {
             inclusive = true
         }

@@ -1,9 +1,12 @@
 package com.teessideUni.cfs_tracker
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -14,9 +17,13 @@ class MainViewModel @Inject constructor(
         getAuthState()
     }
 
-    fun getAuthState() = repo.getAuthState(viewModelScope)
+    fun getCurrentUser(): Boolean {
+        val user = repo.currentUser
+        Log.d("currentUser", user?.email.toString())
+        return user != null
+    }
 
-    fun getCurrentUser() = repo.currentUser
+    fun getAuthState() = repo.getAuthState(viewModelScope)
 
     val isEmailVerified get() = repo.currentUser?.isEmailVerified ?: false
 }
