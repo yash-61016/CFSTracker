@@ -41,9 +41,6 @@ import com.teessideUni.cfs_tracker.domain.repository.ValidationUtils.Companion.i
 import com.teessideUni.cfs_tracker.domain.repository.ValidationUtils.Companion.isValidPhoneNumber
 import com.teessideUni.cfs_tracker.domain.util.keyboardAsState
 import com.teessideUni.cfs_tracker.ui.theme.InputBoxShape
-import com.teessideUni.cfs_tracker.ui.theme.SecondaryColor
-import com.teessideUni.cfs_tracker.ui.theme.primaryColor
-import com.teessideUni.cfs_tracker.ui.theme.whiteBackground
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -119,7 +116,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                 .fillMaxWidth()
                 .fillMaxHeight(0.70f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(whiteBackground)
+                .background(MaterialTheme.colors.background)
                 .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -157,7 +154,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.user_icon),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -168,7 +165,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary)
                                     )
                                 }
                             },
@@ -213,7 +210,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_email_outline),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -224,7 +221,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary)
                                     )
                                 }
                             },
@@ -268,7 +265,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.phone_icon),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -279,7 +276,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary)
                                     )
                                 }
                             },
@@ -327,7 +324,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -338,7 +335,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary)
                                     )
                                 }
                             },
@@ -365,7 +362,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
                                         contentDescription = "EyeImage",
-                                        tint = if (passwordVisibility.value) primaryColor else Color.Gray
+                                        tint = if (passwordVisibility.value) MaterialTheme.colors.primary else Color.Gray
                                     )
                                 }
                             },
@@ -399,7 +396,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -410,7 +407,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary)
                                     )
                                 }
                             },
@@ -438,7 +435,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
                                         contentDescription = "EyeImage",
-                                        tint = if (confirmPasswordVisibility.value) primaryColor else Color.Gray
+                                        tint = if (confirmPasswordVisibility.value) MaterialTheme.colors.primary else Color.Gray
                                     )
                                 }
                             },
@@ -571,24 +568,3 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

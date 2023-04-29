@@ -30,8 +30,6 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.domain.util.keyboardAsState
 import com.teessideUni.cfs_tracker.ui.theme.InputBoxShape
-import com.teessideUni.cfs_tracker.ui.theme.primaryColor
-import com.teessideUni.cfs_tracker.ui.theme.whiteBackground
 import kotlinx.coroutines.launch
 
 
@@ -43,7 +41,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
     val emailValue = remember { mutableStateOf("") }
     val passwordValue = remember { mutableStateOf("") }
 
-    // configuration 
+    // configuration
     val passwordVisibility = remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val focusManager = LocalFocusManager.current
@@ -94,7 +92,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 .fillMaxWidth()
                 .fillMaxHeight(0.55f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(whiteBackground)
+                .background(MaterialTheme.colors.background)
                 .padding(10.dp)
         ) {
             LazyColumn(
@@ -129,7 +127,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_email_outline),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -140,7 +138,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary,)
                                     )
                                 }
                             },
@@ -171,7 +169,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
-                                        tint = if (passwordVisibility.value) primaryColor else Color.Gray,
+                                        tint = if (passwordVisibility.value) MaterialTheme.colors.primary else Color.Gray,
                                         contentDescription = "EyeIcon"
                                     )
                                 }
@@ -187,7 +185,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = primaryColor,
+                                        tint = MaterialTheme.colors.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -198,7 +196,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(primaryColor)
+                                            .background(MaterialTheme.colors.primary,)
                                     )
                                 }
                             },
