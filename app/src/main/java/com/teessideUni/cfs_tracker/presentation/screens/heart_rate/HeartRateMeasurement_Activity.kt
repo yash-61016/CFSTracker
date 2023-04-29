@@ -76,7 +76,7 @@ import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.REQ
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.UPDATED_MESSAGE
 import java.util.*
 
-class HeartRateMeasurement_Activity : AppCompatActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+class HeartRateMeasurement_Activity : AppCompatActivity() {
     private val viewModel by viewModels<MainHandlerViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,10 +84,6 @@ class HeartRateMeasurement_Activity : AppCompatActivity(), ActivityCompat.OnRequ
         setContent {
             HeartRateMeasurementScreen(navController = NavController(this), viewModel = viewModel, onButtonClick = { this.onClickNewMeasurement()}, this, mainHandler )
         }
-        ActivityCompat.requestPermissions(
-            this, arrayOf<String>(Manifest.permission.CAMERA),
-            REQUEST_CODE_CAMERA
-        )
     }
 
     private var analyzer: OutputAnalyzer? = null

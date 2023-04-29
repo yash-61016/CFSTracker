@@ -1,8 +1,10 @@
 package com.teessideUni.cfs_tracker
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +18,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
 import androidx.core.app.ActivityCompat
+import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -33,10 +36,11 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
-class MainActivity : ComponentActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
+class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsResultCallback {
     private lateinit var navController: NavHostController
     private val viewModel by viewModels<MainViewModel>()
 
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
@@ -55,23 +59,28 @@ class MainActivity : ComponentActivity(), ActivityCompat.OnRequestPermissionsRes
                 }
             }
         }
+        requestPermissions(
+            this, arrayOf<String>(Manifest.permission.CAMERA),
+            Constants.REQUEST_CODE_CAMERA
+        )
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
             val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
             view.updatePadding(bottom = bottom)
             insets
         }
-        ActivityCompat.requestPermissions(
-            this, arrayOf<String>(Manifest.permission.CAMERA),
-            Constants.REQUEST_CODE_CAMERA
-        )
     }
 
     @Composable
     private fun AuthState(navController: NavHostController) {
         val isUserSignedOut = viewModel.getAuthState().collectAsState().value
-        if (isUserSignedOut) {
+        val currentUser = viewModel.getCurrentUser().toString();
+
+        if (currentUser == null) {
             NavigateToSignInScreen(navController = navController)
-        } else {
+        } else if (isUserSignedOut) {
+            NavigateToSignInScreen(navController = navController)
+        }
+        else{
             if (viewModel.isEmailVerified) {
                 NavigateToProfileScreen(navController = navController)
             }

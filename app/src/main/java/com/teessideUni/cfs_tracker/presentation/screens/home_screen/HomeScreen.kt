@@ -1,6 +1,6 @@
 package com.teessideUni.cfs_tracker.presentation.screens
 
-//import android.content.Intent
+import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -18,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.teessideUni.cfs_tracker.presentation.screens.home_screen.ProfileViewModel
 import kotlinx.coroutines.launch
-//import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurement_Activity
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurement_Activity
 
 @Composable
 fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
@@ -48,14 +48,9 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
             Button(
                 onClick = {
                     //  Create an Intent to start the activity
-//                    val intent = Intent(context, HeartRateMeasurement_Activity::class.java)
-//                    launcher.launch(intent)
-//                    navController.navigate("heart_rate") {
-//                        popUpTo(navController.graph.findStartDestination().id) {
-//                            inclusive = true
-//                        }
-//                        launchSingleTop = true
-//                    }
+                    val intent = Intent(context, HeartRateMeasurement_Activity::class.java)
+                    launcher.launch(intent)
+
                 }
 
             ) {
