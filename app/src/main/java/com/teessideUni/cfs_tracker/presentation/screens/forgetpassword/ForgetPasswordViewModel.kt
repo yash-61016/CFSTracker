@@ -2,8 +2,8 @@ package com.teessideUni.cfs_tracker.presentation.screens.forgetpassword
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.teessideUni.cfs_tracker.data.repository.AuthRepository
-import com.teessideUni.cfs_tracker.domain.util.Resource
+import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
+import com.teessideUni.cfs_tracker.domain.model.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow

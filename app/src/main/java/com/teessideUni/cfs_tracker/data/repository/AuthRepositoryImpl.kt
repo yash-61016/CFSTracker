@@ -3,10 +3,16 @@ package com.teessideUni.cfs_tracker.data.repository
 import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.domain.util.Resource
+import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
+import com.teessideUni.cfs_tracker.domain.model.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
@@ -14,6 +20,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore
 )  : AuthRepository {
+
+    override val currentUser get() = firebaseAuth.currentUser
 
     override fun loginUser(email: String, password: String): Flow<Resource<AuthResult>> {
         return flow {
@@ -74,4 +82,58 @@ class AuthRepositoryImpl @Inject constructor(
             emit(Resource.Error(e.message ?: "An error occurred"))
         }
     }
+
+    override suspend fun sendEmailVerification(): Flow<Resource<Void?>> {
+        return flow {
+            emit(Resource.Loading())
+            try {
+                val result = firebaseAuth.currentUser?.sendEmailVerification()?.await()
+                emit(Resource.Success(result))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "An error occurred"))
+            }
+        }.catch { e ->
+            emit(Resource.Error(e.message ?: "An error occurred"))
+        }
+    }
+
+    override fun reloadFirebaseUser(): Flow<Resource<Void?>> {
+        return flow {
+            emit(Resource.Loading())
+            try {
+                val result = firebaseAuth.currentUser?.reload()?.await()
+                emit(Resource.Success(result))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "An error occurred"))
+            }
+        }.catch { e ->
+            emit(Resource.Error(e.message ?: "An error occurred"))
+        }
+    }
+
+    override fun signOut() = firebaseAuth.signOut()
+
+    override suspend fun revokeAccess(): Flow<Resource<Void?>> {
+        return flow {
+            emit(Resource.Loading())
+            try {
+                val result = firebaseAuth.currentUser?.delete()?.await()
+                emit(Resource.Success(result))
+            } catch (e: Exception) {
+                emit(Resource.Error(e.message ?: "An error occurred"))
+            }
+        }.catch { e ->
+            emit(Resource.Error(e.message ?: "An error occurred"))
+        }
+    }
+
+    override fun getAuthState(viewModelScope: CoroutineScope) = callbackFlow {
+        val authStateListener = FirebaseAuth.AuthStateListener { auth ->
+            trySend(auth.currentUser == null)
+        }
+        firebaseAuth.addAuthStateListener(authStateListener)
+        awaitClose {
+            firebaseAuth.removeAuthStateListener(authStateListener)
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(), firebaseAuth.currentUser == null)
 }

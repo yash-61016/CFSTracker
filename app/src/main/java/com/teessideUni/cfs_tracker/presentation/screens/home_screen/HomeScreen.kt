@@ -8,17 +8,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-//import androidx.navigation.NavGraph.Companion.findStartDestination
+import com.teessideUni.cfs_tracker.presentation.screens.home_screen.ProfileViewModel
+import kotlinx.coroutines.launch
 //import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurement_Activity
 
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
+
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -52,8 +57,20 @@ fun HomeScreen(navController: NavController) {
 //                        launchSingleTop = true
 //                    }
                 }
+
             ) {
                 Text("Button")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    coroutineScope.launch {
+                        viewModel.logout()
+                    }
+                }
+
+            ) {
+                Text("Logout")
             }
         }
     }
