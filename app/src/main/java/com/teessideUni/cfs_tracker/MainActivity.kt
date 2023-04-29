@@ -15,6 +15,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.colorResource
+import androidx.core.app.ActivityCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -25,21 +26,22 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.teessideUni.cfs_tracker.domain.navigation.Navigation
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants
 import com.teessideUni.cfs_tracker.ui.theme.CFSTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), ActivityCompat.OnRequestPermissionsResultCallback {
     private lateinit var navController: NavHostController
     private val viewModel by viewModels<MainViewModel>()
 
-    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         WindowCompat.setDecorFitsSystemWindows(window, false)
+
         setContent {
             navController = rememberNavController()
             CFSTrackerTheme {
@@ -58,6 +60,10 @@ class MainActivity : ComponentActivity() {
             view.updatePadding(bottom = bottom)
             insets
         }
+        ActivityCompat.requestPermissions(
+            this, arrayOf<String>(Manifest.permission.CAMERA),
+            Constants.REQUEST_CODE_CAMERA
+        )
     }
 
     @Composable

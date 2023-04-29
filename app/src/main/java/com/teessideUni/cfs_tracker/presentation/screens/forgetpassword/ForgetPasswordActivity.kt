@@ -146,8 +146,8 @@ fun ForgotPasswordScreen(
                                         }
                                     },
                                 colors = TextFieldDefaults.textFieldColors(
-                                    textColor = MaterialTheme.colors.primary,
-                                    cursorColor = MaterialTheme.colors.onPrimary,
+                                    textColor =  MaterialTheme.colors.primary,
+                                    cursorColor =  MaterialTheme.colors.primary,
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),
                                 shape = InputBoxShape.medium,
@@ -245,7 +245,7 @@ fun ForgotPasswordScreen(
                     ) {
                         Text(
                             text = "Return to Login!",
-                            color = Color.Black,
+                            color =  MaterialTheme.colors.onBackground,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
