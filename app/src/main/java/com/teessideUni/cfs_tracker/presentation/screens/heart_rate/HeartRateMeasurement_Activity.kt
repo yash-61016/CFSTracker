@@ -46,6 +46,8 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -172,7 +174,7 @@ fun NewMeasurementFab(onClickNewMeasurement: () -> Unit) {
 
     FloatingActionButton(
         onClick = onClickNewMeasurement,
-        backgroundColor = MaterialTheme.colors.secondary
+        backgroundColor = MaterialTheme.colors.primary
     ) {
         Icon(retryIcon, contentDescription = stringResource(id = R.string.new_measurement))
     }

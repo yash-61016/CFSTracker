@@ -90,7 +90,7 @@ fun ForgotPasswordScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(0.58f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(whiteBackground)
+                .background(MaterialTheme.colors.background)
                 .padding(10.dp)
         ) {
             LazyColumn(
@@ -100,7 +100,7 @@ fun ForgotPasswordScreen(
                 item {
                     Text(
                         text = "FORGOT YOUR PASSWORD?",
-                        color = SecondaryColor,
+                        color = MaterialTheme.colors.onBackground,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -124,7 +124,7 @@ fun ForgotPasswordScreen(
                         ) {
                             Text(
                                 text = "Enter your registered email below to receive password reset instruction",
-                                color = SecondaryColor,
+                                color =  MaterialTheme.colors.onBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -146,8 +146,8 @@ fun ForgotPasswordScreen(
                                         }
                                     },
                                 colors = TextFieldDefaults.textFieldColors(
-                                    textColor = primaryColor,
-                                    cursorColor = primaryColor,
+                                    textColor =  MaterialTheme.colors.primary,
+                                    cursorColor =  MaterialTheme.colors.primary,
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),
                                 shape = InputBoxShape.medium,
@@ -160,7 +160,7 @@ fun ForgotPasswordScreen(
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_email_outline),
                                             contentDescription = "",
-                                            tint = primaryColor,
+                                            tint = MaterialTheme.colors.primary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                         Spacer(
@@ -171,7 +171,7 @@ fun ForgotPasswordScreen(
                                             modifier = Modifier
                                                 .width(1.dp)
                                                 .height(24.dp)
-                                                .background(primaryColor)
+                                                .background(MaterialTheme.colors.primary)
                                         )
                                     }
                                 },
@@ -197,7 +197,7 @@ fun ForgotPasswordScreen(
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = primaryColor
+                                    backgroundColor = MaterialTheme.colors.primary
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -208,7 +208,7 @@ fun ForgotPasswordScreen(
                                     defaultElevation = 0.dp,
                                     pressedElevation = 2.dp
                                 ),
-                                shape = Shapes.medium
+                                shape = shapes.medium
                             ) {
                                 Text(
                                     text = "Send Reset Link",
@@ -245,7 +245,7 @@ fun ForgotPasswordScreen(
                     ) {
                         Text(
                             text = "Return to Login!",
-                            color = Color.Black,
+                            color =  MaterialTheme.colors.onBackground,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                         )

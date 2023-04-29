@@ -5,15 +5,15 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.teessideUni.cfs_tracker.presentation.screens.HomeScreen
+import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forgetpassword.ForgotPasswordScreen
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
-import com.teessideUni.cfs_tracker.screens.SplashScreen
 
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = "home_page") {
+    NavHost(navController = navController, startDestination = "splash_screen") {
         composable("splash_screen") {
             SplashScreen(navController = navController)
         }
