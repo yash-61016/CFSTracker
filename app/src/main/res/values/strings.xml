@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">CFS Tracker</string>
+    <string name="navigation_drawer">Navigation Drawer</string>
+    <string name="tab_home">Home</string>
+    <string name="tab_report">Reports</string>
+    <string name="tab_setting">Settings</string>
+
+    <string name="edit">Edit</string>
+    <string name="compose">Compose</string>
+
+    <string name="empty_screen_title">Screen under construction</string>
+    <string name="empty_screen_subtitle">This screen is still under construction.</string>
+
 </resources>
