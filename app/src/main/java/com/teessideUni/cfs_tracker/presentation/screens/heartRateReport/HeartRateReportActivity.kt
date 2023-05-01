@@ -137,12 +137,6 @@ fun AppBar(navController: NavController, heartRateDataList: List<HeartRateData>,
                 },
                 actions = {
                     IconButton(onClick = {
-//                        val calendar = Calendar.getInstance()
-//                        val currentYear = calendar.get(Calendar.YEAR)
-//                        val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
-//                        val fileName = "heart_rate_data_${currentYear}_Week${currentWeekNumber}.csv"
-//                        val file = File(Environment.getExternalStorageDirectory(), fileName)
-//                        writeHeartRateDataToCsv(heartRateDataList, file)
                         writeHeartRateDataToCsv(heartRateDataList = heartRateDataList, context = context)
                     }) {
                         Icon(painterResource(id = R.drawable.download_csv), null)
