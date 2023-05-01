@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heart_rate
+package com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components
 
 import android.os.Build
 import android.os.CountDownTimer
@@ -7,18 +7,21 @@ import android.os.Message
 import android.view.TextureView
 import androidx.annotation.RequiresApi
 import com.teessideUni.cfs_tracker.R
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.CAMERA_ERROR
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.FINGER_NOT_DETECTED
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MEASUREMENT_COMPLETE
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MEASUREMENT_LENGTH
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_PULSE_TEXT
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.MESSAGE_UPDATE_REALTIME_TEXT
+import com.teessideUni.cfs_tracker.core.Constants
+import com.teessideUni.cfs_tracker.core.Constants.CAMERA_ERROR
+import com.teessideUni.cfs_tracker.core.Constants.FINGER_NOT_DETECTED
+import com.teessideUni.cfs_tracker.core.Constants.MEASUREMENT_COMPLETE
+import com.teessideUni.cfs_tracker.core.Constants.MEASUREMENT_LENGTH
+import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_PULSE_TEXT
+import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_REALTIME_TEXT
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateDataStoreViewModel
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.ceil
 import kotlin.math.max
 
-class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, private val mainHandler: Handler) {
+class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private val mainHandler: Handler) {
     private var store: MeasureStore? = null
     private var detectedValleys = 0
     private var ticksPassed = 0
@@ -29,7 +32,7 @@ class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, privat
     private val measurementLength = MEASUREMENT_LENGTH
     private val clipLength = 3500
 
-    fun measurePulse(textureView: TextureView, cameraService: CameraService) {
+    fun measurePulse(textureView: TextureView, cameraService: CameraService, viewModel: HeartRateDataStoreViewModel) {
         store = MeasureStore()
         detectedValleys = 0
         ticksPassed = 0
@@ -132,21 +135,21 @@ class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, privat
             @RequiresApi(Build.VERSION_CODES.O)
             override fun onFinish() {
                 if (valleys.isEmpty()) {
-                    sendMessage(
-                        Constants.UPDATED_MESSAGE,
-                        CAMERA_ERROR
-                    )
+                    sendMessage(Constants.UPDATED_MESSAGE, CAMERA_ERROR)
                     cameraService.stop()
                     timer?.cancel()
                     return
                 }
+                val pulseValue = if (valleys.size == 1) {
+                    60f * detectedValleys / max(1f, (measurementLength - clipLength) / 1000f)
+                } else {
+                    60f * (detectedValleys - 1) / max(1f, (valleys.last() - valleys.first()) / 1000f)
+                }
+
                 val currentValue = String.format(
                     Locale.getDefault(),
                     activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys - 1),
-                    60f * (detectedValleys - 1) / max(
-                        1f,
-                        (valleys.last() - valleys.first()) / 1000f
-                    ),
+                    pulseValue,
                     detectedValleys - 1,
                     1f * (valleys.last() - valleys.first()) / 1000f
                 )
@@ -170,12 +173,20 @@ class OutputAnalyzer(private val activity: HeartRateMeasurement_Activity, privat
 
                 sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
                 sendMessage(Constants.UPDATED_MESSAGE, MEASUREMENT_COMPLETE)
+
+                val pulse = pulseValue.toDouble()
+                val currentTimeMillis = System.currentTimeMillis()
+                val date = Date(currentTimeMillis)
+                val result =  viewModel.storeHeartRate(pulse, date) // pass the pulse value to the ViewModel
                 cameraService.stop()
                 timer?.cancel()
+
             }
         }
         timer?.start()
     }
+
+
 
     private fun detectValley(): Boolean {
         val valleyDetectionWindowSize = 13

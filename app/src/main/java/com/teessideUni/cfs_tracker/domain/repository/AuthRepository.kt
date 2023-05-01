@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 interface AuthRepository {
     val currentUser: FirebaseUser?
+    suspend fun getCurrentUserName(): String?
     fun loginUser(email:String, password:String): Flow<Resource<AuthResult>>
     fun registerUser(email:String, password:String, username: String, phone: String): Flow<Resource<AuthResult>>
     fun forgetPassword(email:String): Flow<Resource<Void>>

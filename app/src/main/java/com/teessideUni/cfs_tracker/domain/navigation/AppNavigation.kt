@@ -1,19 +1,20 @@
 package com.teessideUni.cfs_tracker.domain.navigation
 
-import androidx.compose.animation.ExperimentalAnimationApi
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.teessideUni.cfs_tracker.presentation.screens.HomeScreen
+import com.teessideUni.cfs_tracker.presentation.screens.home_screen.HomeScreen
 import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forgetpassword.ForgotPasswordScreen
+import com.teessideUni.cfs_tracker.presentation.screens.heartRateReport.HeartRateDataScreen
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
 
+
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(navController: NavHostController)
 {
@@ -30,7 +31,9 @@ fun Navigation(navController: NavHostController)
         composable("home_page") {
             HomeScreen(navController = navController)
         }
-
+        composable("heart_rate_report_page") {
+            HeartRateDataScreen(navController = navController)
+        }
         composable("forget_password_page") {
             ForgotPasswordScreen(navController = navController)
         }

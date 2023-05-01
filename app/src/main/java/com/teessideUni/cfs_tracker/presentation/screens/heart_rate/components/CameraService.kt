@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heart_rate
+package com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components
 
 import android.Manifest
 import android.app.Activity
@@ -11,7 +11,7 @@ import android.os.Message
 import android.util.Log
 import android.view.Surface
 import androidx.core.app.ActivityCompat
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.Constants.UPDATED_MESSAGE
+import com.teessideUni.cfs_tracker.core.Constants.UPDATED_MESSAGE
 import java.util.*
 
 class CameraService(private val activity: Activity, private val handler: Handler) {

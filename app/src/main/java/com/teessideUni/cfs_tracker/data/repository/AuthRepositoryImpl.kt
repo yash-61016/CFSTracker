@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.tasks.await
+import java.util.Calendar
+import java.util.Date
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -24,6 +26,12 @@ class AuthRepositoryImpl @Inject constructor(
 
     override val currentUser: FirebaseUser?
         get() = firebaseAuth.currentUser
+
+    override suspend fun getCurrentUserName(): String? {
+        val uid = firebaseAuth.currentUser?.uid ?: return null
+        val userDoc = firestore.collection("users").document(uid).get().await()
+        return userDoc.getString("username")
+    }
 
     override fun loginUser(email: String, password: String): Flow<Resource<AuthResult>> {
         return flow {
