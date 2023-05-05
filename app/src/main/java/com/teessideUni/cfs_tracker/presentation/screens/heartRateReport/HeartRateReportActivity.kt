@@ -72,6 +72,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.WeekFields
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 
 
@@ -158,7 +159,9 @@ private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, cont
     val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
     val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
-    val fileName = "heart_rate_data_${currentYear}_Week${currentWeekNumber}.csv"
+    val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+    val fileName = "heart_rate_data_${currentYear}_Week${currentWeekNumber}_$currentTime.csv"
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
