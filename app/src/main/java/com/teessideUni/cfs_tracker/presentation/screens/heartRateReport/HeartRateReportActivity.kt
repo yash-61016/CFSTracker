@@ -90,11 +90,15 @@ fun HeartRateDataScreen(navController: NavController) {
         }
     }
 
+    var arrayList: ArrayList<HeartRateData> = ArrayList()
+
+    heartRateDataList.forEach { arrayList.add(it) }
+
     Scaffold(
         topBar = { AppBar(navController = navController, heartRateDataList = heartRateDataList, context = context) },
         content = {
-            HeartRateReportContent(viewModel = viewModel, heartRateDataList = heartRateDataList, onListUpdated = { heartRateDataList =
-                it as SnapshotStateList<HeartRateData>
+            HeartRateReportContent(viewModel = viewModel, heartRateDataList = heartRateDataList, onListUpdated = { arrayList =
+                it as ArrayList<HeartRateData>
             })
         }
     )

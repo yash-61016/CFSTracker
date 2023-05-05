@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.data.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.data.local.HeartRateData
@@ -24,10 +25,9 @@ class HeartRateRepositoryImpl @Inject constructor(
         timestamp: Date
     ): Flow<Resource<Boolean>> {
         return flow {
-            emit(Resource.Loading())
+
             var result = false
             val user = firebaseAuth.currentUser
-
             if (user != null) {
                 // Get the current week number and year
                 val calendar = Calendar.getInstance()
@@ -53,9 +53,11 @@ class HeartRateRepositoryImpl @Inject constructor(
                 val dayOfWeekString = getDayOfWeekString(dayOfWeek)
                 weekRef.collection(dayOfWeekString).add(data)
 
+                Log.d("reached end successful", "saved")
                 // Set result to true since data was stored successfully
                 result = true
             } else {
+                Log.d("Error", "error")
                 emit(Resource.Error("Failed to add data."))
             }
             emit(Resource.Success(result))

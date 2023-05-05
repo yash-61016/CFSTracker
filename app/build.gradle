@@ -63,6 +63,7 @@ dependencies {
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.camera:camera-lifecycle:1.0.2'
     implementation 'androidx.camera:camera-core:1.0.2'
+    implementation 'com.google.firebase:firebase-firestore:24.5.0'
     testImplementation 'junit:junit:4.13.2'
     implementation 'androidx.compose.foundation:foundation:1.2.0'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

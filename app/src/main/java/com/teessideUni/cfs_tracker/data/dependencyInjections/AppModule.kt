@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.dependencyInjections
+package com.teessideUni.cfs_tracker.data.dependencyInjections
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
