@@ -31,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,15 +84,13 @@ fun HeartRateDataScreen(navController: NavController) {
 
     val viewModel: ProfileViewModel = hiltViewModel()
     var heartRateDataList = remember { mutableStateListOf<HeartRateData>() }
-   var context = LocalContext.current
+    var context = LocalContext.current
     if (heartRateDataList.isEmpty()) {
         viewModel.getHeartRateDataList().let { data ->
             if (data.isNotEmpty()) heartRateDataList = data
         }
     }
-
     var arrayList: ArrayList<HeartRateData> = ArrayList()
-
     heartRateDataList.forEach { arrayList.add(it) }
 
     Scaffold(
@@ -337,8 +336,6 @@ fun StyledDatePicker(
     val (isDialogOpen, setIsDialogOpen) = remember { mutableStateOf(false) }
     val (text, setText) = remember { mutableStateOf(TextFieldValue(selectedDate?.format(DateTimeFormatter.ISO_LOCAL_DATE) ?: "")) }
     val coroutineScope = rememberCoroutineScope()
-    val state = viewModel.heartRateDataState.collectAsState(initial = null)
-
     val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
     val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
@@ -360,31 +357,36 @@ fun StyledDatePicker(
                 .clickable { setIsDialogOpen(true) }
                 .background(colors.surface, CircleShape)
                 .border(1.dp, colors.primary.copy(alpha = 0.5f), CircleShape)
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
-            Text(
-                text.text,
-                fontSize = 16.sp,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                color = colors.onSurface.copy(alpha = if (selectedDate == null) 0.5f else 1f)
-            )
-        }
-        Spacer(Modifier.width(16.dp))
-        Button(onClick = {
-            coroutineScope.launch {
-                viewModel.getHeartRateData(selectedYear, selectedWeekNumber).collect { result ->
-                    when (result) {
-                        is Resource.Success -> {
-                            val updatedList = mutableListOf<HeartRateData>()
-                            result.data?.let { updatedList.addAll(it) }
-                            onListUpdated(updatedList)
-                        }
-                        else -> {}
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text.text,
+                    fontSize = 16.sp,
+                    fontFamily = FontFamily(Font(R.font.poppins)),
+                    color = colors.onSurface.copy(alpha = if (selectedDate == null) 0.5f else 1f)
+                )
+                Spacer(Modifier.width(16.dp))
+                IconButton(onClick = {
+                    coroutineScope.launch {
+                        viewModel.getHeartRateData(selectedYear, selectedWeekNumber)
+                            .collect { result ->
+                                when (result) {
+                                    is Resource.Success -> {
+                                        val updatedList = result.data ?: emptyList()
+                                        onListUpdated(updatedList)
+                                    }
+                                    else -> {}
+                                }
+                            }
                     }
+                }) {
+                    Icon(Icons.Filled.Done, null, Modifier
+                        .background(colors.primary, CircleShape)
+                        .border(1.dp, colors.primary.copy(alpha = 0.5f), CircleShape)
+                        .padding(horizontal = 10.dp, vertical = 10.dp), tint = colors.onPrimary)
                 }
             }
-        }) {
-            Text(text = "Select")
         }
     }
     if (isDialogOpen) {
@@ -404,14 +406,6 @@ fun StyledDatePicker(
 
     Spacer(modifier = Modifier.height(16.dp))
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.Center
-    ) {
-        if (state.value?.isLoading == true) {
-            CircularProgressIndicator()
-        }
-    }
     // Display list of HeartRateData using LazyColumn and Box
     LazyColumn(
         modifier = Modifier.fillMaxSize(),

@@ -13,6 +13,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -54,18 +56,13 @@ class ProfileViewModel @Inject constructor(
         return heartRateDataList
     }
 
-    private val _heartRateState = Channel<ProfileViewState>()
-    val heartRateDataState = _heartRateState.receiveAsFlow()
-
     fun logout() = viewModelScope.launch {
         repository.signOut();
     }
 
      suspend fun getCurrentUserName(): String {
-         Log.d("reached", "reached at name")
          val currentUser = repository.getCurrentUserName()
          return if (currentUser != null) {
-             Log.d("reached", currentUser)
              currentUser ?: ""
          } else {
              // Handle the case where currentUser is null
@@ -73,14 +70,36 @@ class ProfileViewModel @Inject constructor(
          }
     }
 
-    fun getHeartRateData(year: Int, weekNumber: Int): Flow<Resource<List<HeartRateData>>> {
+    fun getHeartRateData(year: Int, weekNumber: Int): Flow<Resource<ArrayList<HeartRateData>>> {
         return heartRateRepository.getHeartRateDataForWeek(year, weekNumber)
             .map { result ->
                 when (result) {
                     is Resource.Success -> {
                         heartRateDataList.clear()
-                        val heartRateDataList = result.data as? List<HeartRateData> ?: emptyList()
-                        Resource.Success(heartRateDataList)
+                        result.data?.let { heartRateDataList.addAll(it) }
+                        var arrayList: ArrayList<HeartRateData> = ArrayList()
+                        heartRateDataList.forEach { arrayList.add(it) }
+                        Resource.Success(arrayList)
+                    }
+                    is Resource.Error -> Resource.Error(result.message.toString())
+                    is Resource.Loading -> Resource.Loading()
+                }
+            }
+            .catch { e ->
+                emit(Resource.Error(e.message.toString()))
+            }
+    }
+
+    fun getCurrentWeekData(): Flow<Resource<ArrayList<HeartRateData>>> {
+        return heartRateRepository.getHeartRateDataForWeek(currentYear, currentWeekNumber)
+            .map { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        heartRateDataList.clear()
+                        result.data?.let { heartRateDataList.addAll(it) }
+                        var arrayList: ArrayList<HeartRateData> = ArrayList()
+                        heartRateDataList.forEach { arrayList.add(it) }
+                        Resource.Success(arrayList)
                     }
                     is Resource.Error -> Resource.Error(result.message.toString())
                     is Resource.Loading -> Resource.Loading()

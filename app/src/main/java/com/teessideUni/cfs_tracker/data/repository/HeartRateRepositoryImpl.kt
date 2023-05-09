@@ -79,9 +79,13 @@ class HeartRateRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getHeartRateDataForWeek(year: Int, weekNumber: Int): Flow<Resource<MutableList<HeartRateData>>> {
+    override fun getHeartRateDataForWeek(
+        year: Int,
+        weekNumber: Int
+    ): Flow<Resource<MutableList<HeartRateData>>> {
         return flow {
             emit(Resource.Loading())
+
             val user = firebaseAuth.currentUser
             if (user != null) {
                 val (startDate, endDate) = getWeekStartAndEndDates(year, weekNumber)
@@ -113,6 +117,7 @@ class HeartRateRepositoryImpl @Inject constructor(
                     }
                 }
 
+
                 emit(Resource.Success(heartRateDataList))
             } else {
                 emit(Resource.Error("Failed to retrieve data."))
@@ -134,5 +139,4 @@ class HeartRateRepositoryImpl @Inject constructor(
         val endDate = calendar.time
         return Pair(startDate, endDate)
     }
-
 }
