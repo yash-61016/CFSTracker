@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components
+package com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service
 
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList

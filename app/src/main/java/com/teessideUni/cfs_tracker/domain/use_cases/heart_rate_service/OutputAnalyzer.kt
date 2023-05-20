@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components
+package com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service
 
 import android.os.Build
 import android.os.CountDownTimer
@@ -14,7 +14,7 @@ import com.teessideUni.cfs_tracker.core.Constants.MEASUREMENT_COMPLETE
 import com.teessideUni.cfs_tracker.core.Constants.MEASUREMENT_LENGTH
 import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_PULSE_TEXT
 import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_REALTIME_TEXT
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateDataStoreViewModel
+import com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateDataVM.HeartRateDataStoreViewModel
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
 import java.util.*
 import java.util.concurrent.CopyOnWriteArrayList

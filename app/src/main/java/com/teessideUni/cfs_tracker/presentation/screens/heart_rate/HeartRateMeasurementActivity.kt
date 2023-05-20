@@ -46,7 +46,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -68,14 +67,16 @@ import androidx.navigation.NavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.R
+import com.teessideUni.cfs_tracker.core.Constants.CAMERA_PERMISSION_REQUIRED
 import com.teessideUni.cfs_tracker.data.repository.HeartRateRepositoryImpl
 import com.teessideUni.cfs_tracker.core.Constants.FINGER_NOT_DETECTED
 import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_REALTIME_TEXT
 import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_PULSE_TEXT
 import com.teessideUni.cfs_tracker.core.Constants.REQUEST_CODE_CAMERA
 import com.teessideUni.cfs_tracker.core.Constants.UPDATED_MESSAGE
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components.CameraService
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components.OutputAnalyzer
+import com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service.CameraService
+import com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service.OutputAnalyzer
+import com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateDataVM.HeartRateDataStoreViewModel
 import java.util.*
 
 class HeartRateMeasurementActivity : AppCompatActivity() {
@@ -135,7 +136,7 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_CAMERA) {
             if (!(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                Toast.makeText(this, "Camera permissions required. ", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, CAMERA_PERMISSION_REQUIRED, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -209,7 +210,7 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         // Read the value of the State variables
         val pulseText = viewModel1.pulseText.value
         var messageText = viewModel1.messageText.value
-        if (messageText.isNullOrEmpty() || messageText == "") {
+        if (messageText.isEmpty() || messageText == "") {
             messageText = "Please place your finger on camera to begin pulse rate measurement."
         }
         val realTime by viewModel1.realTimeText
@@ -326,8 +327,6 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         AndroidView(factory = { context ->
             TextureView(context).apply {
                 // set up the texture view
-                // e.g., setSurfaceTextureListener, setLayoutParams, etc.
-
                 // start the camera service and output analyzer when the surface is ready
                 surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                     private var cameraService: CameraService? = null

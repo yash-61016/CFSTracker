@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.forgetpassword
+package com.teessideUni.cfs_tracker.domain.use_cases.view_models.forgetPasswordVM
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

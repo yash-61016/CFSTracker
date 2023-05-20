@@ -9,6 +9,7 @@ import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.domain.repository.HeartRateRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
 import java.util.Calendar
@@ -138,5 +139,46 @@ class HeartRateRepositoryImpl @Inject constructor(
         calendar.add(Calendar.DATE, 1)
         val endDate = calendar.time
         return Pair(startDate, endDate)
+    }
+
+    override fun getHeartRateDataForMonth(year: Int, month: Int): Flow<Resource<MutableList<HeartRateData>>> {
+        return flow {
+            emit(Resource.Loading())
+
+            val user = firebaseAuth.currentUser
+            if (user != null) {
+                val targetCalendar = Calendar.getInstance()
+                targetCalendar.clear()
+                targetCalendar.set(Calendar.YEAR, year)
+                targetCalendar.set(Calendar.MONTH, month - 1)
+
+                val weeksInMonth = targetCalendar.getWeeksInMonth()
+
+                val heartRateDataList = mutableListOf<HeartRateData>()
+
+                for (weekNumber in 1..weeksInMonth) {
+                    val heartRateDataForWeek = getHeartRateDataForWeek(year, weekNumber).first()
+                    if (heartRateDataForWeek is Resource.Success) {
+                        heartRateDataForWeek.data?.let { heartRateDataList.addAll(it) }
+                    }
+                }
+
+                emit(Resource.Success(heartRateDataList))
+            } else {
+                emit(Resource.Error("Failed to retrieve data."))
+            }
+        }.catch {
+            emit(Resource.Error(it.message.toString()))
+        }
+    }
+
+    private fun Calendar.getWeeksInMonth(): Int {
+        val firstDayOfMonth = this.apply { set(Calendar.DAY_OF_MONTH, 1) }
+        val lastDayOfMonth = this.apply { set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH)) }
+
+        val firstWeekOfYear = firstDayOfMonth.get(Calendar.WEEK_OF_YEAR)
+        val lastWeekOfYear = lastDayOfMonth.get(Calendar.WEEK_OF_YEAR)
+
+        return lastWeekOfYear - firstWeekOfYear + 1
     }
 }

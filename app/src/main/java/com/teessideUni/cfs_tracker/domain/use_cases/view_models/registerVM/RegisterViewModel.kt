@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.register_screen
+package com.teessideUni.cfs_tracker.domain.use_cases.view_models.registerVM
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

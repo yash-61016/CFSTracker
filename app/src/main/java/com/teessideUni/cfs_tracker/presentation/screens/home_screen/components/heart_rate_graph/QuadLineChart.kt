@@ -1,4 +1,4 @@
-package com.metehanbolat.linechartcompose
+package com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.heart_rate_graph
 
 import android.annotation.SuppressLint
 import android.graphics.Paint
@@ -10,6 +10,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -17,12 +18,15 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +34,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import kotlin.math.min
 import kotlin.math.round
+import kotlin.math.roundToInt
 
 @SuppressLint("SimpleDateFormat")
 @RequiresApi(Build.VERSION_CODES.O)
@@ -38,6 +43,7 @@ fun QuadLineChart(
     data: List<Pair<Double, Date>> = emptyList(),
     modifier: Modifier = Modifier,
     isLoading: Boolean = false, // Add the isLoading parameter with a default value
+    onPointClick: ((Double, Date) -> Unit)? = null, // Add a callback for point click events
 ) {
     val spacing = 100f
     val graphColor = Color.Red
@@ -62,13 +68,38 @@ fun QuadLineChart(
         )
     )
 
+    var touchedX by remember { mutableStateOf<Float?>(null) }
+    var touchedY by remember { mutableStateOf<Float?>(null) }
+
     Box(
-        modifier = modifier.background(MaterialTheme.colors.background).padding(16.dp).wrapContentSize()
+        modifier = modifier
+            .background(MaterialTheme.colors.background)
+            .padding(16.dp)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onPress = { offset ->
+                        touchedX = offset.x
+                        touchedY = offset.y
+                        if (!isLoading) {
+                            val dataIndex = ((offset.x - spacing) / ((size.width - spacing) / data.size)).toInt()
+                            if (dataIndex >= 0 && dataIndex < data.size) {
+                                val (value, date) = data[dataIndex]
+                                onPointClick?.invoke(value, date)
+                            }
+                        }
+                    },
+                    onDoubleTap = {
+                        touchedX = null
+                        touchedY = null
+                    }
+                )
+            }
+            .wrapContentSize()
     ) {
         Canvas(
             modifier = Modifier.fillMaxSize()
         ) {
-            if(isLoading){
+            if (isLoading) {
                 // Draw circular loading indicator
                 val center = Offset(size.width / 2f, size.height / 2f)
                 val radius = min(size.width, size.height) / 4f
@@ -88,7 +119,7 @@ fun QuadLineChart(
             }
             if (data.isEmpty()) {
                 drawContext.canvas.nativeCanvas.drawText(
-                    "No data found",
+                    "No data found in this week.",
                     size.width / 2,
                     size.height / 2,
                     textPaint
@@ -117,6 +148,7 @@ fun QuadLineChart(
             }
             drawContext.canvas.nativeCanvas.restore()
 
+            // x-axis data points
             (data.indices step 2).forEach { i ->
                 val timestamp = data[i].second
                 val formattedTimestamp = SimpleDateFormat("EEE d/M HH:mm").format(timestamp)
@@ -130,6 +162,7 @@ fun QuadLineChart(
                 }
             }
 
+            //y-axis points
             val priceStep = (upperValue - lowerValue) / 5f
             (0..4).forEach { i ->
                 drawContext.canvas.nativeCanvas.apply {
@@ -190,6 +223,54 @@ fun QuadLineChart(
                     endY = size.height - spacing
                 )
             )
+            // Handle touch events
+            touchedX?.let { x ->
+                val index = ((x - spacing) / spacePerHour).toInt().coerceIn(0, data.lastIndex)
+                val selectedData = data[index]
+                val formattedTimestamp = SimpleDateFormat("EEE d/M HH:mm").format(selectedData.second)
+                val value = selectedData.first.roundToInt()
+                val xPos = spacing + index * spacePerHour
+                val yPos = size.height - spacing - (selectedData.first - lowerValue) / (upperValue - lowerValue) * size.height
+
+                // Draw vertical line
+                drawLine(
+                    color = Color.Transparent,
+                    start = Offset(xPos, 0f),
+                    end = Offset(xPos, size.height),
+                    strokeWidth = 1.dp.toPx()
+                )
+
+                // Draw horizontal line
+                drawLine(
+                    color = Color.Transparent,
+                    start = Offset(spacing, yPos.toFloat()),
+                    end = Offset(size.width - spacePerHour, yPos.toFloat()),
+                    strokeWidth = 1.dp.toPx()
+                )
+
+                // Draw dot on the line
+                drawCircle(
+                    color = graphColor,
+                    center = Offset(xPos, yPos.toFloat()),
+                    radius = 4.dp.toPx()
+                )
+
+                // Draw x-axis label on touch
+                drawContext.canvas.nativeCanvas.drawText(
+                    formattedTimestamp,
+                    xPos,
+                    (yPos - 10.dp.toPx()).toFloat(),
+                    textPaint
+                )
+
+                // Draw y-axis label on touch
+                drawContext.canvas.nativeCanvas.drawText(
+                    value.toString(),
+                    xPos,
+                    (yPos + 20.dp.toPx()).toFloat(),
+                    textPaint
+                )
+            }
         }
     }
 }

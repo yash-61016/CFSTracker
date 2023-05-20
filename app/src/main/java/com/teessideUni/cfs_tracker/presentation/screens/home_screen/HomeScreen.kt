@@ -2,7 +2,10 @@ package com.teessideUni.cfs_tracker.presentation.screens.home_screen
 
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
@@ -21,6 +24,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -32,6 +36,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -44,6 +49,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -53,133 +59,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import com.metehanbolat.linechartcompose.QuadLineChart
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.data.local.HeartRateData
+import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
 import com.teessideUni.cfs_tracker.domain.model.Resource
+import com.teessideUni.cfs_tracker.domain.use_cases.view_models.homePageVM.ProfileViewModel
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
+import com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.heart_rate_graph.BarChart
 import kotlinx.coroutines.launch
-import java.util.Date
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Composable
-//fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltViewModel()) {
-//
-//    val coroutineScope = rememberCoroutineScope()
-//    val context = LocalContext.current
-//    val launcher = rememberLauncherForActivityResult(
-//        contract = ActivityResultContracts.StartActivityForResult()
-//    ) { _ ->
-//    }
-//
-//    var heartRateAllWeekDataList by remember { mutableStateOf<List<HeartRateData>>(emptyList()) }
-//    val dataPoints = mutableListOf<Pair<Double, Date>>()
-//
-//    LaunchedEffect(Unit) {
-//        viewModel.getCurrentWeekData().collect { result ->
-//            when (result) {
-//                is Resource.Success -> {
-//                    Log.d("reached", "console reached here2")
-//                    heartRateAllWeekDataList = result.data ?: emptyList()
-//                    heartRateAllWeekDataList.forEach { data ->
-//                        dataPoints.add(Pair(data.heartRate, data.timestamp))
-//                    }
-//                }
-//                is Resource.Error -> {
-//                    // Handle error case
-//                }
-//                is Resource.Loading -> {
-//                    // Handle loading state
-//                }
-//            }
-//        }
-//    }
-//
-//    Column(
-//        modifier = Modifier
-//            .fillMaxSize()
-//            .background(MaterialTheme.colors.background),
-//    ) {
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Text(
-//            text = "Home Page: CFS Tracker",
-//            color = Color.Black,
-//            fontSize = 25.sp,
-//            fontWeight = FontWeight.Bold,
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(vertical = 16.dp)
-//        )
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//
-//
-//        Row(
-//            modifier = Modifier.fillMaxWidth(),
-//            horizontalArrangement = Arrangement.SpaceBetween
-//        ) {
-//            Text(
-//                text = "Timestamp",
-//                color = Color.White,
-//                modifier = Modifier.padding(start = 16.dp, top = 8.dp, end = 16.dp)
-//            )
-//            Text(
-//                text = "Heart Rate",
-//                color = Color.White,
-//                modifier = Modifier.padding(end = 16.dp, top = 8.dp)
-//            )
-//        }
-//        Box(
-//            modifier = Modifier.weight(1f),
-//            contentAlignment = Alignment.Center
-//        ) {
-//            QuadLineChart(
-//                data = dataPoints,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .height(300.dp)
-//            )
-//        }
-//
-//
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Button(
-//            onClick = {
-//                //  Create an Intent to start the activity
-//                val intent = Intent(context, HeartRateMeasurementActivity::class.java)
-//                launcher.launch(intent)
-//            }
-//        ) {
-//            Text("Heart Rate Measurement")
-//        }
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Button(
-//            onClick = {
-//                coroutineScope.launch {
-//                    viewModel.logout()
-//                }
-//            }
-//        ) {
-//            Text("Logout")
-//        }
-//        Spacer(modifier = Modifier.height(16.dp))
-//        Button(
-//            onClick = {
-//                navController.navigate("heart_rate_report_page") {
-//                    popUpTo(navController.graph.findStartDestination().id) {
-//                        inclusive = true
-//                    }
-//                    launchSingleTop = true
-//                }
-//            }
-//        ) {
-//            Text("Heart Rate Report")
-//        }
-//    }
-//}
-
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -191,19 +78,23 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
         contract = ActivityResultContracts.StartActivityForResult()
     ) { _ ->
     }
-
     var heartRateAllWeekDataList by remember { mutableStateOf<List<HeartRateData>>(emptyList()) }
+//    var heartRateDataList by remember { mutableStateOf<List<HeartRateData>>(emptyList()) }
+    var heartRateDataPoint by remember { mutableStateOf<List<List<HeartRatePoint>>>(emptyList()) }
     var isHeartRateSelected by remember { mutableStateOf(true) }
     var isLoading by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.getCurrentWeekData().collect { result ->
             when (result) {
                 is Resource.Success -> {
                     val data = result.data ?: emptyList()
                     isLoading = false
+                    // Clear the heartRateAllWeekDataList before updating it
+                    heartRateAllWeekDataList = emptyList()
                     if (data.isNotEmpty()) {
-                        // Update the heartRateAllWeekDataList
-                        heartRateAllWeekDataList = data
+                        // Update the heartRateDataPointlist
+                        heartRateDataPoint = viewModel.filterMaxMinHeartRatePerDay(data)
                     }
                 }
                 is Resource.Error -> {
@@ -216,12 +107,29 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
             }
         }
     }
+//    val dataPoints = mutableListOf<Pair<Double, Date>>()
+//    heartRateAllWeekDataList.forEach { data ->
+//        dataPoints.add(Pair(data.heartRate, data.timestamp))
+//    }
+//    heartRateDataList = heartRateAllWeekDataList
 
-    val dataPoints = mutableListOf<Pair<Double, Date>>()
-    heartRateAllWeekDataList.forEach { data ->
-        dataPoints.add(Pair(data.heartRate, data.timestamp))
+
+
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+
+    // Disable back press on home screen
+    DisposableEffect(lifecycleOwner, onBackPressedDispatcher) {
+        val callback = object : OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() {
+                // Do nothing to disable back press
+            }
+        }
+        onBackPressedDispatcher?.addCallback(lifecycleOwner, callback)
+        onDispose {
+            callback.remove()
+        }
     }
-
 
     Column(
         modifier = Modifier
@@ -275,8 +183,74 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.End
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            Row {
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.getPreviousWeekData().collect { result ->
+                                when (result) {
+                                    is Resource.Success -> {
+                                        val data = result.data ?: emptyList()
+                                        isLoading = false
+                                        // Clear the heartRateAllWeekDataList before updating it
+                                        heartRateAllWeekDataList = emptyList()
+                                        heartRateDataPoint = if (data.isNotEmpty()) {
+                                            // Update the heartRateDataPointlist
+                                            viewModel.filterMaxMinHeartRatePerDay(data)
+                                        }else{
+                                            emptyList()
+                                        }
+                                    }
+                                    is Resource.Error -> {
+                                        Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT).show()
+                                    }
+                                    is Resource.Loading -> {
+                                        // Handle loading state
+                                        isLoading = true
+                                    }
+                                }
+                            }
+                        } },
+                    modifier = Modifier.padding(end = 8.dp)
+                ) {
+                    Text(text = "Last Week")
+                }
+
+                Button(
+                    onClick = { coroutineScope.launch {
+                        viewModel.getCurrentWeekData().collect { result ->
+                            when (result) {
+                                is Resource.Success -> {
+                                    val data = result.data ?: emptyList()
+                                    Log.d("reached in this week call","reach here in this week call")
+
+                                    // Clear the heartRateAllWeekDataList before updating it
+                                    heartRateAllWeekDataList = emptyList()
+                                    heartRateDataPoint = if (data.isNotEmpty()) {
+                                        // Update the heartRateDataPoint List
+                                        viewModel.filterMaxMinHeartRatePerDay(data)
+                                    }else{
+                                        emptyList()
+                                    }
+                                    isLoading = false
+                                }
+                                is Resource.Error -> {
+                                    Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT).show()
+                                }
+                                is Resource.Loading -> {
+                                    // Handle loading state
+                                    isLoading = true
+                                }
+                            }
+                        }
+                    } },
+                ) {
+                    Text(text = "This Week")
+                }
+            }
+
             Text(
                 text = if (isHeartRateSelected) "Heart Rate" else "Respiratory Rate",
                 color = MaterialTheme.colors.onBackground,
@@ -285,6 +259,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                     .align(Alignment.CenterVertically)
                     .padding(end = 8.dp)
             )
+
             Spacer(modifier = Modifier.width(8.dp))
             Switch(
                 checked = isHeartRateSelected,
@@ -316,13 +291,13 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 shape = RoundedCornerShape(16.dp)
             ) {
                 if (isHeartRateSelected) {
-                    QuadLineChart(
-                        data = dataPoints,
+                    BarChart(
+                        data = heartRateDataPoint,
                         modifier = Modifier.fillMaxSize(),
                         isLoading = isLoading
                     )
                 } else {
-                    // Display respiratory rate data
+                    // TODO Respitory data grapgh
                 }
             }
         }
@@ -402,12 +377,3 @@ fun CardButton(
         }
     }
 }
-
-//@RequiresApi(Build.VERSION_CODES.O)
-//@Preview(showBackground = true, backgroundColor = 0xFFFFFFFF)
-//@Composable
-//fun HomeScreenPreview() {
-//    MaterialTheme {
-//        HomeScreen()
-//    }
-//}

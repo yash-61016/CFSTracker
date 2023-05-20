@@ -35,14 +35,12 @@ import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -63,7 +61,7 @@ import com.opencsv.CSVWriter
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.data.local.HeartRateData
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.presentation.screens.home_screen.ProfileViewModel
+import com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateReportVM.HeartRateReportViewModel
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileWriter
@@ -82,7 +80,7 @@ import java.util.Locale
 @Composable
 fun HeartRateDataScreen(navController: NavController) {
 
-    val viewModel: ProfileViewModel = hiltViewModel()
+    val viewModel: HeartRateReportViewModel = hiltViewModel()
     var heartRateDataList = remember { mutableStateListOf<HeartRateData>() }
     var context = LocalContext.current
     if (heartRateDataList.isEmpty()) {
@@ -114,8 +112,6 @@ fun AppBar(navController: NavController, heartRateDataList: List<HeartRateData>,
             .height(statusBarHeight - 20.dp)
             .background(backgroundColor)
     ) {
-        //Spacer(modifier = Modifier.statusBarsHeight()) // make sure to reserve space for system status bar
-
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -209,7 +205,7 @@ private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, cont
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HeartRateReportContent(viewModel: ProfileViewModel, heartRateDataList: List<HeartRateData>, onListUpdated: (List<HeartRateData>) -> Unit)
+fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataList: List<HeartRateData>, onListUpdated: (List<HeartRateData>) -> Unit)
 {
     val coroutineScope = rememberCoroutineScope()
     var name by remember { mutableStateOf("") }
@@ -321,7 +317,7 @@ fun DatePickerWrapper(
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StyledDatePicker(
-    viewModel: ProfileViewModel,
+    viewModel: HeartRateReportViewModel,
     heartRateDataList: List<HeartRateData>,
     onListUpdated: (List<HeartRateData>) -> Unit
 ) {

@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heart_rate.components
+package com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service
 
 import android.Manifest
 import android.app.Activity
@@ -10,7 +10,9 @@ import android.os.HandlerThread
 import android.os.Message
 import android.util.Log
 import android.view.Surface
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import com.teessideUni.cfs_tracker.core.Constants.FAILED_CAMERA_ACCESS
 import com.teessideUni.cfs_tracker.core.Constants.UPDATED_MESSAGE
 import java.util.*
 
@@ -24,30 +26,27 @@ class CameraService(private val activity: Activity, private val handler: Handler
         try {
             cameraId = Objects.requireNonNull(cameraManager).cameraIdList[0]
         } catch (e: CameraAccessException) {
-            Log.e("camera", "No access to camera", e)
             handler.sendMessage(
                 Message.obtain(
                     handler,
                     UPDATED_MESSAGE,
-                    "No access to camera...."
+                    FAILED_CAMERA_ACCESS
                 )
             )
         } catch (e: NullPointerException) {
-            Log.e("camera", "No access to camera", e)
             handler.sendMessage(
                 Message.obtain(
                     handler,
                     UPDATED_MESSAGE,
-                    "No access to camera...."
+                    FAILED_CAMERA_ACCESS
                 )
             )
         } catch (e: ArrayIndexOutOfBoundsException) {
-            Log.e("camera", "No access to camera", e)
             handler.sendMessage(
                 Message.obtain(
                     handler,
                     UPDATED_MESSAGE,
-                    "No access to camera...."
+                    FAILED_CAMERA_ACCESS
                 )
             )
         }
@@ -57,12 +56,11 @@ class CameraService(private val activity: Activity, private val handler: Handler
                     Manifest.permission.CAMERA
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                Log.println(Log.ERROR, "camera", "No permission to take photos")
                 handler.sendMessage(
                     Message.obtain(
                         handler,
                         UPDATED_MESSAGE,
-                        "No permission to take photos"
+                        FAILED_CAMERA_ACCESS
                     )
                 )
                 return
@@ -103,7 +101,7 @@ class CameraService(private val activity: Activity, private val handler: Handler
                                 }
 
                                 override fun onConfigureFailed(session: CameraCaptureSession) {
-                                    Log.println(Log.ERROR, "camera", "Session configuration failed")
+                                    Toast.makeText(activity, "Camera session configuration failed", Toast.LENGTH_SHORT).show()
                                 }
                             }
                         try {
@@ -115,7 +113,13 @@ class CameraService(private val activity: Activity, private val handler: Handler
                             ) //1
                         } catch (e: CameraAccessException) {
                             if (e.message != null) {
-                                Log.println(Log.ERROR, "camera", e.message!!)
+                                handler.sendMessage(
+                                    Message.obtain(
+                                        handler,
+                                        UPDATED_MESSAGE,
+                                        e.message
+                                    )
+                                )
                             }
                         }
                     }
@@ -125,7 +129,6 @@ class CameraService(private val activity: Activity, private val handler: Handler
                 }, null)
         } catch (e: CameraAccessException) {
             if (e.message != null) {
-                Log.println(Log.ERROR, "camera", e.message!!)
                 handler.sendMessage(
                     Message.obtain(
                         handler,

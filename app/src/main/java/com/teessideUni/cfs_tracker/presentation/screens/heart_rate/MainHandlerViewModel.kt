@@ -25,7 +25,6 @@ class MainHandlerViewModel : ViewModel() {
         _messageText.value = text
     }
 
-
     // Call this function to update the final text
     fun updateRealTimeText(value: Int) {
         _realTimeText.value = value

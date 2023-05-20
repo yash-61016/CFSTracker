@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.login_screen
+package com.teessideUni.cfs_tracker.domain.use_cases.view_models.loginVM
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

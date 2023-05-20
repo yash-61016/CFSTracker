@@ -5,8 +5,6 @@ import android.view.ViewTreeObserver
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalView
 
-
-
 @Composable
 fun keyboardAsState(): Boolean {
     val keyboardState = remember { mutableStateOf(false) }
