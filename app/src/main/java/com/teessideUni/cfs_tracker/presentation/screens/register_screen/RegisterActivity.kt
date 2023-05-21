@@ -12,7 +12,15 @@ import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,7 +54,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = hiltViewModel()) {
 
@@ -117,7 +125,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                 .fillMaxWidth()
                 .fillMaxHeight(0.70f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(MaterialTheme.colors.background)
+                .background(Color.White)
                 .padding(10.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -129,7 +137,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
             ) {
                 item {
                     Text(
-                        text = "Sign Up", fontSize = 30.sp,
+                        text = "SIGN UP",
+                        fontSize = 30.sp,
+                        color = Color.Black,
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 2.sp
@@ -143,8 +153,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                 nameValue.value = it
                                 nameError.value = !isValidName(it)
                             },
-                            label = { Text(text = "Name") },
-                            placeholder = { Text(text = "Name") },
+                            label = { Text(text = "Name", color = Color.Gray) },
+                            placeholder = { Text(text = "Name", color = Color.Gray) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             singleLine = true,
                             shape = InputBoxShape.medium,
                             leadingIcon = {
@@ -155,7 +166,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.user_icon),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -166,7 +177,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
@@ -199,8 +210,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                 emailValue.value = it
                                 emailError.value = !isValidEmail(it)
                             },
-                            label = { Text(text = "Email Address") },
-                            placeholder = { Text(text = "Email Address") },
+                            label = { Text(text = "Email Address", color = Color.Gray) },
+                            placeholder = { Text(text = "Email Address", color = Color.Gray) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             singleLine = true,
                             shape = InputBoxShape.medium,
                             leadingIcon = {
@@ -211,7 +223,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_email_outline),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -222,7 +234,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
@@ -255,8 +267,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                 phoneValue.value = it
                                 phoneError.value = !isValidPhoneNumber(it)
                             },
-                            label = { Text(text = "Phone Number") },
-                            placeholder = { Text(text = "Phone Number (Prefix(Code: +44)") },
+                            label = { Text(text = "Phone Number", color = Color.Gray) },
+                            placeholder = { Text(text = "Phone Number (Prefix(Code: +44)", color = Color.Gray) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             shape = InputBoxShape.medium,
                             leadingIcon = {
                                 Row(
@@ -266,7 +279,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.phone_icon),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -277,7 +290,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
@@ -314,8 +327,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                 passwordValue.value = it
                                 passwordError.value = !isValidPassword(it)
                             },
-                            label = { Text(text = "Password") },
-                            placeholder = { Text(text = "Password") },
+                            label = { Text(text = "Password", color = Color.Gray) },
+                            placeholder = { Text(text = "Password", color = Color.Gray) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             shape = InputBoxShape.medium,
                             leadingIcon = {
                                 Row(
@@ -325,7 +339,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -336,7 +350,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
@@ -363,7 +377,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
                                         contentDescription = "EyeImage",
-                                        tint = if (passwordVisibility.value) MaterialTheme.colors.primary else Color.Gray
+                                        tint = if (passwordVisibility.value) MaterialTheme.colorScheme.primary else Color.Gray
                                     )
                                 }
                             },
@@ -386,8 +400,9 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     passwordValue.value
                                 )
                             },
-                            label = { Text(text = "Confirm Password") },
-                            placeholder = { Text(text = "Confirm Password") },
+                            label = { Text(text = "Confirm Password", color = Color.Gray) },
+                            placeholder = { Text(text = "Confirm Password", color = Color.Gray) },
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             shape = InputBoxShape.medium,
                             leadingIcon = {
                                 Row(
@@ -397,7 +412,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -408,7 +423,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary)
+                                            .background(Color.Gray)
                                     )
                                 }
                             },
@@ -436,7 +451,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
                                         contentDescription = "EyeImage",
-                                        tint = if (confirmPasswordVisibility.value) MaterialTheme.colors.primary else Color.Gray
+                                        tint = if (confirmPasswordVisibility.value) MaterialTheme.colorScheme.primary else Color.Gray
                                     )
                                 }
                             },
@@ -466,7 +481,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
                                 .height(50.dp),
                             shape = RoundedCornerShape(15.dp)
                         ) {
-                            Text(text = "Sign Up", fontSize = 20.sp)
+                            Text(text = "Sign Up", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary)
                         }
 
                         Spacer(modifier = Modifier.padding(5.dp))
@@ -484,7 +499,7 @@ fun RegisterScene(navController: NavController, viewModel: RegisterViewModel = h
 
                         Text(
                             text = "Already Have an account? Sign In.",
-                            color = Color.Black,
+                            color =  Color.DarkGray,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(onClick = {

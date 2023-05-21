@@ -6,7 +6,7 @@ import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.material.*
+//import androidx.compose.material.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -16,6 +16,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.onFocusEvent
@@ -34,7 +42,7 @@ import com.teessideUni.cfs_tracker.ui.theme.InputBoxShape
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltViewModel()) {
 
@@ -93,7 +101,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                 .fillMaxWidth()
                 .fillMaxHeight(0.55f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(MaterialTheme.colors.background)
+                .background(Color.White)
                 .padding(10.dp)
         ) {
             LazyColumn(
@@ -102,11 +110,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
             ) {
                 item {
                     Text(
-                        text = "Sign In",
+                        text = "SIGN IN",
                         style = TextStyle(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 2.sp
                         ),
+                        color = Color.Black,
                         fontSize = 30.sp
                     )
                     Spacer(modifier = Modifier.padding(20.dp))
@@ -117,8 +126,18 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         OutlinedTextField(
                             value = emailValue.value,
                             onValueChange = { emailValue.value = it },
-                            label = { Text(text = "Email Address") },
-                            placeholder = { Text(text = "Email Address") },
+                            label = {
+                                Text(
+                                    text = "Email Address",
+                                    color = Color.Gray
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    text = "Email Address",
+                                    color = Color.Gray
+                                )
+                            },
                             shape = InputBoxShape.medium,
                             leadingIcon = {
                                 Row(
@@ -128,7 +147,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_email_outline),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -139,11 +158,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary,)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
                             singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .onFocusEvent { event ->
@@ -170,13 +190,13 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                 }) {
                                     Icon(
                                         painter = painterResource(id = R.drawable.password_eye),
-                                        tint = if (passwordVisibility.value) MaterialTheme.colors.primary else Color.Gray,
+                                        tint = if (passwordVisibility.value) MaterialTheme.colorScheme.primary else Color.Gray,
                                         contentDescription = "EyeIcon"
                                     )
                                 }
                             },
-                            label = { Text("Password") },
-                            placeholder = { Text(text = "Password") },
+                            label = { Text("Password", color = Color.Gray ) },
+                            placeholder = { Text(text = "Password", color = Color.Gray) },
                             shape = InputBoxShape.medium,
                             leadingIcon = {
                                 Row(
@@ -186,7 +206,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                     Icon(
                                         painter = painterResource(id = R.drawable.ic_lock),
                                         contentDescription = "",
-                                        tint = MaterialTheme.colors.primary,
+                                        tint = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(
@@ -197,11 +217,12 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                         modifier = Modifier
                                             .width(1.dp)
                                             .height(24.dp)
-                                            .background(MaterialTheme.colors.primary,)
+                                            .background(Color.Black)
                                     )
                                 }
                             },
                             singleLine = true,
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black),
                             keyboardOptions = KeyboardOptions(
                                 imeAction = ImeAction.Done,
                                 autoCorrect = false,
@@ -223,9 +244,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                         }
                                     }
                                 }
-
                         )
-
                         Spacer(modifier = Modifier.padding(10.dp))
                         Button(
                             onClick = {
@@ -238,7 +257,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                                 .height(50.dp),
                             shape = RoundedCornerShape(15.dp)
                         ) {
-                            Text(text = "Sign In", fontSize = 20.sp)
+                            Text(text = "Sign In", fontSize = 20.sp, color = MaterialTheme.colorScheme.onPrimary)
                         }
 
                         Spacer(modifier = Modifier.padding(20.dp))
@@ -256,9 +275,9 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
 
                         Text(
                             text = "Don't have an Account? Sign Up.",
-                            color = Color.Black,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.SemiBold,
+                            color =  Color.DarkGray,
                             modifier = Modifier.clickable(onClick = {
                                 navController.navigate("register_page") {
                                     popUpTo(navController.graph.findStartDestination().id) {
@@ -271,7 +290,7 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel = hiltVi
                         Spacer(modifier = Modifier.padding(10.dp))
                         Text(
                             text = "Forget Password",
-                            color = Color.Black,
+                            color =  Color.Gray,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.clickable(onClick = {

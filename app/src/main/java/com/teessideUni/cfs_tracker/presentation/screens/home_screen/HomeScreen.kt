@@ -23,18 +23,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -79,8 +83,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
     ) { _ ->
     }
     var heartRateAllWeekDataList by remember { mutableStateOf<List<HeartRateData>>(emptyList()) }
-//    var heartRateDataList by remember { mutableStateOf<List<HeartRateData>>(emptyList()) }
-    var heartRateDataPoint by remember { mutableStateOf<List<List<HeartRatePoint>>>(emptyList()) }
+    var heartRateDataPointList by remember { mutableStateOf<List<List<HeartRatePoint>>>(emptyList()) }
     var isHeartRateSelected by remember { mutableStateOf(true) }
     var isLoading by remember { mutableStateOf(false) }
 
@@ -93,8 +96,9 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                     // Clear the heartRateAllWeekDataList before updating it
                     heartRateAllWeekDataList = emptyList()
                     if (data.isNotEmpty()) {
-                        // Update the heartRateDataPointlist
-                        heartRateDataPoint = viewModel.filterMaxMinHeartRatePerDay(data)
+                        // Update the heartRateDataPoint list
+                        heartRateAllWeekDataList = data
+                        heartRateDataPointList = viewModel.filterMaxMinHeartRatePerDay(data)
                     }
                 }
                 is Resource.Error -> {
@@ -107,13 +111,6 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
             }
         }
     }
-//    val dataPoints = mutableListOf<Pair<Double, Date>>()
-//    heartRateAllWeekDataList.forEach { data ->
-//        dataPoints.add(Pair(data.heartRate, data.timestamp))
-//    }
-//    heartRateDataList = heartRateAllWeekDataList
-
-
 
     val lifecycleOwner = LocalLifecycleOwner.current
     val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
@@ -134,7 +131,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colors.background),
+            .background(Color.White),
     ) {
         Row(
             modifier = Modifier
@@ -165,7 +162,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                     Icon(
                         imageVector = Icons.Default.ExitToApp,
                         contentDescription = "Logout",
-                        tint = MaterialTheme.colors.onBackground,
+                        tint = Color.Black,
                         modifier = Modifier
                             .size(34.dp)
                             .padding(top = 8.dp)
@@ -173,7 +170,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 }
                 Text(
                     text = "Logout",
-                    color = MaterialTheme.colors.onBackground,
+                    color = Color.Black,
                     fontSize = 12.sp,
                     modifier = Modifier.padding(top = 8.dp)
                 )
@@ -183,9 +180,11 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
                 Button(
                     onClick = {
                         coroutineScope.launch {
@@ -196,15 +195,16 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                                         isLoading = false
                                         // Clear the heartRateAllWeekDataList before updating it
                                         heartRateAllWeekDataList = emptyList()
-                                        heartRateDataPoint = if (data.isNotEmpty()) {
-                                            // Update the heartRateDataPointlist
+                                        heartRateDataPointList = if (data.isNotEmpty()) {
+                                            // Update the heartRateDataPoint list
                                             viewModel.filterMaxMinHeartRatePerDay(data)
-                                        }else{
+                                        } else {
                                             emptyList()
                                         }
                                     }
                                     is Resource.Error -> {
-                                        Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT)
+                                            .show()
                                     }
                                     is Resource.Loading -> {
                                         // Handle loading state
@@ -212,65 +212,90 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                                     }
                                 }
                             }
-                        } },
-                    modifier = Modifier.padding(end = 8.dp)
+                        }
+                    },
+                    modifier = Modifier
+                        .height(40.dp)
+                        .padding(end = 4.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text(text = "Last Week")
+                    Text(text = "Last Week", color = MaterialTheme.colorScheme.onPrimary)
                 }
 
-                Button(
-                    onClick = { coroutineScope.launch {
-                        viewModel.getCurrentWeekData().collect { result ->
-                            when (result) {
-                                is Resource.Success -> {
-                                    val data = result.data ?: emptyList()
-                                    Log.d("reached in this week call","reach here in this week call")
+                Spacer(modifier = Modifier.height(8.dp))
 
-                                    // Clear the heartRateAllWeekDataList before updating it
-                                    heartRateAllWeekDataList = emptyList()
-                                    heartRateDataPoint = if (data.isNotEmpty()) {
-                                        // Update the heartRateDataPoint List
-                                        viewModel.filterMaxMinHeartRatePerDay(data)
-                                    }else{
-                                        emptyList()
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            viewModel.getCurrentWeekData().collect { result ->
+                                when (result) {
+                                    is Resource.Success -> {
+                                        val data = result.data ?: emptyList()
+                                        Log.d("reached in this week call", "reach here in this week call")
+
+                                        // Clear the heartRateAllWeekDataList before updating it
+                                        heartRateAllWeekDataList = emptyList()
+                                        heartRateDataPointList = if (data.isNotEmpty()) {
+                                            // Update the heartRateDataPoint List
+                                            viewModel.filterMaxMinHeartRatePerDay(data)
+                                        } else {
+                                            emptyList()
+                                        }
+                                        isLoading = false
                                     }
-                                    isLoading = false
-                                }
-                                is Resource.Error -> {
-                                    Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT).show()
-                                }
-                                is Resource.Loading -> {
-                                    // Handle loading state
-                                    isLoading = true
+                                    is Resource.Error -> {
+                                        Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT)
+                                            .show()
+                                    }
+                                    is Resource.Loading -> {
+                                        // Handle loading state
+                                        isLoading = true
+                                    }
                                 }
                             }
                         }
-                    } },
+                    },
+                    modifier = Modifier
+                        .height(40.dp)
+                        .fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onPrimary
+                    )
                 ) {
-                    Text(text = "This Week")
+                    Text(text = "This Week", color = MaterialTheme.colorScheme.onPrimary)
                 }
             }
 
+            Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = if (isHeartRateSelected) "Heart Rate" else "Respiratory Rate",
-                color = MaterialTheme.colors.onBackground,
+                color = Color.Black,
+                fontSize = 14.sp,
                 textAlign = TextAlign.End,
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
-                    .padding(end = 8.dp)
+                    .padding(end = 13.dp)
             )
-
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(3.dp))
             Switch(
                 checked = isHeartRateSelected,
                 onCheckedChange = { isHeartRateSelected = it },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = MaterialTheme.colors.primary,
-                    uncheckedThumbColor = if (isHeartRateSelected) MaterialTheme.colors.onBackground else MaterialTheme.colors.primary,
-                    checkedTrackColor = MaterialTheme.colors.primary.copy(alpha = 0.4f),
-                    uncheckedTrackColor = MaterialTheme.colors.primary.copy(alpha = 0.4f)
+                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = if (isHeartRateSelected) MaterialTheme.colorScheme.onBackground else MaterialTheme.colorScheme.primary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                    uncheckedTrackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)
                 ),
-                modifier = Modifier.align(Alignment.CenterVertically)
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(end = 13.dp)
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
@@ -287,17 +312,37 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
         ) {
             Card(
                 modifier = Modifier.fillMaxSize(),
-                backgroundColor = Color.White,
+                colors = CardDefaults.cardColors(Color.White),
                 shape = RoundedCornerShape(16.dp)
             ) {
+                Text(
+                    text = "HEART RATE",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.Black,
+                    modifier = Modifier
+                        .align(Alignment.Start)
+                        .padding(start = 20.dp, top = 10.dp, end = 13.dp)
+                )
                 if (isHeartRateSelected) {
-                    BarChart(
-                        data = heartRateDataPoint,
-                        modifier = Modifier.fillMaxSize(),
-                        isLoading = isLoading
-                    )
+
+                    if(heartRateDataPointList.isEmpty()){
+                        // Display the "No data found" image
+                        Image(
+                            painter = painterResource(R.drawable.no_data_found),
+                            contentDescription = "No data found",
+                            modifier = Modifier
+                                    .padding(start = 40.dp, end = 20.dp)
+                        )
+                    }else{
+                        BarChart(
+                            data = heartRateDataPointList,
+                            modifier = Modifier.fillMaxSize(),
+                            isLoading = isLoading
+                        )
+                    }
                 } else {
-                    // TODO Respitory data grapgh
+                    // TODO Respiratory data graph
                 }
             }
         }
@@ -315,7 +360,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 },
                 text = "Heart Rate \n Measurement",
                 iconResId =  R.drawable.heart ,
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = MaterialTheme.colorScheme.primary,
             )
 
             CardButton(
@@ -329,13 +374,13 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 },
                 text = "Heart Rate \n Report",
                 iconResId =  R.drawable.file ,
-                backgroundColor = MaterialTheme.colors.primary
+                backgroundColor = MaterialTheme.colorScheme.primary
             )
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CardButton(
     onClick: () -> Unit,
@@ -350,7 +395,7 @@ fun CardButton(
             .height(150.dp)
             .padding(8.dp),
         shape = RoundedCornerShape(8.dp),
-        backgroundColor = backgroundColor
+        colors =  CardDefaults.cardColors(backgroundColor)
     ) {
         Column(
             modifier = Modifier
@@ -367,7 +412,8 @@ fun CardButton(
             )
             Text(
                 text = text,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onPrimary,
+                fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 8.dp),

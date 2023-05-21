@@ -101,11 +101,15 @@ class ProfileViewModel @Inject constructor(
         val dailyHeartRateList = mutableListOf<List<HeartRatePoint>>()
         val dateFormat = SimpleDateFormat("EEE", Locale.US)
 
+        val calendar = Calendar.getInstance()
+
+        // Create a set of all weekdays
+        val allWeekDays = setOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", )
+
         if (sortedDataList.isNotEmpty()) {
             val startOfWeek = sortedDataList.first().timestamp
             val endOfWeek = sortedDataList.last().timestamp
 
-            val calendar = Calendar.getInstance()
             calendar.time = startOfWeek
 
             while (calendar.time <= endOfWeek) {
@@ -115,13 +119,34 @@ class ProfileViewModel @Inject constructor(
                     calendarItem.time = it.timestamp
                     calendarItem.get(Calendar.DAY_OF_MONTH) == currentDay
                 }
-                if (dataForCurrentDay.isNotEmpty()) {
-                    val dayOfWeek = dateFormat.format(dataForCurrentDay.first().timestamp)
+                val dayOfWeek = dateFormat.format(calendar.time)
+
+                val heartRatePoint = if (dataForCurrentDay.isNotEmpty()) {
                     val maxHeartRate = dataForCurrentDay.maxByOrNull { it.heartRate }!!.heartRate
                     val minHeartRate = dataForCurrentDay.minByOrNull { it.heartRate }!!.heartRate
-                    dailyHeartRateList.add(listOf(HeartRatePoint(dayOfWeek, maxHeartRate, minHeartRate)))
+                    HeartRatePoint(dayOfWeek, maxHeartRate, minHeartRate)
+                } else {
+                    // HeartRatePoint with 0 values for max and min heart rate
+                    HeartRatePoint(dayOfWeek, 0.0, 0.0)
                 }
+                dailyHeartRateList.add(listOf(heartRatePoint))
+
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
+            }
+
+            // Check for missing days and add HeartRatePoints with 0 values
+            val existingDaysOfWeek = dailyHeartRateList.map { it.first().dayOfWeek }.toSet()
+            val missingDaysOfWeek = allWeekDays - existingDaysOfWeek
+
+            missingDaysOfWeek.forEach { dayOfWeek ->
+                dailyHeartRateList.add(listOf(HeartRatePoint(dayOfWeek, 0.0, 0.0)))
+            }
+            // Sort the dailyHeartRateList based on the desired order
+            dailyHeartRateList.sortBy { allWeekDays.indexOf(it.first().dayOfWeek) }
+        } else {
+            // If the input list is empty, add HeartRatePoints with 0 values for all weekdays
+            allWeekDays.forEach { dayOfWeek ->
+                dailyHeartRateList.add(listOf(HeartRatePoint(dayOfWeek, 0.0, 0.0)))
             }
         }
 

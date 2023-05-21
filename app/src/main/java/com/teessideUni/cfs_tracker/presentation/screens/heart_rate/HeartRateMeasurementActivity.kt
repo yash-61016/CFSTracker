@@ -39,12 +39,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Card
-import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.TopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -187,13 +189,21 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         )
     }
 
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     fun AppBar() {
         Box(modifier = Modifier.padding(top = 0.dp)) {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.app_name)) },
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = MaterialTheme.colors.onPrimary
+                title = {
+                    Text(text = stringResource(id = R.string.app_name),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 19.sp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    ) },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor =MaterialTheme.colorScheme.onPrimary,
+                )
             )
         }
     }
@@ -309,9 +319,10 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         val retryIcon: Painter = painterResource(id = R.drawable.retry)
         FloatingActionButton(
             onClick = onClickNewMeasurement,
-            backgroundColor = MaterialTheme.colors.primary
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary
         ) {
-            Icon(retryIcon, contentDescription = stringResource(id = R.string.new_measurement))
+            Icon(retryIcon, contentDescription = stringResource(id = R.string.new_measurement), tint = MaterialTheme.colorScheme.onPrimary)
         }
     }
 

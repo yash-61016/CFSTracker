@@ -1,18 +1,50 @@
 package com.teessideUni.cfs_tracker.presentation.screens.forgetpassword
 
 import android.widget.Toast
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,10 +65,10 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.domain.use_cases.view_models.forgetPasswordVM.ForgetPasswordViewModel
 import com.teessideUni.cfs_tracker.domain.util.keyboardAsState
-import com.teessideUni.cfs_tracker.ui.theme.*
+import com.teessideUni.cfs_tracker.ui.theme.InputBoxShape
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun ForgotPasswordScreen(
     navController: NavController,
@@ -50,7 +82,6 @@ fun ForgotPasswordScreen(
     val isKeyboardVisible = keyboardAsState()
     val context = LocalContext.current
     val state = viewModel.forgetPwdState.collectAsState(initial = null)
-
     // This function clears all the mutable state values
     fun clearAllValues() {
         emailValue.value = ""
@@ -91,7 +122,7 @@ fun ForgotPasswordScreen(
                 .fillMaxWidth()
                 .fillMaxHeight(0.58f)
                 .clip(RoundedCornerShape(topStart = 30.dp, topEnd = 30.dp))
-                .background(MaterialTheme.colors.background)
+                .background(Color.White)
                 .padding(10.dp)
         ) {
             LazyColumn(
@@ -101,7 +132,7 @@ fun ForgotPasswordScreen(
                 item {
                     Text(
                         text = "FORGOT YOUR PASSWORD?",
-                        color = MaterialTheme.colors.onBackground,
+                        color = Color.Black,
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -112,9 +143,11 @@ fun ForgotPasswordScreen(
                         ),
                         fontSize = 20.sp
                     )
-                    Card(
-                        backgroundColor = Color.White,
-                        elevation = 0.dp,
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.background,
+                        tonalElevation = 8.dp,
+                        shadowElevation = 8.dp, // Specify the desired elevation value here
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(20.dp)
@@ -125,7 +158,7 @@ fun ForgotPasswordScreen(
                         ) {
                             Text(
                                 text = "Enter your registered email below to receive password reset instruction",
-                                color = MaterialTheme.colors.onBackground,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 textAlign = TextAlign.Center,
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -147,8 +180,8 @@ fun ForgotPasswordScreen(
                                         }
                                     },
                                 colors = TextFieldDefaults.textFieldColors(
-                                    textColor =  MaterialTheme.colors.primary,
-                                    cursorColor =  MaterialTheme.colors.primary,
+                                    textColor =  MaterialTheme.colorScheme.onBackground,
+                                    cursorColor =  MaterialTheme.colorScheme.primary,
                                     unfocusedIndicatorColor = Color.Transparent
                                 ),
                                 shape = InputBoxShape.medium,
@@ -161,7 +194,7 @@ fun ForgotPasswordScreen(
                                         Icon(
                                             painter = painterResource(id = R.drawable.ic_email_outline),
                                             contentDescription = "",
-                                            tint = MaterialTheme.colors.primary,
+                                            tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier.size(20.dp)
                                         )
                                         Spacer(
@@ -172,7 +205,7 @@ fun ForgotPasswordScreen(
                                             modifier = Modifier
                                                 .width(1.dp)
                                                 .height(24.dp)
-                                                .background(MaterialTheme.colors.primary)
+                                                .background(MaterialTheme.colorScheme.primary)
                                         )
                                     }
                                 },
@@ -198,14 +231,14 @@ fun ForgotPasswordScreen(
                                     }
                                 },
                                 colors = ButtonDefaults.buttonColors(
-                                    backgroundColor = MaterialTheme.colors.primary
+                                    containerColor = MaterialTheme.colorScheme.primary
                                 ),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 20.dp)
                                     .padding(top = 20.dp),
                                 contentPadding = PaddingValues(vertical = 14.dp),
-                                elevation = ButtonDefaults.elevation(
+                                elevation = ButtonDefaults.buttonElevation(
                                     defaultElevation = 0.dp,
                                     pressedElevation = 2.dp
                                 ),
@@ -213,7 +246,7 @@ fun ForgotPasswordScreen(
                             ) {
                                 Text(
                                     text = "Send Reset Link",
-                                    color = Color.White,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -246,7 +279,7 @@ fun ForgotPasswordScreen(
                     ) {
                         Text(
                             text = "Return to Login!",
-                            color =  MaterialTheme.colors.onBackground,
+                            color =  Color.DarkGray,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
