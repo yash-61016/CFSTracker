@@ -160,7 +160,7 @@ fun BarChart(
 
             // Draw vertical grid lines
             val verticalLineXStep = (size.width - 2 * spacing) / numDays // Adjusted the calculation
-            (-1 until numVerticalLines).forEach { i ->
+            (0 until numVerticalLines).forEach { i ->
                 val x = spacing + i * verticalLineXStep
                 drawLine(
                     color = gridLineColor,
