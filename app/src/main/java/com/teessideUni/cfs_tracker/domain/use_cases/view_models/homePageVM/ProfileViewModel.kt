@@ -153,5 +153,11 @@ class ProfileViewModel @Inject constructor(
         return dailyHeartRateList
     }
 
+    fun getCurrentWeekNumber() : String {
+       return "Week No.: $currentWeekNumber"
+    }
+    fun getPreviousWeekNumber() : String {
+        return "Week No.: $previousWeekNumber"
+    }
 }
 

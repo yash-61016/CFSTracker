@@ -86,6 +86,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
     var heartRateDataPointList by remember { mutableStateOf<List<List<HeartRatePoint>>>(emptyList()) }
     var isHeartRateSelected by remember { mutableStateOf(true) }
     var isLoading by remember { mutableStateOf(false) }
+    var weekNumber = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
         viewModel.getCurrentWeekData().collect { result ->
@@ -99,6 +100,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                         // Update the heartRateDataPoint list
                         heartRateAllWeekDataList = data
                         heartRateDataPointList = viewModel.filterMaxMinHeartRatePerDay(data)
+                        weekNumber.value = viewModel.getCurrentWeekNumber()
                     }
                 }
                 is Resource.Error -> {
@@ -195,6 +197,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                                         isLoading = false
                                         // Clear the heartRateAllWeekDataList before updating it
                                         heartRateAllWeekDataList = emptyList()
+                                        weekNumber.value = viewModel.getPreviousWeekNumber()
                                         heartRateDataPointList = if (data.isNotEmpty()) {
                                             // Update the heartRateDataPoint list
                                             viewModel.filterMaxMinHeartRatePerDay(data)
@@ -240,6 +243,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
 
                                         // Clear the heartRateAllWeekDataList before updating it
                                         heartRateAllWeekDataList = emptyList()
+                                        weekNumber.value = viewModel.getCurrentWeekNumber()
                                         heartRateDataPointList = if (data.isNotEmpty()) {
                                             // Update the heartRateDataPoint List
                                             viewModel.filterMaxMinHeartRatePerDay(data)
@@ -315,15 +319,26 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 colors = CardDefaults.cardColors(Color.White),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text(
-                    text = "HEART RATE",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color.Black,
+                Row(
                     modifier = Modifier
-                        .align(Alignment.Start)
                         .padding(start = 20.dp, top = 10.dp, end = 13.dp)
-                )
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        text = "HEART RATE",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.Black
+                    )
+                    Text(
+                        text = weekNumber.value,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Black
+                    )
+                }
+
                 if (isHeartRateSelected) {
 
                     if(heartRateDataPointList.isEmpty()){
