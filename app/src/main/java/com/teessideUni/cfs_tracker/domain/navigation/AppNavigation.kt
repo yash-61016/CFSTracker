@@ -9,7 +9,7 @@ import androidx.navigation.compose.composable
 import com.teessideUni.cfs_tracker.presentation.screens.home_screen.HomeScreen
 import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forgetpassword.ForgotPasswordScreen
-import com.teessideUni.cfs_tracker.presentation.screens.heartRateReport.HeartRateDataScreen
+import com.teessideUni.cfs_tracker.presentation.screens.heartRateReport.HeartRateReportComponent
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
 
@@ -31,8 +31,8 @@ fun Navigation(navController: NavHostController)
         composable("home_page") {
             HomeScreen(navController = navController)
         }
-        composable("heart_rate_report_page") {
-            HeartRateDataScreen(navController = navController)
+        composable("report") {
+            HeartRateReportComponent(navController = navController)
         }
         composable("forget_password_page") {
             ForgotPasswordScreen(navController = navController)

@@ -89,11 +89,11 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
     var weekNumber = remember { mutableStateOf("") }
 
     LaunchedEffect(Unit) {
+        isLoading = true
         viewModel.getCurrentWeekData().collect { result ->
             when (result) {
                 is Resource.Success -> {
                     val data = result.data ?: emptyList()
-                    isLoading = false
                     // Clear the heartRateAllWeekDataList before updating it
                     heartRateAllWeekDataList = emptyList()
                     if (data.isNotEmpty()) {
@@ -102,14 +102,12 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                         heartRateDataPointList = viewModel.filterMaxMinHeartRatePerDay(data)
                         weekNumber.value = viewModel.getCurrentWeekNumber()
                     }
+                    isLoading = false
                 }
                 is Resource.Error -> {
                    Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT).show()
                 }
-                is Resource.Loading -> {
-                    // Handle loading state
-                    isLoading = true
-                }
+                else -> {}
             }
         }
     }
@@ -190,11 +188,11 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 Button(
                     onClick = {
                         coroutineScope.launch {
+                            isLoading = true
                             viewModel.getPreviousWeekData().collect { result ->
                                 when (result) {
                                     is Resource.Success -> {
                                         val data = result.data ?: emptyList()
-                                        isLoading = false
                                         // Clear the heartRateAllWeekDataList before updating it
                                         heartRateAllWeekDataList = emptyList()
                                         weekNumber.value = viewModel.getPreviousWeekNumber()
@@ -204,15 +202,13 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                                         } else {
                                             emptyList()
                                         }
+                                        isLoading = false
                                     }
                                     is Resource.Error -> {
                                         Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT)
                                             .show()
                                     }
-                                    is Resource.Loading -> {
-                                        // Handle loading state
-                                        isLoading = true
-                                    }
+                                    else -> {}
                                 }
                             }
                         }
@@ -235,6 +231,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 Button(
                     onClick = {
                         coroutineScope.launch {
+                            isLoading = true
                             viewModel.getCurrentWeekData().collect { result ->
                                 when (result) {
                                     is Resource.Success -> {
@@ -256,10 +253,8 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                                         Toast.makeText(context, "Failed to connect to database", Toast.LENGTH_SHORT)
                                             .show()
                                     }
-                                    is Resource.Loading -> {
-                                        // Handle loading state
-                                        isLoading = true
-                                    }
+
+                                    else -> {}
                                 }
                             }
                         }
@@ -380,7 +375,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
 
             CardButton(
                 onClick = {
-                    navController.navigate("heart_rate_report_page") {
+                    navController.navigate("report") {
                     popUpTo(navController.graph.findStartDestination().id) {
                         inclusive = true
                     }

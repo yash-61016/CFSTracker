@@ -1,7 +1,9 @@
 package com.teessideUni.cfs_tracker.presentation.screens.heart_rate
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.SurfaceTexture
 import android.os.Bundle
@@ -141,6 +143,12 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
                 Toast.makeText(this, CAMERA_PERMISSION_REQUIRED, Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    override fun onBackPressed() {
+        val refreshIntent = Intent()
+        setResult(Activity.RESULT_OK, refreshIntent)
+        super.onBackPressed()
     }
 
     private fun onClickNewMeasurement() {

@@ -1,11 +1,9 @@
 package com.teessideUni.cfs_tracker.data.repository
 
-import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.data.local.HeartRateData
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.domain.repository.HeartRateRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -26,7 +24,6 @@ class HeartRateRepositoryImpl @Inject constructor(
         timestamp: Date
     ): Flow<Resource<Boolean>> {
         return flow {
-
             var result = false
             val user = firebaseAuth.currentUser
             if (user != null) {
@@ -54,11 +51,9 @@ class HeartRateRepositoryImpl @Inject constructor(
                 val dayOfWeekString = getDayOfWeekString(dayOfWeek)
                 weekRef.collection(dayOfWeekString).add(data)
 
-                Log.d("reached end successful", "saved")
                 // Set result to true since data was stored successfully
                 result = true
             } else {
-                Log.d("Error", "error")
                 emit(Resource.Error("Failed to add data."))
             }
             emit(Resource.Success(result))
@@ -85,7 +80,6 @@ class HeartRateRepositoryImpl @Inject constructor(
         weekNumber: Int
     ): Flow<Resource<MutableList<HeartRateData>>> {
         return flow {
-            emit(Resource.Loading())
 
             val user = firebaseAuth.currentUser
             if (user != null) {
@@ -117,8 +111,6 @@ class HeartRateRepositoryImpl @Inject constructor(
                         }
                     }
                 }
-
-
                 emit(Resource.Success(heartRateDataList))
             } else {
                 emit(Resource.Error("Failed to retrieve data."))
@@ -141,28 +133,35 @@ class HeartRateRepositoryImpl @Inject constructor(
         return Pair(startDate, endDate)
     }
 
-    override fun getHeartRateDataForMonth(year: Int, month: Int): Flow<Resource<MutableList<HeartRateData>>> {
+    override fun getHeartRateDataForMonth(
+        year: Int,
+        month: Int
+    ): Flow<Resource<MutableList<HeartRateData>>?> {
         return flow {
-            emit(Resource.Loading())
 
             val user = firebaseAuth.currentUser
             if (user != null) {
-                val targetCalendar = Calendar.getInstance()
-                targetCalendar.clear()
-                targetCalendar.set(Calendar.YEAR, year)
-                targetCalendar.set(Calendar.MONTH, month - 1)
+                val (startWeek, endWeek) = getMonthStartAndEndWeeks(year, month)
 
-                val weeksInMonth = targetCalendar.getWeeksInMonth()
-
+                // Retrieve the heart rate data for the selected weeks of the month
                 val heartRateDataList = mutableListOf<HeartRateData>()
+                for (weekNumber in startWeek..endWeek) {
+                    when (val weekDataResource = getHeartRateDataForWeek(year, weekNumber).first()) {
+                        is Resource.Success -> {
+                            val dataList = weekDataResource.data
+                            dataList?.let { heartRateDataList.addAll(it) }
+                        }
 
-                for (weekNumber in 1..weeksInMonth) {
-                    val heartRateDataForWeek = getHeartRateDataForWeek(year, weekNumber).first()
-                    if (heartRateDataForWeek is Resource.Success) {
-                        heartRateDataForWeek.data?.let { heartRateDataList.addAll(it) }
+                        is Resource.Error -> {
+                            emit(weekDataResource.message?.let { Resource.Error(it) })
+                            return@flow
+                        }
+
+                        is Resource.Loading -> {
+                          emit(Resource.Loading())
+                        }
                     }
                 }
-
                 emit(Resource.Success(heartRateDataList))
             } else {
                 emit(Resource.Error("Failed to retrieve data."))
@@ -172,13 +171,19 @@ class HeartRateRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun Calendar.getWeeksInMonth(): Int {
-        val firstDayOfMonth = this.apply { set(Calendar.DAY_OF_MONTH, 1) }
-        val lastDayOfMonth = this.apply { set(Calendar.DAY_OF_MONTH, getActualMaximum(Calendar.DAY_OF_MONTH)) }
+    private fun getMonthStartAndEndWeeks(year: Int, month: Int): Pair<Int, Int> {
+        val calendar = Calendar.getInstance()
+        calendar.clear()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month - 1) // Adjust month to 0-based index
+        calendar.set(Calendar.DAY_OF_MONTH, 1) // Set to the first day of the month
 
-        val firstWeekOfYear = firstDayOfMonth.get(Calendar.WEEK_OF_YEAR)
-        val lastWeekOfYear = lastDayOfMonth.get(Calendar.WEEK_OF_YEAR)
+        val startWeek = calendar.get(Calendar.WEEK_OF_YEAR)
 
-        return lastWeekOfYear - firstWeekOfYear + 1
+        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) // Set to the last day of the month
+        val endWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+
+        return Pair(startWeek, endWeek)
     }
+
 }
