@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.presentation.screens.home_screen
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Build
 import android.util.Log
@@ -23,19 +24,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
 import androidx.compose.material.Switch
 import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -52,6 +52,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.*
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.painterResource
@@ -148,32 +149,18 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
                 textAlign = TextAlign.Center,
                 modifier = Modifier.weight(1f)
             )
-            Column(
-                modifier = Modifier.padding(top = 20.dp ,start = 0.dp, end = 15.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(
-                    onClick = {
-                        coroutineScope.launch {
-                          viewModel.logout()
-                        } },
-                    modifier = Modifier.size(32.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ExitToApp,
-                        contentDescription = "Logout",
-                        tint = Color.Black,
-                        modifier = Modifier
-                            .size(34.dp)
-                            .padding(top = 8.dp)
-                    )
+            Spacer(modifier = Modifier.width(10.dp))
+            IconButton(onClick = {
+                navController.navigate("settings_page") {
+                    popUpTo(navController.graph.findStartDestination().id) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
                 }
-                Text(
-                    text = "Logout",
-                    color = Color.Black,
-                    fontSize = 12.sp,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
+            },
+               modifier = Modifier.padding(top = 10.dp, end = 15.dp).size(30.dp)
+            ) {
+                Icon(Icons.Filled.Settings, null, tint = MaterialTheme.colorScheme.primary)
             }
         }
         Row(
@@ -301,7 +288,7 @@ fun HomeScreen(navController: NavController, viewModel: ProfileViewModel = hiltV
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(300.dp)
+                .height(320.dp)
                 .padding(horizontal = 16.dp)
                 .shadow(
                     elevation = 10.dp,

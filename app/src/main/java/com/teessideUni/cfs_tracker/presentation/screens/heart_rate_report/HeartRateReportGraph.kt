@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.heartRateReport
+package com.teessideUni.cfs_tracker.presentation.screens.heart_rate_report
 
 import android.graphics.Paint
 import android.util.Log

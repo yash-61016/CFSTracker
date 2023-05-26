@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.forgetpassword
+package com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen
 
 import android.widget.Toast
 import androidx.compose.animation.core.Spring

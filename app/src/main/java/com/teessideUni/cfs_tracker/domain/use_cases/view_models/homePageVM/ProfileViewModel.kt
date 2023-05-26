@@ -43,10 +43,6 @@ class ProfileViewModel @Inject constructor(
     private val heartRateDataList = mutableStateListOf<HeartRateData>()
     private val heartRateDataListPreviousWeek = mutableStateListOf<HeartRateData>()
 
-    fun logout() = viewModelScope.launch {
-        repository.signOut();
-    }
-
     fun getCurrentWeekData(): Flow<Resource<ArrayList<HeartRateData>>> {
         return heartRateRepository.getHeartRateDataForWeek(currentYear, currentWeekNumber)
             .map { result ->

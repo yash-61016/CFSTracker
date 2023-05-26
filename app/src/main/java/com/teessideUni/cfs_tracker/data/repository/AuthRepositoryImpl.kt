@@ -33,6 +33,19 @@ class AuthRepositoryImpl @Inject constructor(
         return userDoc.getString("username")
     }
 
+    override suspend fun getCurrentUserEmail(): String? {
+        val uid = firebaseAuth.currentUser?.uid ?: return null
+        val userDoc = firestore.collection("users").document(uid).get().await()
+        return userDoc.getString("email")
+    }
+
+    override suspend fun getCurrentUserContact(): String? {
+        val uid = firebaseAuth.currentUser?.uid ?: return null
+        val userDoc = firestore.collection("users").document(uid).get().await()
+        return userDoc.getString("phone")
+    }
+
+
     override fun loginUser(email: String, password: String): Flow<Resource<AuthResult>> {
         return flow {
             emit(Resource.Loading())

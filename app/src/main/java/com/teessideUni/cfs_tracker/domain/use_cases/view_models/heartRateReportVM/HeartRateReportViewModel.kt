@@ -58,16 +58,6 @@ class HeartRateReportViewModel @Inject constructor(
         return heartRateDataList
     }
 
-    suspend fun getCurrentUserName(): String {
-        val currentUser = repository.getCurrentUserName()
-        return if (currentUser != null) {
-            currentUser ?: ""
-        } else {
-            // Handle the case where currentUser is null
-            ""
-        }
-    }
-
     fun getHeartRateData(year: Int, weekNumber: Int): Flow<Resource<ArrayList<HeartRateData>>> {
         return heartRateRepository.getHeartRateDataForWeek(year, weekNumber)
             .map { result ->
@@ -180,7 +170,4 @@ class HeartRateReportViewModel @Inject constructor(
         }
         return false
     }
-
-
-
 }
