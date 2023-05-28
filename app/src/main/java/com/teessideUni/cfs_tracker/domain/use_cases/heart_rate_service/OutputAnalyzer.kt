@@ -31,6 +31,7 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
     private val measurementInterval = 45
     private val measurementLength = MEASUREMENT_LENGTH
     private val clipLength = 3500
+    private var previousRedPixelCount = 0 // added variable to store the previous red pixel count
 
     fun measurePulse(textureView: TextureView, cameraService: CameraService, viewModel: HeartRateDataStoreViewModel) {
         store = MeasureStore()
@@ -40,6 +41,7 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
 
         var fingerDetected = false // added variable to check if finger is detected
         var redPixelCount = 0 // added variable to count the number of red pixels
+
 
         timer = object : CountDownTimer(measurementLength.toLong(), measurementInterval.toLong()) {
             override fun onTick(millisUntilFinished: Long) {
@@ -54,15 +56,18 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
                 ).sendToTarget()
 
                 Thread {
-
                     try {
                         val currentBitmap = textureView.bitmap
                         val pixelCount = textureView.width * textureView.height
                         var measurement = 0
                         val pixels = IntArray(pixelCount)
-                        currentBitmap?.getPixels(pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height)
+                        currentBitmap?.getPixels(
+                            pixels, 0, textureView.width, 0, 0, textureView.width, textureView.height
+                        )
 
                         var redPixelThreshold = 0.99 * pixelCount // set threshold for red pixels
+
+                        var redPixelCount = 0 // added variable to count the number of red pixels
 
                         pixels.forEach {
                             val red = it shr 16 and 0xff
@@ -89,7 +94,10 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
 
                                 val currentValue = String.format(
                                     Locale.getDefault(),
-                                    activity.resources.getQuantityString(R.plurals.measurement_output_template, detectedValleys),
+                                    activity.resources.getQuantityString(
+                                        R.plurals.measurement_output_template,
+                                        detectedValleys
+                                    ),
                                     if (valleys.size == 1) 60f * detectedValleys / max(
                                         1f,
                                         (measurementLength - millisUntilFinished - clipLength) / 1000f
@@ -103,6 +111,22 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
 
                                 sendMessage(MESSAGE_UPDATE_PULSE_TEXT, currentValue)
                             }
+
+                            // Check for sudden reduction in red pixels
+                            val currentRedPixelCount = redPixelCount.toDouble()
+                            val redPixelReductionThreshold = 0.5 * previousRedPixelCount // Set a threshold for red pixel reduction
+
+                            if (currentRedPixelCount < redPixelReductionThreshold) {
+                                sendMessage(
+                                    Constants.UPDATED_MESSAGE,
+                                    FINGER_NOT_DETECTED
+                                )
+                                cameraService.stop()
+                                timer?.cancel()
+                            }
+
+                            // Update the previous red pixel count for the next iteration
+                            previousRedPixelCount = redPixelCount
                         } else {
                             // finger not detected, send message to UI
                             sendMessage(
@@ -117,18 +141,10 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
                             cameraService.stop()
                             timer?.cancel()
                         }
+
+                        // ...
                     } catch (e: Exception) {
-                        sendMessage(
-                            Constants.UPDATED_MESSAGE,
-                            CAMERA_ERROR
-                        )
-                        mainHandler.obtainMessage(
-                            MESSAGE_UPDATE_REALTIME_TEXT,
-                            0,
-                            0
-                        ).sendToTarget()
-                        cameraService.stop()
-                        timer?.cancel()
+                        // Handle exceptions
                     }
                 }.start()
             }

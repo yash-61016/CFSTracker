@@ -43,9 +43,6 @@ fun Navigation(navController: NavHostController)
             HomeScreen(navController = navController)
         }
         composable("report") {
-            BackHandler(true) {
-                // Or do nothing
-            }
             HeartRateReportComponent(navController = navController)
         }
         composable("forget_password_page") {
