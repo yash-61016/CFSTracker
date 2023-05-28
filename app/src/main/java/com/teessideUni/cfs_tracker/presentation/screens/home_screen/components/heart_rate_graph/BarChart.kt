@@ -2,10 +2,7 @@ package com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.
 
 
 import android.graphics.Paint
-import android.util.Log
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
@@ -16,7 +13,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -27,11 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
 import com.teessideUni.cfs_tracker.presentation.components.LoadingIndicator
-import kotlin.math.cos
-import kotlin.math.min
 import kotlin.math.round
 import kotlin.math.roundToInt
-import kotlin.math.sin
 
 @Composable
 fun BarChart(
@@ -86,13 +79,6 @@ fun BarChart(
                 val numDays = data.size
                 val spacePerDay = (size.width - spacing) / numDays
 
-                // Draw border
-                drawRect(
-                    color = Color.Black,
-                    topLeft = Offset(spacing, 0f),
-                    size = Size(size.width - spacing, size.height - spacing),
-                    style = Stroke(width = 2.dp.toPx())
-                )
 
                 // Draw grid lines
                 val gridLineColor = Color.LightGray

@@ -1,11 +1,9 @@
 package com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service
 
-import android.os.Build
 import android.os.CountDownTimer
 import android.os.Handler
 import android.os.Message
 import android.view.TextureView
-import androidx.annotation.RequiresApi
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.core.Constants
 import com.teessideUni.cfs_tracker.core.Constants.CAMERA_ERROR
@@ -16,7 +14,8 @@ import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_PULSE_TEXT
 import com.teessideUni.cfs_tracker.core.Constants.MESSAGE_UPDATE_REALTIME_TEXT
 import com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateDataVM.HeartRateDataStoreViewModel
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
-import java.util.*
+import java.util.Date
+import java.util.Locale
 import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.math.ceil
 import kotlin.math.max
@@ -148,7 +147,6 @@ class OutputAnalyzer(private val activity: HeartRateMeasurementActivity, private
                     }
                 }.start()
             }
-            @RequiresApi(Build.VERSION_CODES.O)
             override fun onFinish() {
                 if (valleys.isEmpty()) {
                     sendMessage(Constants.UPDATED_MESSAGE, CAMERA_ERROR)

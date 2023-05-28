@@ -37,7 +37,6 @@ import kotlin.math.round
 import kotlin.math.roundToInt
 
 @SuppressLint("SimpleDateFormat")
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun QuadLineChart(
     data: List<Pair<Double, Date>> = emptyList(),

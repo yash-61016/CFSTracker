@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -82,16 +81,6 @@ fun MonthlyHeartRateComparisonGraph(
                 val spacePerMonth =
                     (size.width - 2 * spacing) / numMonths // Adjusted the calculation
 
-                // Draw border
-                drawRect(
-                    color = Color.Black,
-                    topLeft = Offset(spacing, spacing),
-                    size = Size(
-                        size.width - 2 * spacing,
-                        size.height - 2 * spacing
-                    ), // Adjusted the size
-                    style = Stroke(width = 2.dp.toPx())
-                )
 
                 // Draw grid lines
                 val gridLineColor = Color.LightGray

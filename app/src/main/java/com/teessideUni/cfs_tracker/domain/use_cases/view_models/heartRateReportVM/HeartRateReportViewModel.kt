@@ -1,10 +1,6 @@
 package com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateReportVM
 
-import android.os.Build
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -103,7 +99,7 @@ class HeartRateReportViewModel @Inject constructor(
             }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     suspend fun getAverageHeartRateDataForThreeMonths(): List<AverageHeartRateData> {
         // clear the list
         averageHeartRateData.clear()

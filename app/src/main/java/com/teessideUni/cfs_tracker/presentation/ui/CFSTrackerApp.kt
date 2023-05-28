@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.presentation.ui
 
+//import com.teessideUni.cfs_tracker.presentation.ui.home.HomeScreen
 import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
@@ -27,9 +28,13 @@ import com.teessideUni.cfs_tracker.domain.CFSTrackerNavigationActions
 import com.teessideUni.cfs_tracker.domain.CFSTrackerRoute
 import com.teessideUni.cfs_tracker.domain.CFSTrackerTopLevelDestination
 import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
+import com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen.ForgotPasswordScreen
+import com.teessideUni.cfs_tracker.presentation.screens.heart_rate_report.HeartRateReportComponent
+import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
+import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
+import com.teessideUni.cfs_tracker.presentation.screens.settings_screen.SettingsComponent
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateScreen
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateViewModel
-import com.teessideUni.cfs_tracker.presentation.ui.home.EmptyComingSoon
 import com.teessideUni.cfs_tracker.presentation.ui.home.HomeScreen
 import kotlinx.coroutines.launch
 
@@ -121,16 +126,17 @@ private fun CFSTrackerNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = CFSTrackerRoute.HOME,
+        startDestination = CFSTrackerRoute.SETTINGS,
     ) {
         composable(CFSTrackerRoute.HOME) {
             HomeScreen(navController)
         }
         composable(CFSTrackerRoute.REPORTS) {
-            EmptyComingSoon()
+//            EmptyComingSoon()
+            HeartRateReportComponent(navController)
         }
         composable(CFSTrackerRoute.SETTINGS) {
-            EmptyComingSoon()
+            SettingsComponent(navController)
         }
         composable(CFSTrackerRoute.RESPIRATORY_RATE_RECORDER){
             val dataSrc = RespiratoryRateDataSourceImpl()
@@ -139,5 +145,15 @@ private fun CFSTrackerNavHost(
             val viewModel = RespiratoryRateViewModel(useCase)
             RespiratoryRateScreen(viewModel)
         }
+        composable(CFSTrackerRoute.LOGIN_PAGE){
+            LoginScreen(navController)
+        }
+        composable(CFSTrackerRoute.REGISTER_PAGE){
+            RegisterScene(navController)
+        }
+        composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE){
+            ForgotPasswordScreen(navController)
+        }
+
     }
 }
