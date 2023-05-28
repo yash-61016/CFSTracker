@@ -2,9 +2,9 @@ package com.teessideUni.cfs_tracker.data.dependencyInjections
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.data.repository.AuthRepositoryImpl
 import com.teessideUni.cfs_tracker.data.repository.HeartRateRepositoryImpl
+import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.domain.repository.HeartRateRepository
 import dagger.Module
 import dagger.Provides

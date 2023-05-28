@@ -5,32 +5,22 @@ import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Surface
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.core.app.ActivityCompat
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
-import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.teessideUni.cfs_tracker.domain.navigation.Navigation
 import com.teessideUni.cfs_tracker.core.Constants
+import com.teessideUni.cfs_tracker.presentation.ui.CFSTrackerApp
 import com.teessideUni.cfs_tracker.ui.theme.CFSTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -51,12 +41,8 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
         setContent {
             navController = rememberNavController()
             CFSTrackerTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = colorResource(R.color.dark)
-                ) {
-
+//                CFSTrackerApp(this)
+                Surface {
                     Navigation(navController = navController)
                     AuthState(navController = navController)
                 }
@@ -72,50 +58,53 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
             insets
         }
     }
-
-    @Composable
-    private fun AuthState(navController: NavController) {
-        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
-        var isLoggedIn = viewModel.getCurrentUser()
-
-        if (!isLoggedIn && isUserSignedOut) {
-            NavigateToSplashScreen(navController = navController)
-        } else {
-
-            if (viewModel.isEmailVerified) {
-                NavigateToProfileScreen(navController = navController)
-            } else {
-                Toast.makeText(
-                    this,
-                    "Please verify your email address to continue.",
-                    Toast.LENGTH_LONG
-                ).show()
-                NavigateToSignInScreen(navController = navController)
-            }
-        }
-    }
-
-    @Composable
-    private fun NavigateToSplashScreen(navController: NavController) =  navController.navigate("splash_screen") {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
-        }
-        launchSingleTop = true
-    }
-
-    @Composable
-    private fun NavigateToSignInScreen(navController: NavController) =  navController.navigate("login_page") {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
-        }
-        launchSingleTop = true
-    }
-
-    @Composable
-    private fun NavigateToProfileScreen(navController: NavController) = navController.navigate("home_page") {
-        popUpTo(navController.graph.findStartDestination().id) {
-            inclusive = true
-        }
-        launchSingleTop = true
-    }
+//
+//    @Composable
+//    private fun AuthState(navController: NavController) {
+//        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
+//        var isLoggedIn = viewModel.getCurrentUser()
+//
+//        if (!isLoggedIn && isUserSignedOut) {
+//            NavigateToSplashScreen(navController = navController)
+//        } else {
+//
+//            if (viewModel.isEmailVerified) {
+//                NavigateToProfileScreen(navController = navController)
+//            } else {
+//                Toast.makeText(
+//                    this,
+//                    "Please verify your email address to continue.",
+//                    Toast.LENGTH_LONG
+//                ).show()
+//                NavigateToSignInScreen(navController = navController)
+//            }
+//        }
+//    }
+//
+//    @Composable
+//    private fun NavigateToSplashScreen(navController: NavController) =
+//        navController.navigate("splash_screen") {
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                inclusive = true
+//            }
+//            launchSingleTop = true
+//        }
+//
+//    @Composable
+//    private fun NavigateToSignInScreen(navController: NavController) =
+//        navController.navigate("login_page") {
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                inclusive = true
+//            }
+//            launchSingleTop = true
+//        }
+//
+//    @Composable
+//    private fun NavigateToProfileScreen(navController: NavController) =
+//        navController.navigate("home_page") {
+//            popUpTo(navController.graph.findStartDestination().id) {
+//                inclusive = true
+//            }
+//            launchSingleTop = true
+//        }
 }
