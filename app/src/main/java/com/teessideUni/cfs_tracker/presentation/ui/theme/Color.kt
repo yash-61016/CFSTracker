@@ -1,6 +1,5 @@
 package com.teessideUni.cfs_tracker.ui.theme
 
-
 import androidx.compose.ui.graphics.Color
 
 // Generate them via theme builder
