@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.presentation.ui
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -20,23 +21,29 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.teessideUni.cfs_tracker.data.remote.RespiratoryRateDataSourceImpl
+import com.teessideUni.cfs_tracker.data.repository.RespiratoryRateRepositoryImpl
 import com.teessideUni.cfs_tracker.domain.CFSTrackerNavigationActions
 import com.teessideUni.cfs_tracker.domain.CFSTrackerRoute
 import com.teessideUni.cfs_tracker.domain.CFSTrackerTopLevelDestination
+import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
+import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateScreen
+import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateViewModel
 import com.teessideUni.cfs_tracker.presentation.ui.home.EmptyComingSoon
+import com.teessideUni.cfs_tracker.presentation.ui.home.HomeScreen
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CFSTrackerApp() {
+fun CFSTrackerApp(context: Context) {
 
-    CFSTrackerNavigationWrapper()
+    CFSTrackerNavigationWrapper(context)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CFSTrackerNavigationWrapper() {
+private fun CFSTrackerNavigationWrapper(context: Context) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -63,6 +70,7 @@ private fun CFSTrackerNavigationWrapper() {
         drawerState = drawerState
     ) {
         CFSTrackerAppContent(
+            context,
             navController = navController,
             selectedDestination = selectedDestination,
             navigateToTopLevelDestination = navigationActions::navigateTo,
@@ -76,6 +84,7 @@ private fun CFSTrackerNavigationWrapper() {
 
 @Composable
 fun CFSTrackerAppContent(
+    context: Context,
     modifier: Modifier = Modifier,
     navController: NavHostController,
     selectedDestination: String,
@@ -91,6 +100,7 @@ fun CFSTrackerAppContent(
             CFSTrackerNavHost(
                 navController = navController,
                 modifier = Modifier.weight(1f),
+                context
             )
             AnimatedVisibility(visible = true) {
                 CFSTrackerBottomNavigationBar(
@@ -106,6 +116,7 @@ fun CFSTrackerAppContent(
 private fun CFSTrackerNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
+    context: Context
 ) {
     NavHost(
         modifier = modifier,
@@ -113,13 +124,20 @@ private fun CFSTrackerNavHost(
         startDestination = CFSTrackerRoute.HOME,
     ) {
         composable(CFSTrackerRoute.HOME) {
-            EmptyComingSoon()
+            HomeScreen(navController)
         }
         composable(CFSTrackerRoute.REPORTS) {
             EmptyComingSoon()
         }
         composable(CFSTrackerRoute.SETTINGS) {
             EmptyComingSoon()
+        }
+        composable(CFSTrackerRoute.RESPIRATORY_RATE_RECORDER){
+            val dataSrc = RespiratoryRateDataSourceImpl()
+            val repo = RespiratoryRateRepositoryImpl(context, dataSrc)
+            val useCase = RecordRespiratoryRateUseCase(repo)
+            val viewModel = RespiratoryRateViewModel(useCase)
+            RespiratoryRateScreen(viewModel)
         }
     }
 }

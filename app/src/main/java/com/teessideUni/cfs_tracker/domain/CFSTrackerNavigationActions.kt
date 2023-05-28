@@ -13,6 +13,7 @@ object CFSTrackerRoute {
     const val HOME = "HOME"
     const val REPORTS = "REPORTS"
     const val SETTINGS = "DirectMessages"
+    const val RESPIRATORY_RATE_RECORDER = "RESPIRATORY_RATE_RECORDER"
 }
 
 data class CFSTrackerTopLevelDestination(
@@ -54,5 +55,5 @@ val TOP_LEVEL_DESTINATIONS = listOf(
         selectedIcon = Icons.Outlined.Settings,
         unselectedIcon = Icons.Outlined.Settings,
         iconTextId = R.string.tab_setting
-    )
+    ),
 )

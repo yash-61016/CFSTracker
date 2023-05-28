@@ -4,6 +4,7 @@
     <string name="tab_home">Home</string>
     <string name="tab_report">Reports</string>
     <string name="tab_setting">Settings</string>
+    <string name="tab_empty">Empty</string>
 
     <string name="edit">Edit</string>
     <string name="compose">Compose</string>
