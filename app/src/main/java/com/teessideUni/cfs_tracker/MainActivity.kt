@@ -3,12 +3,10 @@ package com.teessideUni.cfs_tracker
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.ActivityCompat
@@ -31,7 +29,7 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
     private lateinit var navController: NavHostController
     private val viewModel by viewModels<MainViewModel>()
 
-    @RequiresApi(Build.VERSION_CODES.O)
+
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +39,11 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
         setContent {
             navController = rememberNavController()
             CFSTrackerTheme {
-//                CFSTrackerApp(this)
-                Surface {
-                    Navigation(navController = navController)
-                    AuthState(navController = navController)
-                }
+                CFSTrackerApp(this)
+//                Surface {
+//                    Navigation(navController = navController)
+//                    AuthState(navController)
+//                }
             }
         }
         requestPermissions(

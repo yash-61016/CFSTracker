@@ -8,7 +8,6 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Toast
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -48,7 +47,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,7 +60,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -73,6 +73,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import com.google.accompanist.insets.ui.Scaffold
 import com.opencsv.CSVWriter
 import com.teessideUni.cfs_tracker.R
 import com.teessideUni.cfs_tracker.data.local.AverageHeartRateData
@@ -93,15 +94,15 @@ import java.util.Date
 import java.util.Locale
 
 
-@OptIn(ExperimentalMaterialApi::class)
-@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun HeartRateReportComponent(navController: NavController) {
 
     val viewModel: HeartRateReportViewModel = hiltViewModel()
     var heartRateDataList = remember { mutableStateListOf<HeartRateData>() }
-    val averageHeartRateDataState = remember { mutableStateOf<List<AverageHeartRateData>>(emptyList()) }
+    val averageHeartRateDataState =
+        remember { mutableStateOf<List<AverageHeartRateData>>(emptyList()) }
     val averageHeartRateChangePercentage = remember { mutableStateOf(" ") }
     val isAverageHeartRateIncreased = remember { mutableStateOf(false) }
 
@@ -129,8 +130,10 @@ fun HeartRateReportComponent(navController: NavController) {
         averageHeartRateDataState.value = averageHeartRateData
 
         //get average % increase or decrease in heart rate compared current month with previous month.
-        averageHeartRateChangePercentage.value = viewModel.calculateAverageHeartRateChangePercentage(averageHeartRateDataState.value)
-        isAverageHeartRateIncreased.value = viewModel.isAverageHeartRateIncreased(averageHeartRateDataState.value)
+        averageHeartRateChangePercentage.value =
+            viewModel.calculateAverageHeartRateChangePercentage(averageHeartRateDataState.value)
+        isAverageHeartRateIncreased.value =
+            viewModel.isAverageHeartRateIncreased(averageHeartRateDataState.value)
     }
 
     ModalBottomSheetLayout(
@@ -144,30 +147,34 @@ fun HeartRateReportComponent(navController: NavController) {
             )
         }
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.White),
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = {
+                        androidx.compose.material3.Text("Reports")
+                    }
+                )
+            },
         ) {
-            Box(
+            it
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(450.dp)
-                    .padding(top = statusBarHeight - 80.dp, start = 10.dp, end = 10.dp)
-                    .shadow(
-                        elevation = 10.dp,
-                        shape = RoundedCornerShape(16.dp),
-                        clip = true
-                    )
+                    .fillMaxSize()
+                    .padding(top = 110.dp),
+                verticalArrangement = Arrangement.Top,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Card(
-                    modifier = Modifier.fillMaxSize(),
-                    colors = CardDefaults.cardColors(Color.White),
-                    shape = RoundedCornerShape(16.dp)
+                    modifier = Modifier.padding(8.dp),
+                    shape = MaterialTheme.shapes.small,
+                    elevation = CardDefaults.cardElevation()
                 ) {
                     Column(
                         modifier = Modifier
-                            .background(Color.White)
+                            .fillMaxWidth()
+                            .height(350.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     )
                     {
                         ComponentHeading(
@@ -180,14 +187,15 @@ fun HeartRateReportComponent(navController: NavController) {
                         Spacer(modifier = Modifier.height(5.dp))
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(start = 10.dp)
+                            modifier = Modifier.fillMaxWidth()
+                                .padding(start = 12.dp)
                         ) {
                             val icon = if (isAverageHeartRateIncreased.value) {
                                 Icons.Default.KeyboardArrowUp
                             } else {
                                 if (!loadingState.value) {
                                     Icons.Default.KeyboardArrowDown
-                                }else{
+                                } else {
                                     return@Row
                                 }
                             }
@@ -198,11 +206,9 @@ fun HeartRateReportComponent(navController: NavController) {
                             }
                             Text(
                                 text = averageHeartRateChangePercentage.value,
-                                textAlign = TextAlign.Start,
                                 color = valueColor,
                                 fontSize = 30.sp,
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(start = 8.dp)
                             )
                             Icon(
                                 icon,
@@ -211,22 +217,28 @@ fun HeartRateReportComponent(navController: NavController) {
                                 modifier = Modifier.size(28.dp)
                             )
                         }
-                        Spacer(modifier = Modifier.height(5.dp))
                         MonthlyHeartRateComparisonGraph(
                             data = averageHeartRateDataState.value,
                             modifier = Modifier.fillMaxSize(),
-                            isLoading =  loadingState.value
+                            isLoading = loadingState.value
                         )
                     }
                 }
             }
         }
+
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ComponentHeading(navController: NavController, heartRateDataList: List<HeartRateData>, context: Context, state: ModalBottomSheetState, scope: CoroutineScope) {
+fun ComponentHeading(
+    navController: NavController,
+    heartRateDataList: List<HeartRateData>,
+    context: Context,
+    state: ModalBottomSheetState,
+    scope: CoroutineScope
+) {
 
     Row(
         modifier = Modifier
@@ -237,26 +249,26 @@ fun ComponentHeading(navController: NavController, heartRateDataList: List<Heart
     ) {
         Text(
             text = "Heart Rate Report",
-            fontSize = 23.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(start = 5.dp,end = 15.dp)
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(start = 5.dp, end = 15.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Button(
             onClick = {
                 scope.launch { state.show() }
             },
-            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-            modifier = Modifier.padding(start = 10.dp,end = 10.dp),
-            shape = RoundedCornerShape(8.dp)
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top=8.dp)
+                .height(40.dp),
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary
+            )
         ) {
             Text(
                 text = "Download",
-                fontWeight = FontWeight.Bold,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.padding(start = 4.dp)
+                modifier = Modifier.padding(start = 4.dp),
+                color = MaterialTheme.colorScheme.onPrimary
             )
         }
     }
@@ -265,7 +277,8 @@ fun ComponentHeading(navController: NavController, heartRateDataList: List<Heart
 @SuppressLint("InternalInsetResource")
 @Composable
 fun getStatusBarSize(): Dp {
-    val resourceId = LocalContext.current.resources.getIdentifier("status_bar_height", "dimen", "android")
+    val resourceId =
+        LocalContext.current.resources.getIdentifier("status_bar_height", "dimen", "android")
     return if (resourceId > 0) LocalContext.current.resources.getDimensionPixelSize(resourceId).dp else 0.dp
 }
 
@@ -289,7 +302,12 @@ private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, cont
                 val csvWriter = CSVWriter(OutputStreamWriter(outputStream))
                 csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
                 heartRateDataList.forEach { data ->
-                    csvWriter.writeNext(arrayOf(data.timestamp.toString(), data.heartRate.toString()))
+                    csvWriter.writeNext(
+                        arrayOf(
+                            data.timestamp.toString(),
+                            data.heartRate.toString()
+                        )
+                    )
                 }
                 csvWriter.close()
             }
@@ -300,7 +318,10 @@ private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, cont
             ).show()
         }
     } else {
-        val csvFile = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
+        val csvFile = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileName
+        )
         val csvWriter = CSVWriter(FileWriter(csvFile))
         csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
         heartRateDataList.forEach { data ->
@@ -315,10 +336,13 @@ private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, cont
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataList: List<HeartRateData>, onListUpdated: (List<HeartRateData>) -> Unit, context: Context)
-{
+fun HeartRateReportContent(
+    viewModel: HeartRateReportViewModel,
+    heartRateDataList: List<HeartRateData>,
+    onListUpdated: (List<HeartRateData>) -> Unit,
+    context: Context
+) {
 
     Column(
         modifier = Modifier
@@ -334,7 +358,7 @@ fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataLis
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text(
-                text = "HeartRate Report Download",
+                text = "Heart Rate Report Download",
                 color = Color.Black,
                 textAlign = TextAlign.Start,
                 modifier = Modifier
@@ -346,7 +370,10 @@ fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataLis
             )
             Button(
                 onClick = {
-                    writeHeartRateDataToCsv(heartRateDataList = heartRateDataList, context = context)
+                    writeHeartRateDataToCsv(
+                        heartRateDataList = heartRateDataList,
+                        context = context
+                    )
                 },
                 modifier = Modifier
                     .padding(top = 10.dp, start = 16.dp)
@@ -378,7 +405,8 @@ fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataLis
         Spacer(modifier = Modifier.height(5.dp))
 
         Column(Modifier.padding(14.dp)) {
-            Text(text = "Select the date",
+            Text(
+                text = "Select the date",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 10.dp, start = 4.dp, end = 4.dp),
@@ -386,12 +414,16 @@ fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataLis
                 fontFamily = FontFamily(Font(R.font.poppins)),
                 fontSize = 20.sp
             )
-            Row(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 5.dp, start = 4.dp, end = 4.dp)) {
-                Icon(Icons.Filled.Info, contentDescription = "Info Icon", modifier = Modifier
-                    .size(20.dp)
-                    .padding(top = 2.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp, start = 4.dp, end = 4.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Info, contentDescription = "Info Icon", modifier = Modifier
+                        .size(20.dp)
+                        .padding(top = 2.dp)
+                )
                 Text(
                     text = "Please note that upon selecting a date, the system will display all the relevant data for the entire week in which the selected date falls",
                     modifier = Modifier.padding(start = 4.dp),
@@ -402,12 +434,15 @@ fun HeartRateReportContent(viewModel: HeartRateReportViewModel, heartRateDataLis
             }
             Spacer(Modifier.height(16.dp))
 
-            StyledDatePicker(viewModel = viewModel, heartRateDataList = heartRateDataList, onListUpdated = onListUpdated)
+            StyledDatePicker(
+                viewModel = viewModel,
+                heartRateDataList = heartRateDataList,
+                onListUpdated = onListUpdated
+            )
         }
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DatePickerWrapper(
     onDismissRequest: () -> Unit,
@@ -437,7 +472,6 @@ fun DatePickerWrapper(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StyledDatePicker(
     viewModel: HeartRateReportViewModel,
@@ -453,10 +487,15 @@ fun StyledDatePicker(
     }
 
     val (isDialogOpen, setIsDialogOpen) = remember { mutableStateOf(false) }
-    val (text, setText) = remember { mutableStateOf(
-        TextFieldValue(selectedDate?.format(
-            DateTimeFormatter.ISO_LOCAL_DATE) ?: "")
-    ) }
+    val (text, setText) = remember {
+        mutableStateOf(
+            TextFieldValue(
+                selectedDate?.format(
+                    DateTimeFormatter.ISO_LOCAL_DATE
+                ) ?: ""
+            )
+        )
+    }
     val coroutineScope = rememberCoroutineScope()
     val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
@@ -502,12 +541,15 @@ fun StyledDatePicker(
                                         val updatedList = result.data ?: emptyList()
                                         onListUpdated(updatedList)
                                     }
+
                                     else -> {}
                                 }
                             }
                     }
                 }) {
-                    Icon(Icons.Filled.Done, null,
+                    Icon(
+                        Icons.Filled.Done,
+                        null,
                         Modifier
                             .background(MaterialTheme.colorScheme.primary, CircleShape)
                             .border(
@@ -515,7 +557,9 @@ fun StyledDatePicker(
                                 MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                                 CircleShape
                             )
-                            .padding(horizontal = 10.dp, vertical = 10.dp), tint = MaterialTheme.colorScheme.onPrimary)
+                            .padding(horizontal = 10.dp, vertical = 10.dp),
+                        tint = MaterialTheme.colorScheme.onPrimary
+                    )
                 }
             }
         }
@@ -527,7 +571,8 @@ fun StyledDatePicker(
                 date?.let {
                     selectedDate = it
                     selectedYear = it.year
-                    selectedWeekNumber = it.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear())
+                    selectedWeekNumber =
+                        it.get(WeekFields.of(Locale.getDefault()).weekOfWeekBasedYear())
                     setText(TextFieldValue(it.format(DateTimeFormatter.ISO_LOCAL_DATE)))
                 }
             },

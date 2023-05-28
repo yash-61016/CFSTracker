@@ -10,13 +10,13 @@ import androidx.navigation.compose.composable
 import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen.ForgotPasswordScreen
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate_report.HeartRateReportComponent
-import com.teessideUni.cfs_tracker.presentation.screens.home_screen.HomeScreen
+import com.teessideUni.cfs_tracker.presentation.screens.home_screen.OldHomeScreen
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
 import com.teessideUni.cfs_tracker.presentation.screens.settings_screen.SettingsComponent
 
 
-@RequiresApi(Build.VERSION_CODES.O)
+
 @Composable
 fun Navigation(navController: NavHostController)
 {
@@ -40,7 +40,7 @@ fun Navigation(navController: NavHostController)
             BackHandler(true) {
                 // Or do nothing
             }
-            HomeScreen(navController = navController)
+            OldHomeScreen(navController = navController)
         }
         composable("report") {
             HeartRateReportComponent(navController = navController)

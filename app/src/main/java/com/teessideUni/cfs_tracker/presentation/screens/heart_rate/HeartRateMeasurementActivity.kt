@@ -28,8 +28,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -40,20 +38,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +81,7 @@ import com.teessideUni.cfs_tracker.data.repository.HeartRateRepositoryImpl
 import com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service.CameraService
 import com.teessideUni.cfs_tracker.domain.use_cases.heart_rate_service.OutputAnalyzer
 import com.teessideUni.cfs_tracker.domain.use_cases.view_models.heartRateDataVM.HeartRateDataStoreViewModel
+import com.teessideUni.cfs_tracker.ui.theme.CFSTrackerTheme
 import java.util.*
 
 class HeartRateMeasurementActivity : AppCompatActivity() {
@@ -99,13 +95,15 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HeartRateMeasurementScreen(
-                viewModel1 = viewModel1,
-                onButtonClick = { this.onClickNewMeasurement() },
-                this,
-                handler = mainHandler,
-                viewModel2 = viewModel2
-            )
+            CFSTrackerTheme() {
+                HeartRateMeasurementScreen(
+                    viewModel1 = viewModel1,
+                    onButtonClick = { this.onClickNewMeasurement() },
+                    this,
+                    handler = mainHandler,
+                    viewModel2 = viewModel2
+                )
+            }
         }
     }
 
@@ -164,17 +162,20 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         viewModel1.updateRealTimeText(0)
 
         setContent {
-            HeartRateMeasurementScreen(
-                viewModel1 = viewModel1,
-                onButtonClick = { this.onClickNewMeasurement() },
-                this,
-                handler =  mainHandler,
-                viewModel2 = viewModel2
-            )
+            CFSTrackerTheme() {
+                HeartRateMeasurementScreen(
+                    viewModel1 = viewModel1,
+                    onButtonClick = { this.onClickNewMeasurement() },
+                    this,
+                    handler = mainHandler,
+                    viewModel2 = viewModel2
+                )
+            }
         }
     }
 
     // composable UI
+    @OptIn(ExperimentalMaterial3Api::class)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @Composable
     fun HeartRateMeasurementScreen(
@@ -185,8 +186,25 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         viewModel2: HeartRateDataStoreViewModel
     ) {
         Scaffold(
-            topBar = { AppBar(context = context) },
+            topBar = {
+                TopAppBar(
+                    title = {
+                        Text("Heart Rate Tracker")
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            (context as? Activity)?.finish()
+                        }) {
+                            Icon(
+                                Icons.Filled.ArrowBack,
+                                null,
+                            )
+                        }
+                    },
+                )
+            },
             content = {
+                it
                 HeartRateMeasurementContent(
                     viewModel1 = viewModel1,
                     context = context,
@@ -198,31 +216,6 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
-    @Composable
-    fun AppBar(context: Context) {
-        Box(modifier = Modifier.padding(top = 0.dp)) {
-            TopAppBar(
-                title = {
-                    Text(text = stringResource(id = R.string.app_name),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 19.sp,
-                        color = MaterialTheme.colorScheme.onPrimary
-                    ) },
-                colors = TopAppBarDefaults.mediumTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor =MaterialTheme.colorScheme.onPrimary,
-                ),
-                navigationIcon = {
-                    IconButton(onClick = {
-                        (context as? Activity)?.finish()
-                    }) {
-                        Icon(Icons.Filled.ArrowBack, null, tint = MaterialTheme.colorScheme.onPrimary)
-                    }
-                },
-            )
-        }
-    }
 
     @Composable
     fun HeartRateMeasurementContent(
@@ -238,7 +231,8 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         val pulseText = viewModel1.pulseText.value
         var messageText = viewModel1.messageText.value
         if (messageText.isEmpty() || messageText == "") {
-            messageText = "Please place your finger on camera and click on Start Measurement button to begin pulse rate measurement."
+            messageText =
+                "Please place your finger on camera and click on Start Measurement button to begin pulse rate measurement."
         }
         val realTime by viewModel1.realTimeText
         val btnAnim = rememberInfiniteTransition()
@@ -256,50 +250,35 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         BoxWithConstraints(
             modifier = Modifier.fillMaxSize()
         ) {
-
-            val PulseTextmodifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(top = 30.dp, bottom = 9.dp)
-                .layoutId("textView")
-
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
 
                 Text(
-                    modifier = Modifier.padding(top = 10.dp, start = 12.dp),
+                    modifier = Modifier.padding(top = 65.dp, start = 25.dp),
                     text = "Time Left: $realTime seconds",
                     fontWeight = FontWeight.Bold,
                     fontSize = 22.sp,
-                    textAlign = TextAlign.Center
                 )
 
                 Text(
-                    modifier = PulseTextmodifier,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 10.dp, bottom = 9.dp, start = 25.dp)
+                        .layoutId("textView"),
                     text = pulseText,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    textAlign = TextAlign.Center
                 )
 
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(100.dp)
-                        .padding(start = 20.dp, end = 40.dp, top = 0.dp, bottom = 10.dp)
+                        .padding(start = 15.dp, end = 40.dp, top = 0.dp, bottom = 10.dp)
                         .layoutId("textView"),
-                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.info_icon),
-                        contentDescription = "Information Icon",
-                        modifier = Modifier
-                            .padding(start = 10.dp)
-                            .size(26.dp)
-                    )
-
                     AnimatedVisibility(
                         visible = messageText.isNotEmpty(),
                         enter = fadeIn(
@@ -319,8 +298,8 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
                             modifier = Modifier.padding(start = 10.dp),
                             text = messageText,
                             fontWeight = FontWeight.Bold,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Left
                         )
                     }
                 }
@@ -342,10 +321,11 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
                     } else {
                         Button(
                             onClick = { isCameraPreviewStarted = !isCameraPreviewStarted },
-                            modifier = Modifier.align(Alignment.Center).then(Modifier.scale(btnScale)),
-                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary)
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .then(Modifier.scale(btnScale)),
                         ) {
-                            Text("Start Measurement", color = MaterialTheme.colorScheme.onPrimary)
+                            Text("Start Measurement")
                         }
                     }
                 }
@@ -365,14 +345,11 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
         ) {
             FloatingActionButton(
                 onClick = onClickNewMeasurement,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.align(Alignment.BottomCenter)
             ) {
                 Icon(
                     retryIcon,
                     contentDescription = stringResource(id = R.string.new_measurement),
-                    tint = MaterialTheme.colorScheme.onPrimary
                 )
             }
         }
@@ -481,15 +458,12 @@ class HeartRateMeasurementActivity : AppCompatActivity() {
                     .size(size.dp)
                     .align(Alignment.Center)
                     .alpha(alpha),
-                backgroundColor = pulseColor,
-                elevation = 0.dp
             ) {}
             Card(
                 modifier = Modifier
                     .size(minPulseSize.dp)
                     .align(Alignment.Center),
                 shape = CircleShape,
-                backgroundColor = centreColor
             ) {}
         }
     }

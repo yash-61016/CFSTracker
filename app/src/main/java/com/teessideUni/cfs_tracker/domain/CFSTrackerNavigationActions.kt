@@ -12,8 +12,11 @@ import com.teessideUni.cfs_tracker.R
 object CFSTrackerRoute {
     const val HOME = "HOME"
     const val REPORTS = "REPORTS"
-    const val SETTINGS = "DirectMessages"
+    const val SETTINGS = "SETTINGS"
     const val RESPIRATORY_RATE_RECORDER = "RESPIRATORY_RATE_RECORDER"
+    const val LOGIN_PAGE = "LOGIN_PAGE"
+    const val REGISTER_PAGE = "REGISTER_PAGE"
+    const val FORGET_PASSWORD_PAGE = "FORGET_PASSWORD_PAGE"
 }
 
 data class CFSTrackerTopLevelDestination(

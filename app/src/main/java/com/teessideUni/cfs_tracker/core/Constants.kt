@@ -1,7 +1,5 @@
 package com.teessideUni.cfs_tracker.core
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -16,9 +14,7 @@ object Constants {
 
     const val FINGER_NOT_DETECTED = "Finger not detected. Please place your finger on the camera to begin pulse measurement."
     const val CAMERA_ERROR = "No pixels detected - there may be an issue when accessing the camera."
-    @RequiresApi(Build.VERSION_CODES.O)
     private val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")
-    @RequiresApi(Build.VERSION_CODES.O)
     val MEASUREMENT_COMPLETE = "Pulse rate measurement is successfully calculated at ${LocalDateTime.now().format(
         formatter
     )}"
