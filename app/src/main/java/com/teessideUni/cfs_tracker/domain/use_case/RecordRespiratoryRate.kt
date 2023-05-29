@@ -23,7 +23,6 @@ class RecordRespiratoryRateUseCase @Inject constructor(
     fun startRecording(callback: (RespiratoryRateData) -> Unit) {
         val timer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                Log.d("I'm in the recordRepoRate", "Tick")
             }
 
             override fun onFinish() {
@@ -43,14 +42,11 @@ class RecordRespiratoryRateUseCase @Inject constructor(
                 val peakIndices = detectPeaks(filteredData, 70f)
                 val interPeakIntervals = calculateInterPeakIntervals(peakIndices, 70f)
                 val respiratoryRates = calculateRespiratoryRate(interPeakIntervals)
-                Log.d("Unfiltered data", unFilteredData.toList().toString())
-                Log.d("Filtered data", filteredData.toList().toString())
-                Log.d("Peak Indices", peakIndices.toString())
-                Log.d("Inter Peak Intervals", interPeakIntervals.toString())
-                Log.d("Respiratory Rate", respiratoryRates.toString())
-                Log.d("Respiratory Rate 2", (respiratoryRates/10).toString())
+                Log.d("RR", (respiratoryRates/10).toString())
                 val arr2: DoubleArray = computeMovingAverage(unFilteredData, unFilteredData.size, 3)
                 val peaks = printPeaksTroughs(arr2, arr2.size)
+//                respiratoryRate = peaks.toFloat()
+                respiratoryRate = respiratoryRates/10
                 Log.d("Peak detection", peaks.toString())
                 val currentTimeMillis = System.currentTimeMillis()
                 val date = Date(currentTimeMillis)
@@ -158,7 +154,7 @@ class RecordRespiratoryRateUseCase @Inject constructor(
         return interPeakIntervals
     }
 
-    fun calculateRespiratoryRate(interPeakIntervals: List<Float>): Double {
+    fun calculateRespiratoryRate(interPeakIntervals: List<Float>): Float {
         val respiratoryRates = mutableListOf<Float>()
 
         // Calculate the respiratory rate by taking the inverse of each inter-peak interval
@@ -169,7 +165,7 @@ class RecordRespiratoryRateUseCase @Inject constructor(
             respiratoryRates.add(roundedRespiratoryRate)
         }
 
-        return respiratoryRates.average()
+        return respiratoryRates.average().toFloat()
     }
 
     private fun roundToDecimalPlaces(value: Float, decimalPlaces: Int): Float {
