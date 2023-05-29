@@ -149,7 +149,7 @@ fun SettingsComponent(navController: NavController) {
                         if (userName == "Username") {
                             IconButton(
                                 onClick = {
-                                    navController.navigate("login_page") {
+                                    navController.navigate("LOGIN_PAGE") {
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             inclusive = true
                                         }
@@ -174,6 +174,12 @@ fun SettingsComponent(navController: NavController) {
                                 onClick = {
                                     coroutineScope.launch {
                                         viewModel.logout()
+                                        navController.navigate("SETTINGS") {
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                inclusive = true
+                                            }
+                                            launchSingleTop = true
+                                        }
                                     }
                                 },
                                 modifier = Modifier
@@ -192,13 +198,11 @@ fun SettingsComponent(navController: NavController) {
                         }
                     }
 
-
                     if (userName == "Username") {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(start = 15.dp, end = 15.dp, bottom = 5.dp),
-                            colors = CardDefaults.cardColors(Color.White),
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Box(modifier = Modifier

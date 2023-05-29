@@ -1,9 +1,7 @@
-package com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.heart_rate_graph
+package com.teessideUni.cfs_tracker.presentation.ui.home.components.heart_rate_graph
 
 import android.annotation.SuppressLint
 import android.graphics.Paint
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
