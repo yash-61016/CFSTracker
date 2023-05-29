@@ -51,7 +51,12 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
     val animatedProgress by animateFloatAsState(
         targetValue = progress,
         animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec,
-        visibilityThreshold = 0.005f
+        visibilityThreshold = 0.005f,
+        finishedListener = {
+            if(progress == 0f){
+                progress = 1f
+            }
+        }
     )
     Scaffold(
         topBar = {
@@ -104,7 +109,7 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
                                  progress = 0f
                                  timerRunning = false
                             }else{
-                                 progress = remaining.toFloat() / 5f
+                                 progress = remaining.toFloat() / 30f
                             }
 
                         }
@@ -133,7 +138,7 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
 
 private fun startTimer(coroutineScope: CoroutineScope, onTick: (Int) -> Unit) {
     coroutineScope.launch {
-        var remainingTime = 5
+        var remainingTime = 30
         while (remainingTime > 0) {
             onTick(remainingTime)
             delay(1000)
