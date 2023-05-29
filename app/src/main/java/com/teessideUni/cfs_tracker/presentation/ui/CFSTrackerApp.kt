@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -68,32 +67,16 @@ private fun CFSTrackerNavigationWrapper(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val selectedDestination =
         navBackStackEntry?.destination?.route ?: CFSTrackerRoute.HOME
-
-    ModalNavigationDrawer(
-        drawerContent = {
-            ModalNavigationDrawerContent(
-                selectedDestination = selectedDestination,
-                navigateToTopLevelDestination = navigationActions::navigateTo,
-                onDrawerClicked = {
-                    scope.launch {
-                        drawerState.close()
-                    }
-                }
-            )
-        },
-        drawerState = drawerState
+    CFSTrackerAppContent(
+        context,
+        navController = navController,
+        selectedDestination = selectedDestination,
+        navigateToTopLevelDestination = navigationActions::navigateTo,
+        firebaseAuth = firebaseAuth,
+        firebaseFirestore = firebaseFirestore
     ) {
-        CFSTrackerAppContent(
-            context,
-            navController = navController,
-            selectedDestination = selectedDestination,
-            navigateToTopLevelDestination = navigationActions::navigateTo,
-            firebaseAuth = firebaseAuth,
-            firebaseFirestore = firebaseFirestore
-        ) {
-            scope.launch {
-                drawerState.open()
-            }
+        scope.launch {
+            drawerState.open()
         }
     }
 }
@@ -144,7 +127,7 @@ private fun CFSTrackerNavHost(
     NavHost(
         modifier = modifier,
         navController = navController,
-        startDestination = CFSTrackerRoute.SETTINGS,
+        startDestination = CFSTrackerRoute.HOME,
     ) {
         composable(CFSTrackerRoute.HOME) {
             HomeScreen(navController)
