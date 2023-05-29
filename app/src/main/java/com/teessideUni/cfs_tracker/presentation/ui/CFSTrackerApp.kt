@@ -24,16 +24,17 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.data.remote.RespiratoryRateDataSourceImpl
 import com.teessideUni.cfs_tracker.data.repository.RespiratoryRateRepositoryImpl
 import com.teessideUni.cfs_tracker.domain.CFSTrackerNavigationActions
 import com.teessideUni.cfs_tracker.domain.CFSTrackerRoute
 import com.teessideUni.cfs_tracker.domain.CFSTrackerTopLevelDestination
+import com.teessideUni.cfs_tracker.domain.repository.RespiratoryRateRepository
 import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
+import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen.ForgotPasswordScreen
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate_report.HeartRateReportComponent
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
+import com.teessideUni.cfs_tracker.presentation.screens.report_screen.ReportComponent
 import com.teessideUni.cfs_tracker.presentation.screens.settings_screen.SettingsComponent
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateScreen
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateViewModel
@@ -150,16 +151,16 @@ private fun CFSTrackerNavHost(
         }
         composable(CFSTrackerRoute.REPORTS) {
 //            EmptyComingSoon()
-            HeartRateReportComponent(navController)
+            ReportComponent(navController)
         }
         composable(CFSTrackerRoute.SETTINGS) {
             SettingsComponent(navController)
         }
         composable(CFSTrackerRoute.RESPIRATORY_RATE_RECORDER) {
-            val dataSrc = RespiratoryRateDataSourceImpl()
-            val repo = RespiratoryRateRepositoryImpl(context, firebaseAuth, firebaseFirestore)
+            val dataSrc: RespiratoryRateRepository = RespiratoryRateRepositoryImpl(context, firebaseAuth, firebaseFirestore)
+            val repo: RespiratoryRateRepository = dataSrc
             val useCase = RecordRespiratoryRateUseCase(repo)
-            val viewModel = RespiratoryRateViewModel(useCase)
+            val viewModel = RespiratoryRateViewModel(useCase, dataSrc)
             RespiratoryRateScreen(viewModel)
         }
         composable(CFSTrackerRoute.LOGIN_PAGE) {
@@ -168,9 +169,11 @@ private fun CFSTrackerNavHost(
         composable(CFSTrackerRoute.REGISTER_PAGE) {
             RegisterScene(navController)
         }
+        composable(CFSTrackerRoute.SPLASH_SCREEN) {
+            SplashScreen(navController)
+        }
         composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE) {
             ForgotPasswordScreen(navController)
         }
-
     }
 }

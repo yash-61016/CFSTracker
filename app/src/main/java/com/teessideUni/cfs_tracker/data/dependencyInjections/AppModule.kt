@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.data.dependencyInjections
 
+import android.app.Application
 import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -19,6 +20,12 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    @Provides
+    @Singleton
+    fun providesContext(application: Application): Context {
+        return application.applicationContext
+    }
 
     @Provides
     @Singleton

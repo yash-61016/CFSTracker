@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.teessideUni.cfs_tracker.data.local.AverageHeartRateData
 import com.teessideUni.cfs_tracker.data.local.HeartRateData
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.domain.repository.AuthRepository
 import com.teessideUni.cfs_tracker.domain.repository.HeartRateRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +22,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HeartRateReportViewModel @Inject constructor(
-    private val repository: AuthRepository,
     private val heartRateRepository: HeartRateRepository
 ) : ViewModel()
 {

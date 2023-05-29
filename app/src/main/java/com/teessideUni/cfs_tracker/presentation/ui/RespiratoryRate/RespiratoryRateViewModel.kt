@@ -22,7 +22,6 @@ class RespiratoryRateViewModel @Inject constructor(
         override fun onTick(millisUntilFinished: Long) {
             // Update the timer UI
         }
-
         override fun onFinish() {
             // Update the UI with the sum of sensor data
             Log.d("Final Sum", getSensorData().toString());
@@ -31,8 +30,8 @@ class RespiratoryRateViewModel @Inject constructor(
 
     private val _storeState = Channel<RespiratoryRateDataStoreState>()
 
-    fun storeHeartRate(bpm:Double, timestamp: Date) = viewModelScope.launch {
-        respiratoryRateRepository.storeRespiratoryRateData(bpm, timestamp).collect{
+    private fun storeHeartRate(respiratoryRate:Float, timestamp: Date) = viewModelScope.launch {
+        respiratoryRateRepository.storeRespiratoryRateData(respiratoryRate, timestamp).collect{
                 result ->
             when(result){
                 is Resource.Success -> {
@@ -50,7 +49,10 @@ class RespiratoryRateViewModel @Inject constructor(
 
     fun startRecordingSensorData() {
         viewModelScope.launch {
-            recordRespiratoryRateUseCase.startRecording()
+            recordRespiratoryRateUseCase.startRecording { respiratoryRateData ->
+                // Handle the received respiratoryRateData
+                storeHeartRate(respiratoryRateData.rateValue, respiratoryRateData.timestamp)
+            }
         }
         timer.start()
     }
