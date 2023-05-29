@@ -7,15 +7,20 @@ import com.teessideUni.cfs_tracker.domain.model.RespiratoryAccelerometerData
 import com.teessideUni.cfs_tracker.domain.model.RespiratoryRateData
 import com.teessideUni.cfs_tracker.domain.repository.RespiratoryRateRepository
 import com.teessideUni.cfs_tracker.domain.util.LowPassFilter
+import java.util.Date
+import javax.inject.Inject
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
 
-class RecordRespiratoryRateUseCase(private val respiratoryRateRepository: RespiratoryRateRepository) {
-    private var sensorData = ArrayList<RespiratoryAccelerometerData>();
-    private var rerspiratoryRate: Float = 0f;
-    fun startRecording() {
-        Log.d("tag", "I'm in usecase")
+class RecordRespiratoryRateUseCase @Inject constructor(
+    private val respiratoryRateRepository: RespiratoryRateRepository
+) {
+    private var sensorData = ArrayList<RespiratoryAccelerometerData>()
+    private var respiratoryRate: Float = 0f
+    private var timeStamp: Date = Date()
+
+    fun startRecording(callback: (RespiratoryRateData) -> Unit) {
         val timer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
             }
@@ -23,8 +28,8 @@ class RecordRespiratoryRateUseCase(private val respiratoryRateRepository: Respir
             override fun onFinish() {
                 respiratoryRateRepository.stopListening()
                 sensorData = respiratoryRateRepository.getData()
-                val RRData = RespiratoryRateData(10f, System.currentTimeMillis(), sensorData);
-                rerspiratoryRate = RRData.rateValue
+                val RRData = RespiratoryRateData(10f, Date(System.currentTimeMillis()), sensorData)
+                respiratoryRate = RRData.rateValue
                 val filteredData = FloatArray(sensorData.size)
                 val unFilteredData = DoubleArray(sensorData.size)
                 val filter = LowPassFilter(alpha = 0.2f)
@@ -40,8 +45,15 @@ class RecordRespiratoryRateUseCase(private val respiratoryRateRepository: Respir
                 Log.d("RR", (respiratoryRates/10).toString())
                 val arr2: DoubleArray = computeMovingAverage(unFilteredData, unFilteredData.size, 3)
                 val peaks = printPeaksTroughs(arr2, arr2.size)
-//                rerspiratoryRate = peaks.toFloat()
-                rerspiratoryRate = respiratoryRates/10
+//                respiratoryRate = peaks.toFloat()
+                respiratoryRate = respiratoryRates/10
+                Log.d("Peak detection", peaks.toString())
+                val currentTimeMillis = System.currentTimeMillis()
+                val date = Date(currentTimeMillis)
+                timeStamp = date
+
+                // Call the callback with the RRData
+                callback(RRData)
             }
         }
         timer.start()
@@ -49,7 +61,7 @@ class RecordRespiratoryRateUseCase(private val respiratoryRateRepository: Respir
     }
 
     fun getRespiratoryRate(): Float {
-        return rerspiratoryRate
+        return respiratoryRate
     }
 
     fun detectPeaks(filteredData: FloatArray, samplingRate: Float): List<Int> {

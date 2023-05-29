@@ -1,18 +1,16 @@
 package com.teessideUni.cfs_tracker.domain.navigation
 
-import android.os.Build
 import androidx.activity.compose.BackHandler
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
 import com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen.ForgotPasswordScreen
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate_report.HeartRateReportComponent
 import com.teessideUni.cfs_tracker.presentation.screens.home_screen.OldHomeScreen
 import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
 import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
+import com.teessideUni.cfs_tracker.presentation.screens.report_screen.ReportComponent
 import com.teessideUni.cfs_tracker.presentation.screens.settings_screen.SettingsComponent
 
 
@@ -43,7 +41,7 @@ fun Navigation(navController: NavHostController)
             OldHomeScreen(navController = navController)
         }
         composable("report") {
-            HeartRateReportComponent(navController = navController)
+            ReportComponent(navController = navController)
         }
         composable("forget_password_page") {
             BackHandler(true) {

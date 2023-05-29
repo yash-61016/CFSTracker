@@ -65,7 +65,7 @@ import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
 import com.teessideUni.cfs_tracker.domain.model.Resource
 import com.teessideUni.cfs_tracker.domain.use_cases.view_models.homePageVM.ProfileViewModel
 import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
-import com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.heart_rate_graph.BarChart
+import com.teessideUni.cfs_tracker.presentation.ui.home.components.heart_rate_graph.HeartRateDataGraph
 import kotlinx.coroutines.launch
 
 //@RequiresApi(Build.VERSION_CODES.O)
@@ -86,7 +86,7 @@ fun OldHomeScreen(navController: NavController, viewModel: ProfileViewModel = hi
 
     LaunchedEffect(Unit) {
         isLoading = true
-        viewModel.getCurrentWeekData().collect { result ->
+        viewModel.getHeartRateCurrentWeekData().collect { result ->
             when (result) {
                 is Resource.Success -> {
                     val data = result.data ?: emptyList()
@@ -171,7 +171,7 @@ fun OldHomeScreen(navController: NavController, viewModel: ProfileViewModel = hi
                     onClick = {
                         coroutineScope.launch {
                             isLoading = true
-                            viewModel.getPreviousWeekData().collect { result ->
+                            viewModel.getHeartRatePreviousWeekData().collect { result ->
                                 when (result) {
                                     is Resource.Success -> {
                                         val data = result.data ?: emptyList()
@@ -214,7 +214,7 @@ fun OldHomeScreen(navController: NavController, viewModel: ProfileViewModel = hi
                     onClick = {
                         coroutineScope.launch {
                             isLoading = true
-                            viewModel.getCurrentWeekData().collect { result ->
+                            viewModel.getHeartRateCurrentWeekData().collect { result ->
                                 when (result) {
                                     is Resource.Success -> {
                                         val data = result.data ?: emptyList()
@@ -327,7 +327,7 @@ fun OldHomeScreen(navController: NavController, viewModel: ProfileViewModel = hi
                                     .padding(start = 40.dp, end = 20.dp)
                         )
                     }else{
-                        BarChart(
+                        HeartRateDataGraph(
                             data = heartRateDataPointList,
                             modifier = Modifier.fillMaxSize(),
                             isLoading = isLoading

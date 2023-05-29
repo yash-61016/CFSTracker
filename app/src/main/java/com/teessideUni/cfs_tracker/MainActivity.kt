@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.ActivityCompat
@@ -17,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.core.Constants
 import com.teessideUni.cfs_tracker.presentation.ui.CFSTrackerApp
 import com.teessideUni.cfs_tracker.ui.theme.CFSTrackerTheme
@@ -27,23 +28,19 @@ import dagger.hilt.android.AndroidEntryPoint
 @ExperimentalComposeUiApi
 class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsResultCallback {
     private lateinit var navController: NavHostController
-    private val viewModel by viewModels<MainViewModel>()
-
+   // private val viewModel by viewModels<MainViewModel>()
 
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        val firebaseAuth = FirebaseAuth.getInstance()
+        val firsStore = FirebaseFirestore.getInstance()
         setContent {
             navController = rememberNavController()
             CFSTrackerTheme {
-                CFSTrackerApp(this)
-//                Surface {
-//                    Navigation(navController = navController)
-//                    AuthState(navController)
-//                }
+                CFSTrackerApp(this, firebaseAuth, firsStore )
             }
         }
         requestPermissions(
@@ -56,53 +53,4 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
             insets
         }
     }
-//
-//    @Composable
-//    private fun AuthState(navController: NavController) {
-//        val isUserSignedOut = viewModel.getAuthState().collectAsState().value
-//        var isLoggedIn = viewModel.getCurrentUser()
-//
-//        if (!isLoggedIn && isUserSignedOut) {
-//            NavigateToSplashScreen(navController = navController)
-//        } else {
-//
-//            if (viewModel.isEmailVerified) {
-//                NavigateToProfileScreen(navController = navController)
-//            } else {
-//                Toast.makeText(
-//                    this,
-//                    "Please verify your email address to continue.",
-//                    Toast.LENGTH_LONG
-//                ).show()
-//                NavigateToSignInScreen(navController = navController)
-//            }
-//        }
-//    }
-//
-//    @Composable
-//    private fun NavigateToSplashScreen(navController: NavController) =
-//        navController.navigate("splash_screen") {
-//            popUpTo(navController.graph.findStartDestination().id) {
-//                inclusive = true
-//            }
-//            launchSingleTop = true
-//        }
-//
-//    @Composable
-//    private fun NavigateToSignInScreen(navController: NavController) =
-//        navController.navigate("login_page") {
-//            popUpTo(navController.graph.findStartDestination().id) {
-//                inclusive = true
-//            }
-//            launchSingleTop = true
-//        }
-//
-//    @Composable
-//    private fun NavigateToProfileScreen(navController: NavController) =
-//        navController.navigate("home_page") {
-//            popUpTo(navController.graph.findStartDestination().id) {
-//                inclusive = true
-//            }
-//            launchSingleTop = true
-//        }
 }

@@ -1,5 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.screens.home_screen.components.heart_rate_graph
-
+package com.teessideUni.cfs_tracker.presentation.ui.home.components.respiratory_rate_graph
 
 import android.graphics.Paint
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,14 +20,14 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
+import com.teessideUni.cfs_tracker.data.local.RespiratoryRatePoint
 import com.teessideUni.cfs_tracker.presentation.components.LoadingIndicator
 import kotlin.math.round
 import kotlin.math.roundToInt
 
 @Composable
-fun BarChart(
-    data: List<List<HeartRatePoint>>,
+fun RespiratoryRateDataGraph(
+    data: List<List<RespiratoryRatePoint>>,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
 ) {
@@ -145,7 +144,7 @@ fun BarChart(
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
 
-                        if (dayData.maxHeartRate == 0f.toDouble() && dayData.minHeartRate == 0f.toDouble()) {
+                        if (dayData.maxRespiratoryRate == 0f && dayData.minRespiratoryRate == 0f) {
                             val dotRadius = 4.dp.toPx()
                             val dotY = size.height - spacing - dotRadius
                             drawCircle(
@@ -154,8 +153,8 @@ fun BarChart(
                                 radius = dotRadius
                             )
 
-                            val maxLabel = dayData.maxHeartRate.roundToInt().toFloat().toString()
-                            val minLabel = dayData.minHeartRate.roundToInt().toFloat().toString()
+                            val maxLabel = dayData.maxRespiratoryRate.roundToInt().toFloat().toString()
+                            val minLabel = dayData.minRespiratoryRate.roundToInt().toFloat().toString()
                             drawContext.canvas.nativeCanvas.drawText(
                                 maxLabel,
                                 xPos + xPosOffset,
@@ -169,12 +168,12 @@ fun BarChart(
                                 textPaint
                             )
                         } else {
-                            val maxLabel = dayData.maxHeartRate.roundToInt().toFloat().toString()
-                            val minLabel = dayData.minHeartRate.roundToInt().toFloat().toString()
+                            val maxLabel = dayData.maxRespiratoryRate.roundToInt().toFloat().toString()
+                            val minLabel = dayData.minRespiratoryRate.roundToInt().toFloat().toString()
 
                             if (maxLabel == minLabel) {
                                 val dotY =
-                                    size.height - spacing - (dayData.maxHeartRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
+                                    size.height - spacing - (dayData.maxRespiratoryRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
                                 val dotRadius = 4.dp.toPx()
                                 drawCircle(
                                     color = graphColor,
@@ -190,9 +189,9 @@ fun BarChart(
                                 )
                             } else {
                                 val yPosMax =
-                                    size.height - spacing - (dayData.maxHeartRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
+                                    size.height - spacing - (dayData.maxRespiratoryRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
                                 val yPosMin =
-                                    size.height - spacing - (dayData.minHeartRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
+                                    size.height - spacing - (dayData.minRespiratoryRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
 
                                 val barWidth = spacePerDay * 0.6f
                                 val barLeft = xPos + (spacePerDay - barWidth) / 2
@@ -229,7 +228,7 @@ fun BarChart(
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
                         val yPos =
-                            size.height - spacing - (dayData.maxHeartRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
+                            size.height - spacing - (dayData.maxRespiratoryRate - lowerValue) / (upperValue - lowerValue) * (size.height - 2 * spacing)
                         if (index == 0) {
                             linePath.moveTo(xPos + xPosOffset, yPos.toFloat())
                         } else {
@@ -246,10 +245,3 @@ fun BarChart(
         }
     }
 }
-
-
-
-
-
-
-
