@@ -26,13 +26,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.teessideUni.cfs_tracker.data.remote.RespiratoryRateDataSourceImpl
-import com.teessideUni.cfs_tracker.data.repository.RespiratoryRateRepositoryImpl
-import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -141,13 +136,13 @@ private fun startTimer(coroutineScope: CoroutineScope, onTick: (Int) -> Unit) {
         }
     }
 }
-@Preview(showBackground = true)
-@Composable
-fun RespiratoryRateScreenPreview() {
-    val dataSrc = RespiratoryRateDataSourceImpl()
-    val repo = RespiratoryRateRepositoryImpl(LocalContext.current, dataSrc)
-    val useCase = RecordRespiratoryRateUseCase(repo)
-    val viewModel = RespiratoryRateViewModel(useCase)
-
-    RespiratoryRateScreen(viewModel)
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun RespiratoryRateScreenPreview() {
+//    val dataSrc = RespiratoryRateDataSourceImpl()
+//    val repo = RespiratoryRateRepositoryImpl(LocalContext.current, dataSrc)
+//    val useCase = RecordRespiratoryRateUseCase(repo)
+//    val viewModel = RespiratoryRateViewModel(useCase)
+//
+//    RespiratoryRateScreen(viewModel)
+//}

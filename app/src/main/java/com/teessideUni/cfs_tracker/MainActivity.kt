@@ -17,6 +17,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.core.Constants
 import com.teessideUni.cfs_tracker.presentation.ui.CFSTrackerApp
 import com.teessideUni.cfs_tracker.ui.theme.CFSTrackerTheme
@@ -35,11 +37,12 @@ class MainActivity : ComponentActivity(),  ActivityCompat.OnRequestPermissionsRe
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
+        val firebaseAuth = FirebaseAuth.getInstance()
+        val firsStore = FirebaseFirestore.getInstance()
         setContent {
             navController = rememberNavController()
             CFSTrackerTheme {
-                CFSTrackerApp(this)
+                CFSTrackerApp(this, firebaseAuth, firsStore )
 //                Surface {
 //                    Navigation(navController = navController)
 //                    AuthState(navController)

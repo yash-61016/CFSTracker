@@ -4,11 +4,20 @@ import android.os.CountDownTimer
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.teessideUni.cfs_tracker.domain.model.Resource
+import com.teessideUni.cfs_tracker.domain.repository.RespiratoryRateRepository
 import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
+import java.util.Date
+import javax.inject.Inject
 
-class RespiratoryRateViewModel(private val recordRespiratoryRateUseCase: RecordRespiratoryRateUseCase) : ViewModel() {
-    private var RespiRatoryRate: Float = 0f
+@HiltViewModel
+class RespiratoryRateViewModel @Inject constructor(
+    private val recordRespiratoryRateUseCase: RecordRespiratoryRateUseCase,
+    private val respiratoryRateRepository: RespiratoryRateRepository
+) : ViewModel() {
     private val timer = object : CountDownTimer(30000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
             // Update the timer UI
@@ -17,6 +26,25 @@ class RespiratoryRateViewModel(private val recordRespiratoryRateUseCase: RecordR
         override fun onFinish() {
             // Update the UI with the sum of sensor data
             Log.d("Final Sum", getSensorData().toString());
+        }
+    }
+
+    private val _storeState = Channel<RespiratoryRateDataStoreState>()
+
+    fun storeHeartRate(bpm:Double, timestamp: Date) = viewModelScope.launch {
+        respiratoryRateRepository.storeRespiratoryRateData(bpm, timestamp).collect{
+                result ->
+            when(result){
+                is Resource.Success -> {
+                    _storeState.send(RespiratoryRateDataStoreState(isSuccess = "Data get successfully stored."))
+                }
+                is Resource.Error -> {
+                    _storeState.send(RespiratoryRateDataStoreState(isError = result.message.toString()))
+                }
+                is Resource.Loading -> {
+                    _storeState.send(RespiratoryRateDataStoreState(isLoading = true))
+                }
+            }
         }
     }
 

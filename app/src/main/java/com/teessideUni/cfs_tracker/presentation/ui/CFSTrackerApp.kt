@@ -22,6 +22,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.teessideUni.cfs_tracker.data.remote.RespiratoryRateDataSourceImpl
 import com.teessideUni.cfs_tracker.data.repository.RespiratoryRateRepositoryImpl
 import com.teessideUni.cfs_tracker.domain.CFSTrackerNavigationActions
@@ -41,14 +43,20 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CFSTrackerApp(context: Context) {
+fun CFSTrackerApp(
+    context: Context, firebaseAuth: FirebaseAuth,
+    firebaseFirestore: FirebaseFirestore
+) {
 
-    CFSTrackerNavigationWrapper(context)
+    CFSTrackerNavigationWrapper(context, firebaseAuth, firebaseFirestore)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun CFSTrackerNavigationWrapper(context: Context) {
+private fun CFSTrackerNavigationWrapper(
+    context: Context, firebaseAuth: FirebaseAuth,
+    firebaseFirestore: FirebaseFirestore
+) {
     val scope = rememberCoroutineScope()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 
@@ -79,6 +87,8 @@ private fun CFSTrackerNavigationWrapper(context: Context) {
             navController = navController,
             selectedDestination = selectedDestination,
             navigateToTopLevelDestination = navigationActions::navigateTo,
+            firebaseAuth = firebaseAuth,
+            firebaseFirestore = firebaseFirestore
         ) {
             scope.launch {
                 drawerState.open()
@@ -93,9 +103,12 @@ fun CFSTrackerAppContent(
     modifier: Modifier = Modifier,
     navController: NavHostController,
     selectedDestination: String,
+    firebaseAuth: FirebaseAuth,
+    firebaseFirestore: FirebaseFirestore,
     navigateToTopLevelDestination: (CFSTrackerTopLevelDestination) -> Unit,
-    onDrawerClicked: () -> Unit = {}
-) {
+    onDrawerClicked: () -> Unit = {},
+
+    ) {
     Row(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
@@ -105,7 +118,9 @@ fun CFSTrackerAppContent(
             CFSTrackerNavHost(
                 navController = navController,
                 modifier = Modifier.weight(1f),
-                context
+                context,
+                firebaseAuth = firebaseAuth,
+                firebaseFirestore = firebaseFirestore
             )
             AnimatedVisibility(visible = true) {
                 CFSTrackerBottomNavigationBar(
@@ -121,7 +136,9 @@ fun CFSTrackerAppContent(
 private fun CFSTrackerNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    context: Context
+    context: Context,
+    firebaseAuth: FirebaseAuth,
+    firebaseFirestore: FirebaseFirestore
 ) {
     NavHost(
         modifier = modifier,
@@ -138,20 +155,20 @@ private fun CFSTrackerNavHost(
         composable(CFSTrackerRoute.SETTINGS) {
             SettingsComponent(navController)
         }
-        composable(CFSTrackerRoute.RESPIRATORY_RATE_RECORDER){
+        composable(CFSTrackerRoute.RESPIRATORY_RATE_RECORDER) {
             val dataSrc = RespiratoryRateDataSourceImpl()
-            val repo = RespiratoryRateRepositoryImpl(context, dataSrc)
+            val repo = RespiratoryRateRepositoryImpl(context, firebaseAuth, firebaseFirestore)
             val useCase = RecordRespiratoryRateUseCase(repo)
             val viewModel = RespiratoryRateViewModel(useCase)
             RespiratoryRateScreen(viewModel)
         }
-        composable(CFSTrackerRoute.LOGIN_PAGE){
+        composable(CFSTrackerRoute.LOGIN_PAGE) {
             LoginScreen(navController)
         }
-        composable(CFSTrackerRoute.REGISTER_PAGE){
+        composable(CFSTrackerRoute.REGISTER_PAGE) {
             RegisterScene(navController)
         }
-        composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE){
+        composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE) {
             ForgotPasswordScreen(navController)
         }
 
