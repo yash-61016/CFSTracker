@@ -5,7 +5,6 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import android.util.Log
 import com.teessideUni.cfs_tracker.domain.model.MeasurableSensor
 
 
@@ -42,13 +41,10 @@ abstract class AndroidSensor(
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
-        Log.d("I'm in the android sensor file", (!doesSensorExist).toString())
         if(!doesSensorExist) {
             return
         }
-        Log.d("I'm in the android sensor file", event?.sensor?.type.toString())
         if(event?.sensor?.type == sensorType) {
-            Log.d("I'm in the android sensor file", event.values.toList().toString())
             onSensorValuesChanged?.invoke(event.values.toList())
         }
     }
