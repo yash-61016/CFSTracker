@@ -37,10 +37,8 @@ import kotlinx.coroutines.launch
 fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
     var timerRunning by remember { mutableStateOf(false) }
     var remainingTime by remember { mutableStateOf(30) }
-
     val timerCoroutineScope = rememberCoroutineScope()
-
-//    val sensorData by respiratoryRateViewModel.getSensorData().observeAsState(emptyList())
+    val respiratoryRate = respiratoryRateViewModel.respiratoryRate.value
 
     var progress by remember { mutableStateOf(1f) }
     val animatedProgress by animateFloatAsState(
@@ -57,11 +55,20 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Text(
-                        "Respiratory Rate",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Column {
+                        Text(
+                            text = "Respiratory Rate : $respiratoryRate",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.headlineLarge
+                        )
+                        Text(
+                            text = "Please take deep breaths",
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
                 }
             )
         },
@@ -86,13 +93,6 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
                 strokeWidth = 20.dp
             )
             Spacer(Modifier.requiredHeight(280.dp))
-//            Text(
-//                text = "Sensor data: $sensorData",
-//                fontWeight = FontWeight.Bold,
-//                fontSize = 20.sp,
-//                textAlign = TextAlign.Center,
-//                modifier = Modifier.padding(bottom = 16.dp)
-//            )
 
             Card(
                 onClick = {
@@ -117,11 +117,20 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
                     .padding(10.dp)
             ) {
                 Box(Modifier.fillMaxSize()) {
-                    Text(
-                        "Start",
-                        Modifier.align(Alignment.Center),
-                        style = MaterialTheme.typography.titleLarge
-                    )
+                    if(!timerRunning){
+                        Text(
+                            "Start",
+                            Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }else{
+                        Text(
+                            "Calculating...",
+                            Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+
                 }
             }
 
@@ -141,13 +150,3 @@ private fun startTimer(coroutineScope: CoroutineScope, onTick: (Int) -> Unit) {
         }
     }
 }
-//@Preview(showBackground = true)
-//@Composable
-//fun RespiratoryRateScreenPreview() {
-//    val dataSrc = RespiratoryRateDataSourceImpl()
-//    val repo = RespiratoryRateRepositoryImpl(LocalContext.current, dataSrc)
-//    val useCase = RecordRespiratoryRateUseCase(repo)
-//    val viewModel = RespiratoryRateViewModel(useCase)
-//
-//    RespiratoryRateScreen(viewModel)
-//}
