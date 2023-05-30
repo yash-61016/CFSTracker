@@ -1,9 +1,9 @@
 package com.teessideUni.cfs_tracker.domain.repository
 
 
-import com.teessideUni.cfs_tracker.data.local.RespiratoryRateDataValues
+import com.teessideUni.cfs_tracker.data.model.RespiratoryRateDataValues
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.domain.model.RespiratoryAccelerometerData
+import com.teessideUni.cfs_tracker.data.model.RespiratoryAccelerometerData
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
 

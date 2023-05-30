@@ -2,7 +2,7 @@ package com.teessideUni.cfs_tracker.data.repository
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.data.local.HeartRateData
+import com.teessideUni.cfs_tracker.data.model.HeartRateData
 import com.teessideUni.cfs_tracker.domain.model.Resource
 import com.teessideUni.cfs_tracker.domain.repository.HeartRateRepository
 import kotlinx.coroutines.flow.Flow
