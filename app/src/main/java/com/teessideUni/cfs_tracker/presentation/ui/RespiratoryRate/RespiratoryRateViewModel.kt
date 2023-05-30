@@ -1,7 +1,7 @@
 package com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate
 
 import android.os.CountDownTimer
-import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.teessideUni.cfs_tracker.domain.model.Resource
@@ -18,13 +18,14 @@ class RespiratoryRateViewModel @Inject constructor(
     private val recordRespiratoryRateUseCase: RecordRespiratoryRateUseCase,
     private val respiratoryRateRepository: RespiratoryRateRepository
 ) : ViewModel() {
+    var respiratoryRate = mutableStateOf(0)
     private val timer = object : CountDownTimer(30000, 1000) {
         override fun onTick(millisUntilFinished: Long) {
             // Update the timer UI
         }
         override fun onFinish() {
             // Update the UI with the sum of sensor data
-            Log.d("Final Sum", getSensorData().toString());
+            respiratoryRate.value = getSensorData().toInt()
         }
     }
 
