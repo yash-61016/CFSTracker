@@ -1,5 +1,6 @@
 package com.teessideUni.cfs_tracker.domain.use_cases.view_models.RespiratoryRateReportVM
 
+import android.util.Log
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
@@ -28,9 +29,6 @@ class RespiratoryRateReportViewModel @Inject constructor(
     private val calendar: Calendar = Calendar.getInstance()
     private val currentYear = calendar.get(Calendar.YEAR)
     private val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
-    private val currentMonthNumber = calendar.get(Calendar.MONTH) + 1
-    private val lastMonthNumber = if (currentMonthNumber == 1) 12 else currentMonthNumber - 1
-    private val monthBeforeLastMonthNumber = if (lastMonthNumber == 1) 12 else currentMonthNumber - 2
 
     private val respiratoryRateDataList = mutableStateListOf<RespiratoryRateDataValues>()
     private val respiratoryRateDataListForAMonth = mutableStateListOf<RespiratoryRateDataValues>()
@@ -97,15 +95,46 @@ class RespiratoryRateReportViewModel @Inject constructor(
             }
     }
 
+    private val firstMonthData = calendar.get(Calendar.MONTH) + 1
+    private val secondMonthData = if (firstMonthData == 1) 12 else firstMonthData - 1
+    private val thirdMonthData = if (secondMonthData == 1) 12 else secondMonthData - 1
+    private val forthMonthData = if (thirdMonthData == 1) 12 else thirdMonthData - 1
+    private val fifthMonthData = if (forthMonthData == 1) 12 else forthMonthData - 1
+    private val sixthMonthData = if (fifthMonthData == 1) 12 else fifthMonthData - 1
 
-    suspend fun getAverageRespiratoryRateDataForThreeMonths(): List<AverageRespiratoryRateData> {
+    suspend fun getAverageRespiratoryRateDataForSixMonths(): List<AverageRespiratoryRateData> {
         // clear the list
         averageRespiratoryRateData.clear()
 
-        val currentMonthDataResult = getRespiratoryRateDataForAMonth(currentYear, currentMonthNumber).first()
-        val lastMonthDataResult = getRespiratoryRateDataForAMonth(currentYear, lastMonthNumber).first()
-        val monthBeforeLastMonthDataResult = getRespiratoryRateDataForAMonth(currentYear, monthBeforeLastMonthNumber).first()
+        val fiveMonthsAgoYear = if (sixthMonthData >= firstMonthData) currentYear - 1 else currentYear
+        val fourMonthsAgoYear = if (fifthMonthData >= firstMonthData) currentYear - 1 else currentYear
+        val threeMonthsAgoYear = if (forthMonthData >= firstMonthData) currentYear - 1 else currentYear
+        val monthBeforeLastYear = if (thirdMonthData >= firstMonthData) currentYear - 1 else currentYear
+        val lastMonthYear = if (secondMonthData >= firstMonthData) currentYear - 1 else currentYear
+        val currentMonthYear = currentYear
 
+        val currentMonthDataResult = getRespiratoryRateDataForAMonth(currentMonthYear, firstMonthData).first()
+        val lastMonthDataResult = getRespiratoryRateDataForAMonth(lastMonthYear, secondMonthData).first()
+        val monthBeforeLastMonthDataResult = getRespiratoryRateDataForAMonth(monthBeforeLastYear, thirdMonthData).first()
+        val threeMonthsBeforeDataResult = getRespiratoryRateDataForAMonth(threeMonthsAgoYear, forthMonthData).first()
+        val fourMonthsBeforeDataResult = getRespiratoryRateDataForAMonth(fourMonthsAgoYear, fifthMonthData).first()
+        val fiveMonthsBeforeDataResult = getRespiratoryRateDataForAMonth(fiveMonthsAgoYear, sixthMonthData).first()
+
+        val fiveMonthsAgoData = if (fiveMonthsBeforeDataResult is Resource.Success) {
+            fiveMonthsBeforeDataResult.data ?: emptyList()
+        } else {
+            emptyList()
+        }
+        val fourMonthsAgoData = if (fourMonthsBeforeDataResult is Resource.Success) {
+            fourMonthsBeforeDataResult.data ?: emptyList()
+        } else {
+            emptyList()
+        }
+        val threeMonthsAgoData = if (threeMonthsBeforeDataResult is Resource.Success) {
+            threeMonthsBeforeDataResult.data ?: emptyList()
+        } else {
+            emptyList()
+        }
         val monthBeforeLastMonthData = if (monthBeforeLastMonthDataResult is Resource.Success) {
             monthBeforeLastMonthDataResult.data ?: emptyList()
         } else {
@@ -122,14 +151,23 @@ class RespiratoryRateReportViewModel @Inject constructor(
             emptyList()
         }
 
+        val fiveMonthsAgoDataAverage = fiveMonthsAgoData.map { it.rateValue }.average()
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(fiveMonthsAgoDataAverage, Month.of(sixthMonthData).name.substring(0,3)))
+
+        val fourMonthsAgoDataAverage = fourMonthsAgoData.map { it.rateValue }.average()
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(fourMonthsAgoDataAverage, Month.of(fifthMonthData).name.substring(0,3)))
+
+        val threeMonthsAgoDataAverage = threeMonthsAgoData.map { it.rateValue }.average()
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(threeMonthsAgoDataAverage, Month.of(forthMonthData).name.substring(0,3)))
+
         val monthBeforeLastMonthAverage = monthBeforeLastMonthData.map { it.rateValue }.average()
-        averageRespiratoryRateData.add(AverageRespiratoryRateData(monthBeforeLastMonthAverage, Month.of(monthBeforeLastMonthNumber).name))
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(monthBeforeLastMonthAverage, Month.of(thirdMonthData).name.substring(0,3)))
 
         val lastMonthAverage = lastMonthData.map { it.rateValue }.average()
-        averageRespiratoryRateData.add(AverageRespiratoryRateData(lastMonthAverage, Month.of(lastMonthNumber).name))
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(lastMonthAverage, Month.of(secondMonthData).name.substring(0,3)))
 
         val currentMonthAverage = currentMonthData.map { it.rateValue }.average()
-        averageRespiratoryRateData.add(AverageRespiratoryRateData(currentMonthAverage, Month.of(currentMonthNumber).name))
+        averageRespiratoryRateData.add(AverageRespiratoryRateData(currentMonthAverage, Month.of(firstMonthData).name.substring(0,3)))
 
         return averageRespiratoryRateData
     }
@@ -139,13 +177,20 @@ class RespiratoryRateReportViewModel @Inject constructor(
         if (averageRespiratoryRateData.isEmpty()) {
             return "0.00%" // No data available
         }
-        val latestAverageHeartRate = averageRespiratoryRateData.last().averageRespiratoryRate
-        val previousAverageHeartRate = averageRespiratoryRateData[averageRespiratoryRateData.size - 2].averageRespiratoryRate
+        val latestAverageRespiratoryRate = averageRespiratoryRateData.last().averageRespiratoryRate
+        val previousAverageRespiratoryRate = averageRespiratoryRateData[averageRespiratoryRateData.size - 2].averageRespiratoryRate
 
-        val changePercentage = ((latestAverageHeartRate - previousAverageHeartRate) / previousAverageHeartRate * 100)
+        val changePercentage = if (previousAverageRespiratoryRate != 0.0) {
+            ((latestAverageRespiratoryRate - previousAverageRespiratoryRate) / previousAverageRespiratoryRate * 100)
+        } else {
+            0.0
+        }
         val decimalFormat = DecimalFormat("0.00")
-
-        return "${decimalFormat.format(changePercentage)}%"
+        return if ("${changePercentage}%" == "NaN%") {
+            "0.00%"
+        } else {
+            "${decimalFormat.format(changePercentage)}%"
+        }
     }
 
     fun isAverageRespiratoryRateIncreased(averageRespiratoryRateData: List<AverageRespiratoryRateData>): Boolean

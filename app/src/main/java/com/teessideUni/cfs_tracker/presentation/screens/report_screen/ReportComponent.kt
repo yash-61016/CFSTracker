@@ -113,13 +113,13 @@ fun ReportComponent(navController: NavController) {
     var heartRateDataList = remember { mutableStateListOf<HeartRateData>() }
     val averageHeartRateDataState =
         remember { mutableStateOf<List<AverageHeartRateData>>(emptyList()) }
-    val averageHeartRateChangePercentage = remember { mutableStateOf(" ") }
+    val averageHeartRateChangePercentage = remember { mutableStateOf("") }
     val isAverageHeartRateIncreased = remember { mutableStateOf(false) }
 
     var respiratoryRateDataList = remember { mutableStateListOf<RespiratoryRateDataValues>() }
     val averageRespiratoryRateDataState =
         remember { mutableStateOf<List<AverageRespiratoryRateData>>(emptyList()) }
-    val averageRespiratoryRateChangePercentage = remember { mutableStateOf(" ") }
+    val averageRespiratoryRateChangePercentage = remember { mutableStateOf("") }
     val isAverageRespiratoryRateIncreased = remember { mutableStateOf(false) }
 
     val heartRateLoadingState = remember { mutableStateOf(true) }
@@ -146,7 +146,7 @@ fun ReportComponent(navController: NavController) {
     LaunchedEffect(Unit) {
         heartRateLoadingState.value = true
         // Fetch the average heart rate data from the ViewModel
-        val averageHeartRateData = viewModel.getAverageHeartRateDataForThreeMonths()
+        val averageHeartRateData = viewModel.getAverageHeartRateDataForSixMonths()
         heartRateLoadingState.value = false
         averageHeartRateDataState.value = averageHeartRateData
 
@@ -160,7 +160,7 @@ fun ReportComponent(navController: NavController) {
     LaunchedEffect(Unit) {
         respiratoryRateLoadingState.value = true
         // Fetch the average heart rate data from the ViewModel
-        val averageRespiratoryRateData = respiratoryRateViewModel.getAverageRespiratoryRateDataForThreeMonths()
+        val averageRespiratoryRateData = respiratoryRateViewModel.getAverageRespiratoryRateDataForSixMonths()
         respiratoryRateLoadingState.value = false
         averageRespiratoryRateDataState.value = averageRespiratoryRateData
 

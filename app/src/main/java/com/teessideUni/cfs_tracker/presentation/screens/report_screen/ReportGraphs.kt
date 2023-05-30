@@ -50,7 +50,6 @@ fun MonthlyHeartRateComparisonGraph(
             .fillMaxSize().padding(start = 10.dp)
     ) {
         if (isLoading) {
-            Log.d("indicator " , "$isLoading")
             LoadingIndicator()
         }
         else if (data.isEmpty()) {
@@ -198,7 +197,6 @@ fun MonthlyRespiratoryRateComparisonGraph(
             .fillMaxSize().padding(start = 10.dp)
     ) {
         if (isLoading) {
-            Log.d("indicator " , "$isLoading")
             LoadingIndicator()
         }
         else if (data.isEmpty()) {
@@ -308,7 +306,7 @@ fun MonthlyRespiratoryRateComparisonGraph(
 
                         val labelYOffset = 14.dp.toPx()
                         drawContext.canvas.nativeCanvas.drawText(
-                            String.format("%.2f bpm", monthData.averageRespiratoryRate),
+                            String.format("%.2f", monthData.averageRespiratoryRate),
                             xPos + xPosOffset,
                             (yPos - labelYOffset).toFloat(),
                             textPaint
