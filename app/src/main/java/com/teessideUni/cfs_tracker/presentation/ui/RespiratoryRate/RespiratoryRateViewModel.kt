@@ -29,6 +29,8 @@ class RespiratoryRateViewModel @Inject constructor(
             val currentDate = Date(currentTimeMillis)
 
             storeHeartRate(getSensorData(), currentDate)
+
+            respiratoryRate.value = getSensorData().toInt()
         }
     }
 
