@@ -144,7 +144,7 @@ fun RespiratoryRateDataGraph(
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
 
-                        if (dayData.maxRespiratoryRate == 0f && dayData.minRespiratoryRate == 0f) {
+                        if (dayData.maxRespiratoryRate == 0.0 && dayData.minRespiratoryRate == 0.0) {
                             val dotRadius = 4.dp.toPx()
                             val dotY = size.height - spacing - dotRadius
                             drawCircle(

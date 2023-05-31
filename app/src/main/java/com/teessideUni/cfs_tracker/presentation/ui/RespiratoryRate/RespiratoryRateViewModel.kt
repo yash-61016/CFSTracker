@@ -25,7 +25,10 @@ class RespiratoryRateViewModel @Inject constructor(
         }
         override fun onFinish() {
             // Update the UI with the sum of sensor data
-            respiratoryRate.value = getSensorData().toInt()
+            val currentTimeMillis = System.currentTimeMillis()
+            val currentDate = Date(currentTimeMillis)
+
+            storeHeartRate(getSensorData(), currentDate)
         }
     }
 
@@ -50,10 +53,7 @@ class RespiratoryRateViewModel @Inject constructor(
 
     fun startRecordingSensorData() {
         viewModelScope.launch {
-            recordRespiratoryRateUseCase.startRecording { respiratoryRateData ->
-                // Handle the received respiratoryRateData
-                storeHeartRate(respiratoryRateData.rateValue, respiratoryRateData.timestamp)
-            }
+            recordRespiratoryRateUseCase.startRecording()
         }
         timer.start()
     }
