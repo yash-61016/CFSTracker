@@ -181,7 +181,7 @@ fun MonthlyRespiratoryRateComparisonGraph(
 )
 {
     val graphColor = MaterialTheme.colorScheme.primary
-    val upperValue = remember { data.maxOfOrNull { it.averageRespiratoryRate } ?: 100.0 }
+    val upperValue = remember { data.maxOfOrNull { it.averageRespiratoryRate } ?: 25.0 }
     val lowerValue = remember { data.minOfOrNull { it.averageRespiratoryRate } ?: 0.0 }
     val density = LocalDensity.current
     val textPaint = remember(density) {
