@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -107,31 +108,29 @@ class ProfileViewModel @Inject constructor(
         val dateFormat = SimpleDateFormat("EEE", Locale.US)
 
         val calendar = Calendar.getInstance()
-
-        // Create a set of all weekdays
-        val allWeekDays = setOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", )
+        val allWeekDays = setOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
         if (sortedDataList.isNotEmpty()) {
-            val startOfWeek = sortedDataList.first().timestamp
-            val endOfWeek = sortedDataList.last().timestamp
+            val startOfWeek = getStartOfWeek(sortedDataList.first().timestamp)
+            val endOfWeek = getEndOfWeek(sortedDataList.last().timestamp)
 
             calendar.time = startOfWeek
 
             while (calendar.time <= endOfWeek) {
                 val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-                val dataForCurrentDay = sortedDataList.filter {
-                    val calendarItem = Calendar.getInstance()
-                    calendarItem.time = it.timestamp
-                    calendarItem.get(Calendar.DAY_OF_MONTH) == currentDay
+                val dataForCurrentDay = sortedDataList.filter { data ->
+                    val dataCalendar = Calendar.getInstance()
+                    dataCalendar.time = data.timestamp
+                    dataCalendar.get(Calendar.DAY_OF_MONTH) == currentDay
                 }
                 val dayOfWeek = dateFormat.format(calendar.time)
 
                 val heartRatePoint = if (dataForCurrentDay.isNotEmpty()) {
                     val maxHeartRate = dataForCurrentDay.maxByOrNull { it.heartRate }!!.heartRate
                     val minHeartRate = dataForCurrentDay.minByOrNull { it.heartRate }!!.heartRate
+
                     HeartRatePoint(dayOfWeek, maxHeartRate, minHeartRate)
                 } else {
-                    // HeartRatePoint with 0 values for max and min heart rate
                     HeartRatePoint(dayOfWeek, 0.0, 0.0)
                 }
                 dailyHeartRateList.add(listOf(heartRatePoint))
@@ -146,6 +145,7 @@ class ProfileViewModel @Inject constructor(
             missingDaysOfWeek.forEach { dayOfWeek ->
                 dailyHeartRateList.add(listOf(HeartRatePoint(dayOfWeek, 0.0, 0.0)))
             }
+
             // Sort the dailyHeartRateList based on the desired order
             dailyHeartRateList.sortBy { allWeekDays.indexOf(it.first().dayOfWeek) }
         } else {
@@ -154,10 +154,8 @@ class ProfileViewModel @Inject constructor(
                 dailyHeartRateList.add(listOf(HeartRatePoint(dayOfWeek, 0.0, 0.0)))
             }
         }
-
         return dailyHeartRateList
     }
-
 
     //Respiratory Rate data fetch
     fun getRespiratoryRateCurrentWeekData(): Flow<Resource<ArrayList<RespiratoryRateDataValues>>> {
@@ -168,7 +166,9 @@ class ProfileViewModel @Inject constructor(
                         respiratoryRateDataList.clear()
                         result.data?.let { respiratoryRateDataList.addAll(it) }
                         var arrayList: ArrayList<RespiratoryRateDataValues> = ArrayList()
-                        respiratoryRateDataList.forEach { arrayList.add(it) }
+                        respiratoryRateDataList.forEach {
+                            arrayList.add(it)
+                        }
                         Resource.Success(arrayList)
                     }
                     is Resource.Error -> Resource.Error(result.message.toString())
@@ -188,7 +188,9 @@ class ProfileViewModel @Inject constructor(
                         respiratoryRateDataListPreviousWeek.clear()
                         result.data?.let { respiratoryRateDataListPreviousWeek.addAll(it) }
                         var arrayList: ArrayList<RespiratoryRateDataValues> = ArrayList()
-                        respiratoryRateDataListPreviousWeek.forEach { arrayList.add(it) }
+                        respiratoryRateDataListPreviousWeek.forEach {
+                            arrayList.add(it)
+                        }
                         Resource.Success(arrayList)
                     }
                     is Resource.Error -> Resource.Error(result.message.toString())
@@ -200,61 +202,90 @@ class ProfileViewModel @Inject constructor(
             }
     }
 
+
     fun filterMaxMinRespiratoryRatePerDay(respiratoryRateDataList: List<RespiratoryRateDataValues>): List<List<RespiratoryRatePoint>> {
         val sortedDataList = respiratoryRateDataList.sortedBy { it.timestamp }
-        val dailyHeartRateList = mutableListOf<List<RespiratoryRatePoint>>()
+        val dailyRespiratoryRateList = mutableListOf<List<RespiratoryRatePoint>>()
         val dateFormat = SimpleDateFormat("EEE", Locale.US)
 
         val calendar = Calendar.getInstance()
-
-        // Create a set of all weekdays
-        val allWeekDays = setOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", )
+        val allWeekDays = setOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
         if (sortedDataList.isNotEmpty()) {
-            val startOfWeek = sortedDataList.first().timestamp
-            val endOfWeek = sortedDataList.last().timestamp
+            val startOfWeek = getStartOfWeek(sortedDataList.first().timestamp)
+            val endOfWeek = getEndOfWeek(sortedDataList.last().timestamp)
 
             calendar.time = startOfWeek
 
             while (calendar.time <= endOfWeek) {
                 val currentDay = calendar.get(Calendar.DAY_OF_MONTH)
-                val dataForCurrentDay = sortedDataList.filter {
-                    val calendarItem = Calendar.getInstance()
-                    calendarItem.time = it.timestamp
-                    calendarItem.get(Calendar.DAY_OF_MONTH) == currentDay
+                val dataForCurrentDay = sortedDataList.filter { data ->
+                    val dataCalendar = Calendar.getInstance()
+                    dataCalendar.time = data.timestamp
+                    dataCalendar.get(Calendar.DAY_OF_MONTH) == currentDay
                 }
                 val dayOfWeek = dateFormat.format(calendar.time)
 
                 val respiratoryRatePoint = if (dataForCurrentDay.isNotEmpty()) {
-                    val maxRespiratoryRate = dataForCurrentDay.maxByOrNull { it.rateValue }!!.rateValue
-                    val minRespiratoryRate = dataForCurrentDay.minByOrNull { it.rateValue }!!.rateValue
-                    RespiratoryRatePoint(dayOfWeek, maxRespiratoryRate, minRespiratoryRate)
+                    val maxHeartRate = dataForCurrentDay.maxByOrNull { it.rateValue }!!.rateValue
+                    val minHeartRate = dataForCurrentDay.minByOrNull { it.rateValue }!!.rateValue
+
+                    RespiratoryRatePoint(dayOfWeek, maxHeartRate.toDouble(), minHeartRate.toDouble())
                 } else {
-                    // HeartRatePoint with 0 values for max and min heart rate
-                    RespiratoryRatePoint(dayOfWeek, 0.0f, 0.0f)
+                    RespiratoryRatePoint(dayOfWeek, 0.0, 0.0)
                 }
-                dailyHeartRateList.add(listOf(respiratoryRatePoint))
+                dailyRespiratoryRateList.add(listOf(respiratoryRatePoint))
 
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
             }
 
             // Check for missing days and add HeartRatePoints with 0 values
-            val existingDaysOfWeek = dailyHeartRateList.map { it.first().dayOfWeek }.toSet()
+            val existingDaysOfWeek = dailyRespiratoryRateList.map { it.first().dayOfWeek }.toSet()
             val missingDaysOfWeek = allWeekDays - existingDaysOfWeek
 
             missingDaysOfWeek.forEach { dayOfWeek ->
-                dailyHeartRateList.add(listOf(RespiratoryRatePoint(dayOfWeek, 0.0f, 0.0f)))
+                dailyRespiratoryRateList.add(listOf(RespiratoryRatePoint(dayOfWeek, 0.0, 0.0)))
             }
+
             // Sort the dailyHeartRateList based on the desired order
-            dailyHeartRateList.sortBy { allWeekDays.indexOf(it.first().dayOfWeek) }
+            dailyRespiratoryRateList.sortBy { allWeekDays.indexOf(it.first().dayOfWeek) }
         } else {
             // If the input list is empty, add HeartRatePoints with 0 values for all weekdays
             allWeekDays.forEach { dayOfWeek ->
-                dailyHeartRateList.add(listOf(RespiratoryRatePoint(dayOfWeek, 0.0f, 0.0f)))
+                dailyRespiratoryRateList.add(listOf(RespiratoryRatePoint(dayOfWeek, 0.0, 0.0)))
             }
         }
+        return dailyRespiratoryRateList
+    }
 
-        return dailyHeartRateList
+    private fun getStartOfWeek(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek)
+        resetTime(calendar)
+        return calendar.time
+    }
+
+    private fun getEndOfWeek(date: Date): Date {
+        val calendar = Calendar.getInstance()
+        calendar.time = date
+        calendar.set(Calendar.DAY_OF_WEEK, calendar.firstDayOfWeek + 6)
+        setEndOfDay(calendar)
+        return calendar.time
+    }
+
+    private fun resetTime(calendar: Calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+    }
+
+    private fun setEndOfDay(calendar: Calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
     }
 }
 

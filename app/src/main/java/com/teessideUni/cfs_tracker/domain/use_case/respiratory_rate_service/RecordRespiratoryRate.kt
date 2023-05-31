@@ -19,8 +19,9 @@ class RecordRespiratoryRateUseCase @Inject constructor(
     private var sensorData = ArrayList<RespiratoryAccelerometerData>()
     private var respiratoryRate: Float = 0f
     private var timeStamp: Date = Date()
+    private var RRData: RespiratoryRateData = RespiratoryRateData(0f, Date(), ArrayList())
 
-    fun startRecording(callback: (RespiratoryRateData) -> Unit) {
+    fun startRecording() {
         val timer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
             }
@@ -28,7 +29,7 @@ class RecordRespiratoryRateUseCase @Inject constructor(
             override fun onFinish() {
                 respiratoryRateRepository.stopListening()
                 sensorData = respiratoryRateRepository.getData()
-                val RRData = RespiratoryRateData(10f, Date(System.currentTimeMillis()), sensorData)
+                RRData = RespiratoryRateData(10f, Date(System.currentTimeMillis()), sensorData)
                 respiratoryRate = RRData.rateValue
                 val filteredData = FloatArray(sensorData.size)
                 val unFilteredData = DoubleArray(sensorData.size)
@@ -52,8 +53,9 @@ class RecordRespiratoryRateUseCase @Inject constructor(
                 val date = Date(currentTimeMillis)
                 timeStamp = date
 
+                RRData = RespiratoryRateData(respiratoryRate, timeStamp, sensorData)
                 // Call the callback with the RRData
-                callback(RRData)
+//                callback(RRData)
             }
         }
         timer.start()

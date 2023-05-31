@@ -158,5 +158,8 @@ private fun CFSTrackerNavHost(
         composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE) {
             ForgotPasswordScreen(navController)
         }
+        composable(CFSTrackerRoute.QUESTIONER){
+            QuestionnaireScreen( navController = navController)
+        }
     }
 }
