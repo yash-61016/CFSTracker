@@ -92,12 +92,6 @@ fun HomeScreen(navController: NavController) {
         )
     }
     val listState = rememberLazyListState()
-    val expandedFab by remember {
-        derivedStateOf {
-            listState.firstVisibleItemIndex == 0
-        }
-    }
-    val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -105,7 +99,6 @@ fun HomeScreen(navController: NavController) {
     }
     LaunchedEffect(Unit) {
         isHRGraphLoading = true
-        isRRGraphLoading = true
         viewModel.getHeartRateCurrentWeekData().collect { result ->
             when (result) {
                 is Resource.Success -> {
@@ -129,6 +122,11 @@ fun HomeScreen(navController: NavController) {
                 else -> {}
             }
         }
+
+    }
+
+    LaunchedEffect(Unit) {
+        isRRGraphLoading = true
         viewModel.getRespiratoryRateCurrentWeekData().collect { result ->
             when (result) {
                 is Resource.Success -> {
