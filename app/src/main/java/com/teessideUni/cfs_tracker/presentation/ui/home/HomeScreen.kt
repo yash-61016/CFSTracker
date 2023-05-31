@@ -211,7 +211,7 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             sheetState.hide()
                         }
-                        navController.navigate("QUESTIONER");
+                        navController.navigate("QUESTIONNAIRE");
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -220,7 +220,7 @@ fun HomeScreen(navController: NavController) {
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text(
-                            "Questioner",
+                            "Questionnaire",
                             Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.titleLarge
                         )

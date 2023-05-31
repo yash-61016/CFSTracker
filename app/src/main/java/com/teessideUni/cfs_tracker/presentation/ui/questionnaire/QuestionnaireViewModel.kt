@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.ui.Questioner
+package com.teessideUni.cfs_tracker.presentation.ui.questionnaire
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class QuestionerViewModel @Inject constructor(private val questionnaireRepository: QuestionerRepository) : ViewModel(){
+class QuestionnaireViewModel @Inject constructor(private val questionnaireRepository: QuestionerRepository) : ViewModel(){
     private val _questions = MutableLiveData<List<QuestionWithOptions>>()
     val questions: LiveData<List<QuestionWithOptions>> = _questions
 

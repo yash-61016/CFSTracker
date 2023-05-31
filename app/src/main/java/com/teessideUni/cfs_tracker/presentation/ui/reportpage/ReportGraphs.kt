@@ -158,7 +158,7 @@ fun MonthlyHeartRateComparisonGraph(
 
                         val labelYOffset = 14.dp.toPx()
                         drawContext.canvas.nativeCanvas.drawText(
-                            String.format("%.2f bpm", monthData.averageHeartRate),
+                            String.format("%.2f", monthData.averageHeartRate),
                             xPos + xPosOffset,
                             (yPos - labelYOffset).toFloat(),
                             textPaint

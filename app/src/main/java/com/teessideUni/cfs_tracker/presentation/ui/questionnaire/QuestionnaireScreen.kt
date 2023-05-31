@@ -1,4 +1,4 @@
-package com.teessideUni.cfs_tracker.presentation.ui.Questioner
+package com.teessideUni.cfs_tracker.presentation.ui.questionnaire
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,7 +37,7 @@ import com.teessideUni.cfs_tracker.domain.model.QuestionWithOptions
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuestionnaireScreen(navController: NavController, viewModel: QuestionerViewModel = hiltViewModel()) {
+fun QuestionnaireScreen(navController: NavController, viewModel: QuestionnaireViewModel = hiltViewModel()) {
     val questions by viewModel.questions.observeAsState(emptyList())
     val selectedAnswers = remember { mutableStateListOf<Pair<String, String>>() }
     val listState = rememberLazyListState()

@@ -66,7 +66,7 @@ fun SettingsComponent(navController: NavController) {
 
     val coroutineScope = rememberCoroutineScope()
     var isAboutExpanded by remember { mutableStateOf(false) }
-    val aboutCardHeight by animateDpAsState(if (isAboutExpanded) 230.dp else 55.dp)
+    val aboutCardHeight by animateDpAsState(if (isAboutExpanded) 600.dp else 55.dp)
 
     var userName by remember { mutableStateOf("") }
     var userEmail by remember { mutableStateOf("") }
@@ -289,13 +289,13 @@ fun SettingsComponent(navController: NavController) {
                 onClick = {
                     // handle Add Device button on click
                 },
-                enabled = userName != "Username", // Set enabled to false to disable the button
+                enabled = false, // Set enabled to false to disable the button
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(30.dp)
                     .padding(start = 20.dp, end = 20.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (userName != "Username") MaterialTheme.colorScheme.primary else Color.Gray),
+                    .background(Color.Gray),
                 content = {
                     Row(
                         modifier = Modifier
@@ -396,10 +396,8 @@ fun SettingsComponent(navController: NavController) {
                             shape = RoundedCornerShape(8.dp)
                         ) {
                             Text(
-                                text = "Details",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = Color.Black,
+                                text = "Myalgic encephalomyelitis, also called chronic fatigue syndrome or ME/CFS, is a condition that causes extreme tiredness and a range of other symptoms. Myalgic encephalomyelitis (ME/CFS) has a wide range of symptoms. The most common symptom is extreme tiredness. Treatments for myalgic encephalomyelitis (ME/CFS) include talking therapies, managing your energy levels and medicines.\n",
+                                style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(
                                     top = 15.dp,
                                     start = 20.dp,

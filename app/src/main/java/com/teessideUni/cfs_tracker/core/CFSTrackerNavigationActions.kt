@@ -18,7 +18,7 @@ object CFSTrackerRoute {
     const val REGISTER_PAGE = "REGISTER_PAGE"
     const val FORGET_PASSWORD_PAGE = "FORGET_PASSWORD_PAGE"
     const val SPLASH_SCREEN = "SPLASHSCREEN"
-    const val QUESTIONER = "QUESTIONER"
+    const val QUESTIONNAIRE = "QUESTIONNAIRE"
 }
 
 data class CFSTrackerTopLevelDestination(

@@ -236,7 +236,7 @@ fun ReportComponent(navController: NavController) {
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     Text(
-                                        text = "Heart Rate Report",
+                                        text = "Heart Rate",
                                         style = MaterialTheme.typography.titleLarge,
                                         modifier = Modifier.padding(start = 5.dp, end = 15.dp)
                                     )
@@ -325,7 +325,7 @@ fun ReportComponent(navController: NavController) {
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
                                     androidx.compose.material.Text(
-                                        text = "Respiratory Rate Report",
+                                        text = "Respiratory Rate",
                                         style = MaterialTheme.typography.titleLarge,
                                         modifier = Modifier.width(200.dp).padding(start = 5.dp, end = 15.dp)
                                     )

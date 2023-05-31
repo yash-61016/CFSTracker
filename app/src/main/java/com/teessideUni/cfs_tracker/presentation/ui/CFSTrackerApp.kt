@@ -38,6 +38,7 @@ import com.teessideUni.cfs_tracker.presentation.ui.settings.SettingsComponent
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateScreen
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateViewModel
 import com.teessideUni.cfs_tracker.presentation.ui.home.HomeScreen
+import com.teessideUni.cfs_tracker.presentation.ui.questionnaire.QuestionnaireScreen
 import kotlinx.coroutines.launch
 
 
@@ -158,7 +159,7 @@ private fun CFSTrackerNavHost(
         composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE) {
             ForgotPasswordScreen(navController)
         }
-        composable(CFSTrackerRoute.QUESTIONER){
+        composable(CFSTrackerRoute.QUESTIONNAIRE){
             QuestionnaireScreen( navController = navController)
         }
     }
