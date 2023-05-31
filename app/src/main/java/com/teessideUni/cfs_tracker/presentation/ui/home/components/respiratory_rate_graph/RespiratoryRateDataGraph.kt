@@ -33,7 +33,7 @@ fun RespiratoryRateDataGraph(
 ) {
     val spacing = 100f
     val graphColor = Color.Red
-    val upperValue = remember { 100 }
+    val upperValue = remember { 25 }
     val lowerValue = remember { 0 }
     val density = LocalDensity.current
     val textPaint = remember(density) {

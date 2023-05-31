@@ -206,6 +206,26 @@ fun HomeScreen(navController: NavController) {
                         )
                     }
                 }
+                Card(
+                    onClick = {
+                        scope.launch {
+                            sheetState.hide()
+                        }
+                        navController.navigate("QUESTIONER");
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(80.dp)
+                        .padding(10.dp)
+                ) {
+                    Box(Modifier.fillMaxSize()) {
+                        Text(
+                            "Questioner",
+                            Modifier.align(Alignment.Center),
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
             }
         },
         sheetBackgroundColor = MaterialTheme.colorScheme.onPrimary,
