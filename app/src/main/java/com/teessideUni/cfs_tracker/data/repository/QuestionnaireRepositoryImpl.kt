@@ -79,9 +79,7 @@ class QuestionnaireRepositoryImpl  @Inject constructor(
     }
 
 
-    override fun sendAnswers(
-        answers: List<Pair<String, String>>
-    ): Flow<Resource<Boolean>> {
+    override fun sendAnswers(answers: List<Pair<String, String>>): Flow<Resource<Boolean>> {
         return flow {
             var result = false
             val user = firebaseAuth.currentUser
@@ -103,10 +101,10 @@ class QuestionnaireRepositoryImpl  @Inject constructor(
 
                 val finalRef = weekRef.collection(dayOfWeekString)
                 // Create a new map to store the questions and answers with the day of the week
-                val data = HashMap<String, HashMap<String, String>>()
+                val data = HashMap<String, Any>()
 
                 // Iterate through the answers list and add each question and answer to the map
-                for (answer in answers) {
+                for ((index, answer) in answers.withIndex()) {
                     val question = answer.first
                     val answerText = answer.second
 
@@ -115,18 +113,18 @@ class QuestionnaireRepositoryImpl  @Inject constructor(
                     dayData["question"] = question
                     dayData["answer"] = answerText
 
-                    // Add the dayData map to the data map with the day of the week as the key
-                    data["Questions"] = dayData
+                    // Add the dayData map to the data map with the numerical count as the key
+                    data["Question ${index + 1}"] = dayData
                 }
 
                 // Get the current timestamp
-                val timestamp = Date(Calendar.getInstance().timeInMillis)
+                val timestamp = Calendar.getInstance().time.toString()
 
                 // Add the timestamp to the data map
-                data["timestamp"] = hashMapOf("value" to timestamp.toString())
+                data["timestamp"] = timestamp
 
                 // Add the data map to Firestore
-                finalRef.document("timestamp").set(data, SetOptions.merge())
+                finalRef.document(timestamp).set(data, SetOptions.merge())
 
                 // Set result to true since data was stored successfully
                 result = true
