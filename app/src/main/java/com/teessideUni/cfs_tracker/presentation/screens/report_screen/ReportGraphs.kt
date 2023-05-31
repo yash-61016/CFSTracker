@@ -308,7 +308,7 @@ fun MonthlyRespiratoryRateComparisonGraph(
 
                         val labelYOffset = 14.dp.toPx()
                         drawContext.canvas.nativeCanvas.drawText(
-                            String.format("%.2f bpm", monthData.averageRespiratoryRate),
+                            String.format("%.2f", monthData.averageRespiratoryRate),
                             xPos + xPosOffset,
                             (yPos - labelYOffset).toFloat(),
                             textPaint
