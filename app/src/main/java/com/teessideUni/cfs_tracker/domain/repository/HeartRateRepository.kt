@@ -1,6 +1,6 @@
 package com.teessideUni.cfs_tracker.domain.repository
 
-import com.teessideUni.cfs_tracker.data.local.HeartRateData
+import com.teessideUni.cfs_tracker.data.model.HeartRateData
 import com.teessideUni.cfs_tracker.domain.model.Resource
 import kotlinx.coroutines.flow.Flow
 import java.util.Date

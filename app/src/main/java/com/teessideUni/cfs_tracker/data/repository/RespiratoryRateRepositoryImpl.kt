@@ -5,9 +5,9 @@ import android.content.pm.PackageManager
 import android.hardware.Sensor
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.data.local.RespiratoryRateDataValues
+import com.teessideUni.cfs_tracker.data.model.RespiratoryRateDataValues
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.domain.model.RespiratoryAccelerometerData
+import com.teessideUni.cfs_tracker.data.model.RespiratoryAccelerometerData
 import com.teessideUni.cfs_tracker.domain.repository.AndroidSensor
 import com.teessideUni.cfs_tracker.domain.repository.RespiratoryRateRepository
 import kotlinx.coroutines.flow.Flow

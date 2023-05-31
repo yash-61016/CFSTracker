@@ -23,24 +23,22 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.teessideUni.cfs_tracker.data.repository.QuestionnaireRepositoryImpl
 import com.teessideUni.cfs_tracker.data.repository.RespiratoryRateRepositoryImpl
-import com.teessideUni.cfs_tracker.domain.CFSTrackerNavigationActions
-import com.teessideUni.cfs_tracker.domain.CFSTrackerRoute
-import com.teessideUni.cfs_tracker.domain.CFSTrackerTopLevelDestination
+import com.teessideUni.cfs_tracker.core.CFSTrackerNavigationActions
+import com.teessideUni.cfs_tracker.core.CFSTrackerRoute
+import com.teessideUni.cfs_tracker.core.CFSTrackerTopLevelDestination
 import com.teessideUni.cfs_tracker.domain.repository.RespiratoryRateRepository
 import com.teessideUni.cfs_tracker.domain.use_case.RecordRespiratoryRateUseCase
 import com.teessideUni.cfs_tracker.presentation.screens.SplashScreen
-import com.teessideUni.cfs_tracker.presentation.screens.forget_password_screen.ForgotPasswordScreen
-import com.teessideUni.cfs_tracker.presentation.screens.login_screen.LoginScreen
-import com.teessideUni.cfs_tracker.presentation.screens.register_screen.RegisterScene
-import com.teessideUni.cfs_tracker.presentation.screens.report_screen.ReportComponent
-import com.teessideUni.cfs_tracker.presentation.screens.settings_screen.SettingsComponent
-import com.teessideUni.cfs_tracker.presentation.ui.Questioner.QuestionerViewModel
-import com.teessideUni.cfs_tracker.presentation.ui.Questioner.QuestionnaireScreen
+import com.teessideUni.cfs_tracker.presentation.ui.forgetpassword.ForgotPasswordScreen
+import com.teessideUni.cfs_tracker.presentation.ui.login.LoginScreen
+import com.teessideUni.cfs_tracker.presentation.ui.register.RegisterScene
+import com.teessideUni.cfs_tracker.presentation.ui.reportpage.ReportComponent
+import com.teessideUni.cfs_tracker.presentation.ui.settings.SettingsComponent
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateScreen
 import com.teessideUni.cfs_tracker.presentation.ui.RespiratoryRate.RespiratoryRateViewModel
 import com.teessideUni.cfs_tracker.presentation.ui.home.HomeScreen
+import com.teessideUni.cfs_tracker.presentation.ui.questionnaire.QuestionnaireScreen
 import kotlinx.coroutines.launch
 
 
@@ -136,6 +134,7 @@ private fun CFSTrackerNavHost(
             HomeScreen(navController)
         }
         composable(CFSTrackerRoute.REPORTS) {
+//            EmptyComingSoon()
             ReportComponent(navController)
         }
         composable(CFSTrackerRoute.SETTINGS) {
@@ -160,7 +159,7 @@ private fun CFSTrackerNavHost(
         composable(CFSTrackerRoute.FORGET_PASSWORD_PAGE) {
             ForgotPasswordScreen(navController)
         }
-        composable(CFSTrackerRoute.QUESTIONER){
+        composable(CFSTrackerRoute.QUESTIONNAIRE){
             QuestionnaireScreen( navController = navController)
         }
     }

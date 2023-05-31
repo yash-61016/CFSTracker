@@ -35,8 +35,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
 import com.teessideUni.cfs_tracker.R
-import com.teessideUni.cfs_tracker.domain.CFSTrackerTopLevelDestination
-import com.teessideUni.cfs_tracker.domain.TOP_LEVEL_DESTINATIONS
+import com.teessideUni.cfs_tracker.core.CFSTrackerTopLevelDestination
+import com.teessideUni.cfs_tracker.core.TOP_LEVEL_DESTINATIONS
 
 
 @Composable

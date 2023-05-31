@@ -53,13 +53,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.teessideUni.cfs_tracker.R
-import com.teessideUni.cfs_tracker.data.local.HeartRateData
-import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
-import com.teessideUni.cfs_tracker.data.local.RespiratoryRateDataValues
-import com.teessideUni.cfs_tracker.data.local.RespiratoryRatePoint
+import com.teessideUni.cfs_tracker.data.model.HeartRateData
+import com.teessideUni.cfs_tracker.data.model.HeartRatePoint
+import com.teessideUni.cfs_tracker.data.model.RespiratoryRateDataValues
+import com.teessideUni.cfs_tracker.data.model.RespiratoryRatePoint
 import com.teessideUni.cfs_tracker.domain.model.Resource
-import com.teessideUni.cfs_tracker.domain.use_cases.view_models.homePageVM.ProfileViewModel
-import com.teessideUni.cfs_tracker.presentation.screens.heart_rate.HeartRateMeasurementActivity
+import com.teessideUni.cfs_tracker.presentation.ui.home.homePageVM.ProfileViewModel
+import com.teessideUni.cfs_tracker.presentation.ui.heartrate.HeartRateMeasurementActivity
 import com.teessideUni.cfs_tracker.presentation.ui.home.components.heart_rate_graph.HeartRateDataGraph
 import com.teessideUni.cfs_tracker.presentation.ui.home.components.respiratory_rate_graph.RespiratoryRateDataGraph
 import kotlinx.coroutines.launch
@@ -211,7 +211,7 @@ fun HomeScreen(navController: NavController) {
                         scope.launch {
                             sheetState.hide()
                         }
-                        navController.navigate("QUESTIONER");
+                        navController.navigate("QUESTIONNAIRE");
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -220,7 +220,7 @@ fun HomeScreen(navController: NavController) {
                 ) {
                     Box(Modifier.fillMaxSize()) {
                         Text(
-                            "Questioner",
+                            "Questionnaire",
                             Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.titleLarge
                         )

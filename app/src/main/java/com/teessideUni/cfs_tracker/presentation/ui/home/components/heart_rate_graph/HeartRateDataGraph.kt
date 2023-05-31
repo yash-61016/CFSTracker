@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.teessideUni.cfs_tracker.data.local.HeartRatePoint
+import com.teessideUni.cfs_tracker.data.model.HeartRatePoint
 import com.teessideUni.cfs_tracker.presentation.components.LoadingIndicator
 import kotlin.math.round
 import kotlin.math.roundToInt

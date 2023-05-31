@@ -60,7 +60,7 @@ fun RespiratoryRateScreen(respiratoryRateViewModel: RespiratoryRateViewModel) {
                             text = "Respiratory Rate : $respiratoryRate",
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
-                            style = MaterialTheme.typography.headlineLarge
+                            style = MaterialTheme.typography.headlineMedium
                         )
                         Text(
                             text = "Please take deep breaths",
