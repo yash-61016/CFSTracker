@@ -10,13 +10,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
@@ -37,7 +36,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -91,7 +89,6 @@ fun HomeScreen(navController: NavController) {
             emptyList()
         )
     }
-    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -265,331 +262,323 @@ fun HomeScreen(navController: NavController) {
                     .fillMaxSize()
                     .padding(top = 120.dp),
 
-            ) {
+                ) {
                 item {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 10.dp, end = 10.dp)
-                            .height(350.dp),
 
-                        ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(start = 20.dp, top = 10.dp, end = 20.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = " Heart Rate",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(bottom = 10.dp)
-                            )
-                            Text(
-                                text = hearRateWeekNumber.value,
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.padding(top = 10.dp)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        isHRGraphLoading = true
-                                        viewModel.getHeartRatePreviousWeekData()
-                                            .collect { result ->
-                                                when (result) {
-                                                    is Resource.Success -> {
-                                                        val data =
-                                                            result.data ?: emptyList()
-                                                        // Clear the heartRateAllWeekDataList before updating it
-                                                        heartRateAllWeekDataList =
-                                                            emptyList()
-                                                        hearRateWeekNumber.value =
-                                                            viewModel.getPreviousWeekNumber()
-                                                        heartRateDataPointList =
-                                                            if (data.isNotEmpty()) {
-                                                                // Update the heartRateDataPoint list
-                                                                viewModel.filterMaxMinHeartRatePerDay(
-                                                                    data
-                                                                )
-                                                            } else {
-                                                                emptyList()
-                                                            }
-                                                        isHRGraphLoading = false
-                                                    }
-
-                                                    is Resource.Error -> {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Failed to connect to database",
-                                                            Toast.LENGTH_SHORT
+                    CardWrapper(
+                        Title = "Heart Rate",
+                        WeekNumberString = hearRateWeekNumber.value,
+                        heartRateData = heartRateDataPointList,
+                        respiratoryRateData = emptyList(),
+                        getCurrentWeekData = {
+                            scope.launch {
+                                isHRGraphLoading = true
+                                viewModel.getHeartRateCurrentWeekData()
+                                    .collect { result ->
+                                        when (result) {
+                                            is Resource.Success -> {
+                                                val data =
+                                                    result.data ?: emptyList()
+                                                // Clear the heartRateAllWeekDataList before updating it
+                                                heartRateAllWeekDataList =
+                                                    emptyList()
+                                                hearRateWeekNumber.value =
+                                                    viewModel.getCurrentWeekNumber()
+                                                heartRateDataPointList =
+                                                    if (data.isNotEmpty()) {
+                                                        // Update the heartRateDataPoint list
+                                                        viewModel.filterMaxMinHeartRatePerDay(
+                                                            data
                                                         )
-                                                            .show()
+                                                    } else {
+                                                        emptyList()
                                                     }
-
-                                                    else -> {}
-                                                }
+                                                isHRGraphLoading = false
                                             }
+
+                                            is Resource.Error -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Failed to connect to database",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()
+                                            }
+
+                                            else -> {}
+                                        }
                                     }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f)
-                                    .padding(end = 4.dp),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = MaterialTheme.colorScheme.onSecondary
-                                )
-                            ) {
-                                Text(
-                                    text = "Last Week",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
                             }
-
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        isHRGraphLoading = true
-                                        viewModel.getHeartRateCurrentWeekData()
-                                            .collect { result ->
-                                                when (result) {
-                                                    is Resource.Success -> {
-                                                        val data =
-                                                            result.data ?: emptyList()
-                                                        // Clear the heartRateAllWeekDataList before updating it
-                                                        heartRateAllWeekDataList =
-                                                            emptyList()
-                                                        hearRateWeekNumber.value =
-                                                            viewModel.getCurrentWeekNumber()
-                                                        heartRateDataPointList =
-                                                            if (data.isNotEmpty()) {
-                                                                // Update the heartRateDataPoint list
-                                                                viewModel.filterMaxMinHeartRatePerDay(
-                                                                    data
-                                                                )
-                                                            } else {
-                                                                emptyList()
-                                                            }
-                                                        isHRGraphLoading = false
-                                                    }
-
-                                                    is Resource.Error -> {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Failed to connect to database",
-                                                            Toast.LENGTH_SHORT
+                        },
+                        getPreviousWeekData = {
+                            scope.launch {
+                                isHRGraphLoading = true
+                                viewModel.getHeartRatePreviousWeekData()
+                                    .collect { result ->
+                                        when (result) {
+                                            is Resource.Success -> {
+                                                val data =
+                                                    result.data ?: emptyList()
+                                                // Clear the heartRateAllWeekDataList before updating it
+                                                heartRateAllWeekDataList =
+                                                    emptyList()
+                                                hearRateWeekNumber.value =
+                                                    viewModel.getPreviousWeekNumber()
+                                                heartRateDataPointList =
+                                                    if (data.isNotEmpty()) {
+                                                        // Update the heartRateDataPoint list
+                                                        viewModel.filterMaxMinHeartRatePerDay(
+                                                            data
                                                         )
-                                                            .show()
+                                                    } else {
+                                                        emptyList()
                                                     }
-
-                                                    else -> {}
-                                                }
+                                                isHRGraphLoading = false
                                             }
+
+                                            is Resource.Error -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Failed to connect to database",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()
+                                            }
+
+                                            else -> {}
+                                        }
                                     }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = MaterialTheme.colorScheme.onSecondary
-                                )
-                            ) {
-                                Text(
-                                    text = "This Week",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
                             }
-                        }
+                        },
+                        isHRLoading = isHRGraphLoading,
+                        isRRLoading = false
+                    )
 
-                        if (heartRateDataPointList.isEmpty()) {
-                            // Display the "No data found" image
-                            Image(
-                                painter = painterResource(R.drawable.no_data_found),
-                                contentDescription = "No data found",
-                                modifier = Modifier
-                                    .padding(start = 40.dp, end = 20.dp)
-                            )
-                        } else {
-                            HeartRateDataGraph(
-                                data = heartRateDataPointList,
-                                modifier = Modifier.fillMaxSize(),
-                                isLoading = isHRGraphLoading
-                            )
-                        }
-                    }
-
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 20.dp, start = 10.dp, end = 10.dp, bottom = 10.dp)
-                            .height(350.dp),
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .padding(start = 20.dp, top = 10.dp, end = 20.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            Text(
-                                text = "Respiratory Rate",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(bottom = 10.dp)
-                            )
-                            Text(
-                                text = respiratoryRateWeekNumber.value,
-                                style = MaterialTheme.typography.titleSmall,
-                                modifier = Modifier.padding(top = 10.dp)
-                            )
-                        }
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp, horizontal = 20.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        isRRGraphLoading = true
-                                        viewModel.getRespiratoryRatePreviousWeekData()
-                                            .collect { result ->
-                                                when (result) {
-                                                    is Resource.Success -> {
-                                                        val data =
-                                                            result.data ?: emptyList()
-                                                        // Clear the heartRateAllWeekDataList before updating it
-                                                        respiratoryRateAllWeekDataList =
-                                                            emptyList()
-                                                        respiratoryRateWeekNumber.value =
-                                                            viewModel.getPreviousWeekNumber()
-                                                        respiratoryRateDataPointList =
-                                                            if (data.isNotEmpty()) {
-                                                                // Update the heartRateDataPoint list
-                                                                viewModel.filterMaxMinRespiratoryRatePerDay(
-                                                                    data
-                                                                )
-                                                            } else {
-                                                                emptyList()
-                                                            }
-                                                        isRRGraphLoading = false
-                                                    }
-
-                                                    is Resource.Error -> {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Failed to connect to database",
-                                                            Toast.LENGTH_SHORT
+                    Spacer(modifier = Modifier.height(20.dp))
+                    CardWrapper(
+                        Title = "Respiratory Rate",
+                        WeekNumberString = respiratoryRateWeekNumber.value,
+                        heartRateData = emptyList(),
+                        respiratoryRateData = respiratoryRateDataPointList,
+                        getCurrentWeekData = {
+                            scope.launch {
+                                isRRGraphLoading = true
+                                viewModel.getRespiratoryRateCurrentWeekData()
+                                    .collect { result ->
+                                        when (result) {
+                                            is Resource.Success -> {
+                                                val data =
+                                                    result.data ?: emptyList()
+                                                respiratoryRateAllWeekDataList =
+                                                    emptyList()
+                                                respiratoryRateWeekNumber.value =
+                                                    viewModel.getCurrentWeekNumber()
+                                                respiratoryRateDataPointList =
+                                                    if (data.isNotEmpty()) {
+                                                        // Update the heartRateDataPoint List
+                                                        viewModel.filterMaxMinRespiratoryRatePerDay(
+                                                            data
                                                         )
-                                                            .show()
+                                                    } else {
+                                                        emptyList()
                                                     }
-
-                                                    else -> {}
-                                                }
+                                                isRRGraphLoading = false
                                             }
+
+                                            is Resource.Error -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Failed to connect to database",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()
+                                            }
+
+                                            else -> {}
+                                        }
                                     }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f)
-                                    .padding(end = 4.dp),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = MaterialTheme.colorScheme.onSecondary
-                                )
-                            ) {
-                                Text(
-                                    text = "Last Week",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
                             }
-
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        isRRGraphLoading = true
-                                        viewModel.getRespiratoryRateCurrentWeekData()
-                                            .collect { result ->
-                                                when (result) {
-                                                    is Resource.Success -> {
-                                                        val data =
-                                                            result.data ?: emptyList()
-                                                        respiratoryRateAllWeekDataList =
-                                                            emptyList()
-                                                        respiratoryRateWeekNumber.value =
-                                                            viewModel.getCurrentWeekNumber()
-                                                        respiratoryRateDataPointList =
-                                                            if (data.isNotEmpty()) {
-                                                                // Update the heartRateDataPoint List
-                                                                viewModel.filterMaxMinRespiratoryRatePerDay(
-                                                                    data
-                                                                )
-                                                            } else {
-                                                                emptyList()
-                                                            }
-                                                        isRRGraphLoading = false
-                                                    }
-
-                                                    is Resource.Error -> {
-                                                        Toast.makeText(
-                                                            context,
-                                                            "Failed to connect to database",
-                                                            Toast.LENGTH_SHORT
+                        },
+                        getPreviousWeekData = {
+                            scope.launch {
+                                isRRGraphLoading = true
+                                viewModel.getRespiratoryRatePreviousWeekData()
+                                    .collect { result ->
+                                        when (result) {
+                                            is Resource.Success -> {
+                                                val data =
+                                                    result.data ?: emptyList()
+                                                // Clear the heartRateAllWeekDataList before updating it
+                                                respiratoryRateAllWeekDataList =
+                                                    emptyList()
+                                                respiratoryRateWeekNumber.value =
+                                                    viewModel.getPreviousWeekNumber()
+                                                respiratoryRateDataPointList =
+                                                    if (data.isNotEmpty()) {
+                                                        // Update the heartRateDataPoint list
+                                                        viewModel.filterMaxMinRespiratoryRatePerDay(
+                                                            data
                                                         )
-                                                            .show()
+                                                    } else {
+                                                        emptyList()
                                                     }
-
-                                                    else -> {}
-                                                }
+                                                isRRGraphLoading = false
                                             }
-                                    }
-                                },
-                                modifier = Modifier
-                                    .height(40.dp)
-                                    .weight(1f),
-                                shape = MaterialTheme.shapes.medium,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondary,
-                                    contentColor = MaterialTheme.colorScheme.onSecondary
-                                )
-                            ) {
-                                Text(
-                                    text = "This Week",
-                                    color = MaterialTheme.colorScheme.onPrimary
-                                )
-                            }
-                        }
 
-                        if (respiratoryRateDataPointList.isEmpty()) {
-                            // Display the "No data found" image
-                            Image(
-                                painter = painterResource(R.drawable.no_data_found),
-                                contentDescription = "No data found",
-                                modifier = Modifier
-                                    .padding(start = 40.dp, end = 20.dp)
-                            )
-                        } else {
-                            RespiratoryRateDataGraph(
-                                data = respiratoryRateDataPointList,
-                                modifier = Modifier.fillMaxSize(),
-                                isLoading = isRRGraphLoading
-                            )
-                        }
-                    }
+                                            is Resource.Error -> {
+                                                Toast.makeText(
+                                                    context,
+                                                    "Failed to connect to database",
+                                                    Toast.LENGTH_SHORT
+                                                )
+                                                    .show()
+                                            }
+
+                                            else -> {}
+                                        }
+                                    }
+                            }
+                        },
+                        isHRLoading = false,
+                        isRRLoading = isRRGraphLoading
+                    )
                 }
             }
         }
     }
+}
+
+@Composable
+fun CardWrapper(
+    Title: String,
+    WeekNumberString: String,
+    heartRateData: List<List<HeartRatePoint>?>?,
+    respiratoryRateData: List<List<RespiratoryRatePoint>?>?,
+    getCurrentWeekData: () -> Unit,
+    getPreviousWeekData: () -> Unit,
+    isHRLoading: Boolean,
+    isRRLoading: Boolean
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp)
+            .height(350.dp),
+
+        ) {
+        Row(
+            modifier = Modifier
+                .padding(start = 20.dp, top = 10.dp, end = 20.dp)
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = Title,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 10.dp)
+            )
+            Text(
+                text = WeekNumberString,
+                style = MaterialTheme.typography.titleSmall,
+                modifier = Modifier.padding(top = 10.dp)
+            )
+        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp, horizontal = 20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = getPreviousWeekData,
+                modifier = Modifier
+                    .height(40.dp)
+                    .weight(1f)
+                    .padding(end = 4.dp),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Text(
+                    text = "Last Week",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+
+            Button(
+                onClick = getCurrentWeekData,
+                modifier = Modifier
+                    .height(40.dp)
+                    .weight(1f),
+                shape = MaterialTheme.shapes.medium,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSecondary
+                )
+            ) {
+                Text(
+                    text = "This Week",
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+        SetGraph(
+            Title = Title,
+            heartRateData = heartRateData,
+            respiratoryRateData = respiratoryRateData,
+            isHRLoading = isHRLoading,
+            isRRLoading = isRRLoading
+        )
+    }
+}
+
+@Composable
+fun SetGraph(
+    Title: String,
+    heartRateData: List<List<HeartRatePoint>?>?,
+    respiratoryRateData: List<List<RespiratoryRatePoint>?>?,
+    isHRLoading: Boolean,
+    isRRLoading: Boolean,
+)
+{
+    if(Title == "Heart Rate") {
+        if (heartRateData!!.isEmpty()) {
+            // Display the "No data found" image
+            Image(
+                painter = painterResource(R.drawable.no_data_found),
+                contentDescription = "No data found",
+                modifier = Modifier
+                    .padding(start = 40.dp, end = 20.dp)
+            )
+        } else {
+            HeartRateDataGraph(
+                data = heartRateData,
+                modifier = Modifier.fillMaxSize(),
+                isLoading = isHRLoading
+            )
+        }
+    }
+    else
+    {
+        if (respiratoryRateData!!.isEmpty()) {
+            // Display the "No data found" image
+            Image(
+                painter = painterResource(R.drawable.no_data_found),
+                contentDescription = "No data found",
+                modifier = Modifier
+                    .padding(start = 40.dp, end = 20.dp)
+            )
+        } else {
+            RespiratoryRateDataGraph(
+                data = respiratoryRateData,
+                modifier = Modifier.fillMaxSize(),
+                isLoading = isRRLoading
+            )
+        }
+    }
+
 }
 
 @Composable
