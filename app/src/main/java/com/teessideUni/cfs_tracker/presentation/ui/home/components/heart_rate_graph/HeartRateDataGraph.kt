@@ -28,7 +28,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun HeartRateDataGraph(
-    data: List<List<HeartRatePoint>>,
+    data: List<List<HeartRatePoint>?>,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
 ) {
@@ -65,7 +65,7 @@ fun HeartRateDataGraph(
                 modifier = Modifier.fillMaxSize()
             ) {
                 // Data points and lines
-                if (data.isEmpty() || data.all { it.isEmpty() }) {
+                if (data.isEmpty() || data.all { it!!.isEmpty() }) {
                     val text = "No data found."
                     drawContext.canvas.nativeCanvas.drawText(
                         text,
@@ -114,7 +114,7 @@ fun HeartRateDataGraph(
                 // Draw x-axis labels
                 val xPosOffset = spacePerDay / 2
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList?.isNotEmpty() == true) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
                         drawContext.canvas.nativeCanvas.drawText(
@@ -141,7 +141,7 @@ fun HeartRateDataGraph(
 
                 // Draw data lines
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList!!.isNotEmpty()) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
 
@@ -225,7 +225,7 @@ fun HeartRateDataGraph(
                 val lineStrokeWidth = 2.dp.toPx()
                 val linePath = Path()
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList!!.isNotEmpty()) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
                         val yPos =
