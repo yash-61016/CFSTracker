@@ -35,18 +35,18 @@ Various optimizations are implemented:
 Overall, this well-architected and optimized implementation serves as a robust IoT monitoring solution for chronic fatigue syndrome. The codebase demonstrates various best practices that can be applied to any modern mobile app.
 
 ## Screenshots
-![Screenshot_20230531-071423](https://github.com/yash-61016/CFSTracker/assets/73232849/2444ec6e-ada3-4425-b664-e56662639679)
-![Screenshot_20230531-071429](https://github.com/yash-61016/CFSTracker/assets/73232849/b4b059cc-9f5c-45c6-b83a-275bbbfd9ed8)
-![Screenshot_20230531-071441](https://github.com/yash-61016/CFSTracker/assets/73232849/52442d68-19a3-4c74-a57a-1e7095f22f81)
-![Screenshot_20230531-065645](https://github.com/yash-61016/CFSTracker/assets/73232849/824d45f3-aca0-4198-b1ed-cf8e9d7c9969)
-![Screenshot_20230531-071141](https://github.com/yash-61016/CFSTracker/assets/73232849/31b49e39-c46a-46c5-8e8c-0daa4fade938)
-![Screenshot_20230531-071144](https://github.com/yash-61016/CFSTracker/assets/73232849/8d524dfc-0379-4c5b-84be-5e0f53498459)
-![Screenshot_20230531-071151](https://github.com/yash-61016/CFSTracker/assets/73232849/1234b5f3-8235-4a41-8dac-426a28304d9d)
-![Screenshot_20230531-071225](https://github.com/yash-61016/CFSTracker/assets/73232849/a00669d2-64f1-4ad0-b295-379a9e620665)
-![Screenshot_20230531-071237](https://github.com/yash-61016/CFSTracker/assets/73232849/54acbe44-8464-4a04-9763-122dffb1f0e1)
-![Screenshot_20230531-071311](https://github.com/yash-61016/CFSTracker/assets/73232849/738955b9-8645-4c40-a413-dd87d31c0e6d)
-![Screenshot_20230531-071348](https://github.com/yash-61016/CFSTracker/assets/73232849/92e82118-f241-4e0d-87ea-d275a3a6347e)
-![Screenshot_20230531-071401](https://github.com/yash-61016/CFSTracker/assets/73232849/e3aa8b87-c5ea-443b-ba53-2778ccccb3cc)
-![Screenshot_20230531-071409](https://github.com/yash-61016/CFSTracker/assets/73232849/ff4231d8-2596-41fa-8f07-24b2640df297)
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/824d45f3-aca0-4198-b1ed-cf8e9d7c9969" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/2444ec6e-ada3-4425-b664-e56662639679" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/b4b059cc-9f5c-45c6-b83a-275bbbfd9ed8" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/52442d68-19a3-4c74-a57a-1e7095f22f81" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/31b49e39-c46a-46c5-8e8c-0daa4fade938" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/92e82118-f241-4e0d-87ea-d275a3a6347e" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/8d524dfc-0379-4c5b-84be-5e0f53498459" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/1234b5f3-8235-4a41-8dac-426a28304d9d" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/a00669d2-64f1-4ad0-b295-379a9e620665" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/54acbe44-8464-4a04-9763-122dffb1f0e1" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/738955b9-8645-4c40-a413-dd87d31c0e6d" height="50%" width="20%">
+<img src="https://github.com/yash-61016/CFSTracker/assets/73232849/e3aa8b87-c5ea-443b-ba53-2778ccccb3cc" height="50%" width="20%">
+
 
 
