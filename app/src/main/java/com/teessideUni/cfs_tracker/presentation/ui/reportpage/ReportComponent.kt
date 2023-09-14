@@ -1,6 +1,5 @@
 package com.teessideUni.cfs_tracker.presentation.ui.reportpage
 
-import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.Context
@@ -33,7 +32,6 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Text
 import androidx.compose.material.darkColors
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
@@ -48,6 +46,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,7 +66,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -96,7 +94,6 @@ import java.util.Locale
 
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun ReportComponent(navController: NavController) {
 
@@ -108,7 +105,7 @@ fun ReportComponent(navController: NavController) {
     val selectState = remember { mutableStateOf(0) }
 
     val scope = rememberCoroutineScope()
-    var context = LocalContext.current
+    val context = LocalContext.current
 
     var heartRateDataList = remember { mutableStateListOf<HeartRateData>() }
     val averageHeartRateDataState =
@@ -124,7 +121,6 @@ fun ReportComponent(navController: NavController) {
 
     val heartRateLoadingState = remember { mutableStateOf(true) }
     val respiratoryRateLoadingState = remember { mutableStateOf(true) }
-
 
     if (heartRateDataList.isEmpty()) {
         viewModel.getHeartRateDataList().let { data ->
@@ -196,7 +192,7 @@ fun ReportComponent(navController: NavController) {
             topBar = {
                 TopAppBar(
                     title = {
-                        androidx.compose.material3.Text("Reports")
+                        Text("Reports")
                     }
                 )
             },
@@ -215,6 +211,7 @@ fun ReportComponent(navController: NavController) {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     item {
+
                         Card(
                             modifier = Modifier.padding(8.dp),
                             shape = MaterialTheme.shapes.small,
@@ -228,82 +225,33 @@ fun ReportComponent(navController: NavController) {
                                 horizontalAlignment = Alignment.CenterHorizontally
                             )
                             {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 10.dp, start = 10.dp, end = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = "Heart Rate",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.padding(start = 5.dp, end = 15.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Button(
-                                        onClick = {
-                                            selectState.value = 1
-                                            scope.launch {
-                                                stateRR.hide()
-                                                stateHR.show()
-                                            }
-                                        },
-                                        modifier = Modifier.padding(start = 10.dp, end = 10.dp, top=8.dp)
-                                            .height(40.dp),
-                                        shape = MaterialTheme.shapes.medium,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondary,
-                                            contentColor = MaterialTheme.colorScheme.onSecondary
-                                        )
-                                    ) {
-                                        Text(
-                                            text = "Download",
-                                            modifier = Modifier.padding(start = 4.dp),
-                                            color = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(5.dp))
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(start = 12.dp)
-                                ) {
-                                    val icon = if (isAverageHeartRateIncreased.value) {
-                                        Icons.Default.KeyboardArrowUp
-                                    } else {
-                                        if (!heartRateLoadingState.value) {
-                                            Icons.Default.KeyboardArrowDown
-                                        } else {
-                                            return@Row
+                                SetDefaultInfoRow(
+                                    Title = "Heart Rate",
+                                    onDrawerClick = {
+                                        selectState.value = 1
+                                        scope.launch {
+                                            stateRR.hide()
+                                            stateHR.show()
                                         }
                                     }
-                                    val valueColor = if (isAverageHeartRateIncreased.value) {
-                                        Color(0, 178, 0) // Dark green
-                                    } else {
-                                        Color.Red
-                                    }
-                                    Text(
-                                        text = averageHeartRateChangePercentage.value,
-                                        color = valueColor,
-                                        fontSize = 30.sp,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Icon(
-                                        icon,
-                                        contentDescription = null,
-                                        tint = valueColor,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                }
-                                MonthlyHeartRateComparisonGraph(
-                                    data = averageHeartRateDataState.value,
-                                    modifier = Modifier.fillMaxSize(),
-                                    isLoading = heartRateLoadingState.value
                                 )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                SetComparedPercentageValuesAndGraph(
+                                    Title = "Heart Rate",
+                                    isAverageHeartRateIncreased = isAverageHeartRateIncreased.value,
+                                    isAverageRespiratoryRateIncreased = false,
+                                    heartRateLoadingState = heartRateLoadingState.value,
+                                    respiratoryRateLoadingState = false,
+                                    averageHeartRateDataState =  averageHeartRateDataState.value,
+                                    averageRespiratoryRateDataState = emptyList(),
+                                    averageHeartRateChangePercentage = averageHeartRateChangePercentage.value,
+                                    averageRespiratoryRateChangePercentage = "",
+
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
+
                         Card(
                             modifier = Modifier.padding(8.dp),
                             shape = MaterialTheme.shapes.small,
@@ -315,82 +263,32 @@ fun ReportComponent(navController: NavController) {
                                     .height(350.dp),
                                 verticalArrangement = Arrangement.Center,
                                 horizontalAlignment = Alignment.CenterHorizontally
-                            )  {
-
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 10.dp, start = 10.dp, end = 10.dp),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    androidx.compose.material.Text(
-                                        text = "Respiratory Rate",
-                                        style = MaterialTheme.typography.titleLarge,
-                                        modifier = Modifier.width(200.dp).padding(start = 5.dp, end = 15.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Button(
-                                        onClick = {
-                                            selectState.value = 2
-                                            scope.launch {
-                                                stateRR.show()
-                                                stateHR.hide()
-                                            }
-                                        },
-                                        modifier = Modifier.padding(start = 10.dp, end = 10.dp, top=8.dp)
-                                            .height(40.dp),
-                                        shape = MaterialTheme.shapes.medium,
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = MaterialTheme.colorScheme.secondary,
-                                            contentColor = MaterialTheme.colorScheme.onSecondary
-                                        )
-                                    ) {
-                                        androidx.compose.material.Text(
-                                            text = "Download",
-                                            modifier = Modifier.padding(start = 4.dp),
-                                            color = MaterialTheme.colorScheme.onPrimary
-                                        )
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(5.dp))
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier.fillMaxWidth()
-                                        .padding(start = 12.dp)
-                                ) {
-                                    val icon = if (isAverageRespiratoryRateIncreased.value) {
-                                        Icons.Default.KeyboardArrowUp
-                                    } else {
-                                        if (!respiratoryRateLoadingState.value) {
-                                            Icons.Default.KeyboardArrowDown
-                                        } else {
-                                            return@Row
+                            )
+                            {
+                                SetDefaultInfoRow(
+                                    Title = "Respiratory Rate",
+                                    onDrawerClick = {
+                                        selectState.value = 2
+                                        scope.launch {
+                                            stateRR.show()
+                                            stateHR.hide()
                                         }
                                     }
-                                    val valueColor = if (isAverageRespiratoryRateIncreased.value) {
-                                        Color(0, 178, 0) // Dark green
-                                    } else {
-                                        Color.Red
-                                    }
-                                    androidx.compose.material.Text(
-                                        text = averageRespiratoryRateChangePercentage.value,
-                                        color = valueColor,
-                                        fontSize = 30.sp,
-                                        fontWeight = FontWeight.Bold,
-                                    )
-                                    Icon(
-                                        icon,
-                                        contentDescription = null,
-                                        tint = valueColor,
-                                        modifier = Modifier.size(28.dp)
-                                    )
-                                }
-                                MonthlyRespiratoryRateComparisonGraph(
-                                    data = averageRespiratoryRateDataState.value,
-                                    modifier = Modifier.fillMaxSize(),
-                                    isLoading = respiratoryRateLoadingState.value
                                 )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                SetComparedPercentageValuesAndGraph(
+                                    Title = "Respiratory Rate",
+                                    isAverageHeartRateIncreased = false,
+                                    isAverageRespiratoryRateIncreased = isAverageRespiratoryRateIncreased.value,
+                                    heartRateLoadingState = false,
+                                    respiratoryRateLoadingState = respiratoryRateLoadingState.value,
+                                    averageHeartRateDataState =  emptyList(),
+                                    averageRespiratoryRateDataState = averageRespiratoryRateDataState.value,
+                                    averageHeartRateChangePercentage = "",
+                                    averageRespiratoryRateChangePercentage = averageRespiratoryRateChangePercentage.value,
+
+                                    )
+                                Spacer(modifier = Modifier.height(8.dp))
                             }
                         }
                     }
@@ -401,8 +299,138 @@ fun ReportComponent(navController: NavController) {
 }
 
 
+@Composable
+fun SetDefaultInfoRow(
+    Title: String,
+    onDrawerClick: () -> Unit,
+){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp, start = 10.dp, end = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            text = Title,
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(start = 5.dp, end = 15.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Button(
+            onClick = onDrawerClick,
+            modifier = Modifier.padding(start = 10.dp, end = 10.dp, top=8.dp)
+                .height(40.dp),
+            shape = MaterialTheme.shapes.medium,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.secondary,
+                contentColor = MaterialTheme.colorScheme.onSecondary
+            )
+        ) {
+            Text(
+                text = "Download",
+                modifier = Modifier.padding(start = 4.dp),
+                color = MaterialTheme.colorScheme.onPrimary
+            )
+        }
+    }
+}
+
+@Composable
+fun SetComparedPercentageValuesAndGraph(
+    Title: String,
+    isAverageHeartRateIncreased: Boolean,
+    isAverageRespiratoryRateIncreased: Boolean,
+    heartRateLoadingState: Boolean,
+    respiratoryRateLoadingState: Boolean,
+    averageHeartRateDataState: List<AverageHeartRateData>?,
+    averageRespiratoryRateDataState:  List<AverageRespiratoryRateData>?,
+    averageHeartRateChangePercentage: String,
+    averageRespiratoryRateChangePercentage: String
+)
+{
+   if(Title == "Heart Rate") {
+       Row(
+           verticalAlignment = Alignment.CenterVertically,
+           modifier = Modifier.fillMaxWidth()
+               .padding(start = 12.dp)
+       ) {
+           val icon = if (isAverageHeartRateIncreased) {
+               Icons.Default.KeyboardArrowUp
+           } else {
+               if (!heartRateLoadingState) {
+                   Icons.Default.KeyboardArrowDown
+               } else {
+                   return@Row
+               }
+           }
+           val valueColor = if (isAverageHeartRateIncreased){
+               Color(0, 178, 0) // Dark green
+           } else {
+               Color.Red
+           }
+           Text(
+               text = averageHeartRateChangePercentage,
+               color = valueColor,
+               fontSize = 30.sp,
+               fontWeight = FontWeight.Bold,
+           )
+           Icon(
+               icon,
+               contentDescription = null,
+               tint = valueColor,
+               modifier = Modifier.size(28.dp)
+           )
+       }
+       MonthlyHeartRateComparisonGraph(
+           data = averageHeartRateDataState!!,
+           modifier = Modifier.fillMaxSize(),
+           isLoading = heartRateLoadingState
+       )
+   } else {
+       Row(
+           verticalAlignment = Alignment.CenterVertically,
+           modifier = Modifier.fillMaxWidth()
+               .padding(start = 12.dp)
+       ) {
+           val icon = if (isAverageRespiratoryRateIncreased) {
+               Icons.Default.KeyboardArrowUp
+           } else {
+               if (!respiratoryRateLoadingState) {
+                   Icons.Default.KeyboardArrowDown
+               } else {
+                   return@Row
+               }
+           }
+           val valueColor =
+               if (isAverageRespiratoryRateIncreased) {
+                   Color(0, 178, 0) // Dark green
+               } else {
+                   Color.Red
+               }
+           Text(
+               text = averageRespiratoryRateChangePercentage,
+               color = valueColor,
+               fontSize = 30.sp,
+               fontWeight = FontWeight.Bold,
+           )
+           Icon(
+               icon,
+               contentDescription = null,
+               tint = valueColor,
+               modifier = Modifier.size(28.dp)
+           )
+       }
+       MonthlyRespiratoryRateComparisonGraph(
+           data = averageRespiratoryRateDataState!!,
+           modifier = Modifier.fillMaxSize(),
+           isLoading = respiratoryRateLoadingState
+       )
+   }
+}
 
 
+// Heart Rate Rate Report Functions
 @Composable
 fun HeartRateReportContent(
     viewModel: HeartRateReportViewModel,
@@ -506,114 +534,6 @@ fun HeartRateReportContent(
         }
     }
 }
-
-@Composable
-fun RespiratoryRateReportContent(
-    respiratoryRateViewModel: RespiratoryRateReportViewModel,
-    respiratoryRateDataList: List<RespiratoryRateDataValues>,
-    onRespiratoryRateListUpdated: (List<RespiratoryRateDataValues>) -> Unit,
-    context: Context
-) {
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(androidx.compose.material.MaterialTheme.colors.background),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            androidx.compose.material.Text(
-                text = "Respiratory Rate Report Download",
-                color = Color.Black,
-                textAlign = TextAlign.Start,
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(top = 10.dp, start = 4.dp, end = 4.dp),
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 18.sp
-            )
-            Button(
-                onClick = {
-                    writeRespiratoryRateDataToCsv(
-                        respiratoryRateDataList = respiratoryRateDataList,
-                        context = context
-                    )
-                },
-                modifier = Modifier
-                    .padding(top = 10.dp, start = 16.dp)
-                    .height(30.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.download_csv),
-                        contentDescription = "Download",
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                    )
-                }
-            }
-        }
-
-        androidx.compose.material.Text(
-            text = "Download your weekly heart rate report.",
-            color = androidx.compose.material.MaterialTheme.colors.onBackground,
-            textAlign = TextAlign.Start,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 10.dp, start = 24.dp, end = 10.dp),
-            fontWeight = FontWeight.Medium,
-            fontFamily = FontFamily(Font(R.font.reemkufi)),
-            fontSize = 14.sp
-        )
-
-        Spacer(modifier = Modifier.height(5.dp))
-
-        Column(Modifier.padding(14.dp)) {
-            androidx.compose.material.Text(
-                text = "Select the date",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 10.dp, start = 4.dp, end = 4.dp),
-                fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily(Font(R.font.poppins)),
-                fontSize = 20.sp
-            )
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 5.dp, start = 4.dp, end = 4.dp)
-            ) {
-                Icon(
-                    Icons.Filled.Info, contentDescription = "Info Icon", modifier = Modifier
-                        .size(20.dp)
-                        .padding(top = 2.dp)
-                )
-                androidx.compose.material.Text(
-                    text = "Please note that upon selecting a date, the system will display all the relevant data for the entire week in which the selected date falls",
-                    modifier = Modifier.padding(start = 4.dp),
-                    fontWeight = FontWeight.SemiBold,
-                    fontFamily = FontFamily(Font(R.font.reemkufi)),
-                    fontSize = 12.sp
-                )
-            }
-            Spacer(Modifier.height(16.dp))
-
-            RespiratoryRateStyledDatePicker(
-                respiratoryRateViewModel = respiratoryRateViewModel,
-                respiratoryRateDataList = respiratoryRateDataList,
-                onListUpdated = onRespiratoryRateListUpdated
-            )
-        }
-    }
-}
-
 
 @Composable
 fun HeartRateStyledDatePicker(
@@ -738,6 +658,207 @@ fun HeartRateStyledDatePicker(
     }
 }
 
+private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, context: Context) {
+    val calendar = Calendar.getInstance()
+    val currentYear = calendar.get(Calendar.YEAR)
+    val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
+    val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+    val fileName = "heart_rate_data_${currentYear}_Week${currentWeekNumber}_$currentTime.csv"
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+        val resolver = context.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
+        if (uri != null) {
+            resolver.openOutputStream(uri).use { outputStream ->
+                val csvWriter = CSVWriter(OutputStreamWriter(outputStream))
+                csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
+                heartRateDataList.forEach { data ->
+                    csvWriter.writeNext(
+                        arrayOf(
+                            data.timestamp.toString(),
+                            data.heartRate.toString()
+                        )
+                    )
+                }
+                csvWriter.close()
+            }
+            Toast.makeText(
+                context,
+                "Downloaded Complete. Check your device downloads folder",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    } else {
+        val csvFile = File(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            fileName
+        )
+        val csvWriter = CSVWriter(FileWriter(csvFile))
+        csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
+        heartRateDataList.forEach { data ->
+            csvWriter.writeNext(arrayOf(data.timestamp.toString(), data.heartRate.toString()))
+        }
+        csvWriter.close()
+        Toast.makeText(
+            context,
+            "Downloaded Complete. Check your device downloads folder",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+}
+
+@Composable
+fun HeartRateDataCard(heartRateData: HeartRateData) {
+
+    val formattedHeartRate = String.format("%.1f", heartRateData.heartRate)
+    val dateTimeString = SimpleDateFormat("EEE MMM dd, yyyy HH:mm", Locale.getDefault())
+        .format(heartRateData.timestamp)
+
+    Card(
+        modifier = Modifier
+            .padding(start = 2.dp, end = 2.dp)
+            .fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+    ) {
+        Row(
+            modifier = Modifier.padding(24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.heart),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(34.dp)
+                    .padding(end = 8.dp),
+            )
+            Column {
+                Text(
+                    text = "Heart Rate: $formattedHeartRate bpm",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                Text(
+                    text = "Timestamp: $dateTimeString",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                )
+            }
+        }
+    }
+}
+
+
+// Respiratory Rate Report Functions
+@Composable
+fun RespiratoryRateReportContent(
+    respiratoryRateViewModel: RespiratoryRateReportViewModel,
+    respiratoryRateDataList: List<RespiratoryRateDataValues>,
+    onRespiratoryRateListUpdated: (List<RespiratoryRateDataValues>) -> Unit,
+    context: Context
+) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(androidx.compose.material.MaterialTheme.colors.background),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                text = "Respiratory Rate Report Download",
+                color = Color.Black,
+                textAlign = TextAlign.Start,
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(top = 10.dp, start = 4.dp, end = 4.dp),
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                fontSize = 18.sp
+            )
+            Button(
+                onClick = {
+                    writeRespiratoryRateDataToCsv(
+                        respiratoryRateDataList = respiratoryRateDataList,
+                        context = context
+                    )
+                },
+                modifier = Modifier
+                    .padding(top = 10.dp, start = 16.dp)
+                    .height(30.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.download_csv),
+                        contentDescription = "Download",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
+                }
+            }
+        }
+
+        Text(
+            text = "Download your weekly respiratory rate report.",
+            color = androidx.compose.material.MaterialTheme.colors.onBackground,
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp, start = 24.dp, end = 10.dp),
+            fontWeight = FontWeight.Medium,
+            fontFamily = FontFamily(Font(R.font.reemkufi)),
+            fontSize = 14.sp
+        )
+
+        Spacer(modifier = Modifier.height(5.dp))
+
+        Column(Modifier.padding(14.dp)) {
+           Text(
+                text = "Select the date",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 10.dp, start = 4.dp, end = 4.dp),
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.poppins)),
+                fontSize = 20.sp
+            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 5.dp, start = 4.dp, end = 4.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Info, contentDescription = "Info Icon", modifier = Modifier
+                        .size(20.dp)
+                        .padding(top = 2.dp)
+                )
+                Text(
+                    text = "Please note that upon selecting a date, the system will display all the relevant data for the entire week in which the selected date falls",
+                    modifier = Modifier.padding(start = 4.dp),
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = FontFamily(Font(R.font.reemkufi)),
+                    fontSize = 12.sp
+                )
+            }
+            Spacer(Modifier.height(16.dp))
+
+            RespiratoryRateStyledDatePicker(
+                respiratoryRateViewModel = respiratoryRateViewModel,
+                respiratoryRateDataList = respiratoryRateDataList,
+                onListUpdated = onRespiratoryRateListUpdated
+            )
+        }
+    }
+}
 @Composable
 fun RespiratoryRateStyledDatePicker(
     respiratoryRateViewModel: RespiratoryRateReportViewModel,
@@ -791,7 +912,7 @@ fun RespiratoryRateStyledDatePicker(
                 .padding(horizontal = 20.dp, vertical = 10.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                androidx.compose.material.Text(
+                Text(
                     text.text,
                     fontSize = 16.sp,
                     fontFamily = FontFamily(Font(R.font.poppins)),
@@ -861,61 +982,6 @@ fun RespiratoryRateStyledDatePicker(
     }
 }
 
-
-private fun writeHeartRateDataToCsv(heartRateDataList: List<HeartRateData>, context: Context) {
-    val calendar = Calendar.getInstance()
-    val currentYear = calendar.get(Calendar.YEAR)
-    val currentWeekNumber = calendar.get(Calendar.WEEK_OF_YEAR)
-    val currentTime = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
-
-    val fileName = "heart_rate_data_${currentYear}_Week${currentWeekNumber}_$currentTime.csv"
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, fileName)
-            put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-        }
-        val resolver = context.contentResolver
-        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
-        if (uri != null) {
-            resolver.openOutputStream(uri).use { outputStream ->
-                val csvWriter = CSVWriter(OutputStreamWriter(outputStream))
-                csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
-                heartRateDataList.forEach { data ->
-                    csvWriter.writeNext(
-                        arrayOf(
-                            data.timestamp.toString(),
-                            data.heartRate.toString()
-                        )
-                    )
-                }
-                csvWriter.close()
-            }
-            Toast.makeText(
-                context,
-                "Downloaded Complete. Check your device downloads folder",
-                Toast.LENGTH_LONG
-            ).show()
-        }
-    } else {
-        val csvFile = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-            fileName
-        )
-        val csvWriter = CSVWriter(FileWriter(csvFile))
-        csvWriter.writeNext(arrayOf("Timestamp", "Heart rate"))
-        heartRateDataList.forEach { data ->
-            csvWriter.writeNext(arrayOf(data.timestamp.toString(), data.heartRate.toString()))
-        }
-        csvWriter.close()
-        Toast.makeText(
-            context,
-            "Downloaded Complete. Check your device downloads folder",
-            Toast.LENGTH_LONG
-        ).show()
-    }
-}
-
 private fun writeRespiratoryRateDataToCsv(respiratoryRateDataList: List<RespiratoryRateDataValues>, context: Context) {
     val calendar = Calendar.getInstance()
     val currentYear = calendar.get(Calendar.YEAR)
@@ -971,45 +1037,6 @@ private fun writeRespiratoryRateDataToCsv(respiratoryRateDataList: List<Respirat
 }
 
 @Composable
-fun HeartRateDataCard(heartRateData: HeartRateData) {
-
-    val formattedHeartRate = String.format("%.1f", heartRateData.heartRate)
-    val dateTimeString = SimpleDateFormat("EEE MMM dd, yyyy HH:mm", Locale.getDefault())
-        .format(heartRateData.timestamp)
-
-   Card(
-        modifier = Modifier
-            .padding(start = 2.dp, end = 2.dp)
-            .fillMaxWidth(),
-        shape = MaterialTheme.shapes.large,
-    ) {
-        Row(
-            modifier = Modifier.padding(24.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.heart),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(34.dp)
-                    .padding(end = 8.dp),
-            )
-            Column {
-                Text(
-                    text = "Heart Rate: $formattedHeartRate bpm",
-                    style = MaterialTheme.typography.bodyMedium,
-                )
-                Text(
-                    text = "Timestamp: $dateTimeString",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Normal,
-                )
-            }
-        }
-    }
-}
-
-@Composable
 fun RespiratoryRateDataCard(respiratoryRateData: RespiratoryRateDataValues) {
 
     val formattedRespiratoryRate = String.format("%.1f", respiratoryRateData.rateValue)
@@ -1049,6 +1076,7 @@ fun RespiratoryRateDataCard(respiratoryRateData: RespiratoryRateDataValues) {
 }
 
 
+// UTIL Functions
 @Composable
 fun DatePickerWrapper(
     onDismissRequest: () -> Unit,
@@ -1078,12 +1106,5 @@ fun DatePickerWrapper(
     }
 }
 
-@SuppressLint("InternalInsetResource")
-@Composable
-fun getStatusBarSize(): Dp {
-    val resourceId =
-        LocalContext.current.resources.getIdentifier("status_bar_height", "dimen", "android")
-    return if (resourceId > 0) LocalContext.current.resources.getDimensionPixelSize(resourceId).dp else 0.dp
-}
 
 

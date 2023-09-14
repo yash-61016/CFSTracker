@@ -27,7 +27,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun RespiratoryRateDataGraph(
-    data: List<List<RespiratoryRatePoint>>,
+    data: List<List<RespiratoryRatePoint>?>?,
     modifier: Modifier = Modifier,
     isLoading: Boolean = false,
 ) {
@@ -64,7 +64,7 @@ fun RespiratoryRateDataGraph(
                 modifier = Modifier.fillMaxSize()
             ) {
                 // Data points and lines
-                if (data.isEmpty() || data.all { it.isEmpty() }) {
+                if (data!!.isEmpty() || data!!.all { it!!.isEmpty() }) {
                     val text = "No data found."
                     drawContext.canvas.nativeCanvas.drawText(
                         text,
@@ -113,7 +113,7 @@ fun RespiratoryRateDataGraph(
                 // Draw x-axis labels
                 val xPosOffset = spacePerDay / 2
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList!!.isNotEmpty()) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
                         drawContext.canvas.nativeCanvas.drawText(
@@ -140,7 +140,7 @@ fun RespiratoryRateDataGraph(
 
                 // Draw data lines
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList!!.isNotEmpty()) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
 
@@ -224,7 +224,7 @@ fun RespiratoryRateDataGraph(
                 val lineStrokeWidth = 2.dp.toPx()
                 val linePath = Path()
                 data.forEachIndexed { index, dayDataList ->
-                    if (dayDataList.isNotEmpty()) {
+                    if (dayDataList!!.isNotEmpty()) {
                         val dayData = dayDataList.first()
                         val xPos = spacing + index * spacePerDay
                         val yPos =
