@@ -1,7 +1,8 @@
 # CFS Monitor - IoT App for Chronic Fatigue Syndrome Monitoring (Archive Repo)
 CFS Monitor is an innovative IoT app built using a clean architecture approach and optimized with the latest technologies. 
 This optimized and well-documented codebase serves as an archive reference for the implementation.
-Read more about the project in this [report](https://drive.google.com/file/d/1qaSiJOnCJhrxOXi6WABgE7udTu6eIDo-/view?usp=sharing)
+> [!NOTE]
+> Read more about the project in this [report](https://drive.google.com/file/d/1qaSiJOnCJhrxOXi6WABgE7udTu6eIDo-/view?usp=sharing)
 
 ## Clean Architecture
 The app follows clean architecture principles with separate layers for domain logic, use cases, repositories, controllers, and UI.
