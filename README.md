@@ -1,4 +1,4 @@
-![Screenshot_20230531-071409](https://github.com/yash-61016/CFSTracker/assets/73232849/ff4231d8-2596-41fa-8f07-24b2640df297)# CFS Monitor - IoT App for Chronic Fatigue Syndrome Monitoring (Archive Repo)
+# CFS Monitor - IoT App for Chronic Fatigue Syndrome Monitoring (Archive Repo)
 CFS Monitor is an innovative IoT app built using a clean architecture approach and optimized with the latest technologies. 
 This optimized and well-documented codebase serves as an archive reference for the implementation.
 Read more about the project in this [report](https://drive.google.com/file/d/1qaSiJOnCJhrxOXi6WABgE7udTu6eIDo-/view?usp=sharing)
@@ -47,6 +47,6 @@ Overall, this well-architected and optimized implementation serves as a robust I
 ![Screenshot_20230531-071311](https://github.com/yash-61016/CFSTracker/assets/73232849/738955b9-8645-4c40-a413-dd87d31c0e6d)
 ![Screenshot_20230531-071348](https://github.com/yash-61016/CFSTracker/assets/73232849/92e82118-f241-4e0d-87ea-d275a3a6347e)
 ![Screenshot_20230531-071401](https://github.com/yash-61016/CFSTracker/assets/73232849/e3aa8b87-c5ea-443b-ba53-2778ccccb3cc)
-
+![Screenshot_20230531-071409](https://github.com/yash-61016/CFSTracker/assets/73232849/ff4231d8-2596-41fa-8f07-24b2640df297)
 
 
